@@ -414,6 +414,12 @@ const unsigned char **cluster_defs_classic[NUM_CLUSTERS] =
         def_L_rev,
 };
 
+
+unsigned char bag[NUM_CLUSTERS] = {0,1,2,3,4,5,6};
+unsigned char bag_index = 0;
+void randomize_bag ( unsigned char arr[], unsigned char n ); 
+void swap (unsigned char *a, unsigned char *b);
+
 unsigned char cur_rot;
 
 //SRS offset +3 and is morton encoded. As SRS Offset rotations are -3 minimum, and encoding is unsigned

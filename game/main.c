@@ -2289,11 +2289,18 @@ void spawn_new_cluster()
 
 	// By checking twice we go from 1 in 7 chance of a dupe to
 	// 1 in 49 chance.
-	id = rand() % NUM_CLUSTERS;
-	if (id == cur_cluster.id)
-	{
-		id = rand() % NUM_CLUSTERS;
+	
+	//id = rand() % NUM_CLUSTERS;
+	//if (id == cur_cluster.id)
+	//{
+	//	id = rand() % NUM_CLUSTERS;
+	//}
+	if(bag_index == 0){
+		randomize_bag(bag, NUM_CLUSTERS);
 	}
+	id = bag[bag_index];
+	bag_index =  (bag_index + 1 == NUM_CLUSTERS ? 0 : bag_index + 1);
+
 	next_cluster.id = id;
 	memcpy(next_cluster.def, cluster_defs_classic[id], (4 * 4));
 	memcpy(next_cluster.layout, next_cluster.def[0], 4);
@@ -2334,6 +2341,33 @@ void spawn_new_cluster()
 		go_to_state(STATE_OVER);
 	}
 }
+
+void randomize_bag (unsigned char arr[], unsigned char n )
+{ 
+    // Use a different seed value so that we don't get same 
+    // result each time we run this program 
+    //srand ( time(NULL) ); 
+  
+    // Start from the last element and swap one by one. We don't 
+    // need to run for the first element that's why i > 0 
+	unsigned char i;
+    for (i = n-1; i > 0; i--) 
+    { 
+        // Pick a random index from 0 to i 
+        unsigned char j = rand() % (i+1); 
+  
+        // Swap arr[i] with the element at random index 
+        swap(&arr[i], &arr[j]); 
+    } 
+} 
+
+void swap (unsigned char *a, unsigned char *b) 
+{ 
+    unsigned char temp = *a; 
+    *a = *b; 
+    *b = temp; 
+} 
+
 /*
 (pad_all_new & PAD_A) //Clockwise //rotate_cur_cluster(1);
 (pad_all_new & PAD_B) //Counter-Clockwise //rotate_cur_cluster(-1);
