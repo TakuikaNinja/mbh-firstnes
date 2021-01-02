@@ -1816,7 +1816,7 @@ void draw_gameplay_sprites(void)
 
 void movement(void)
 {
-	static unsigned char hard_drop_performed;
+	static unsigned char hard_drop_performed, old_is_last_rotate;
 
 	hit = 0;
 	temp_fall_frame_counter = 0;
@@ -1902,6 +1902,8 @@ void movement(void)
 		// {
 		old_x = cur_block.x;
 		cur_block.x += 1;
+		old_is_last_rotate = is_last_rotate;
+		is_last_rotate = 0;
 		// }
 		// else
 		// {
@@ -1926,6 +1928,8 @@ void movement(void)
 						  // {
 						  // 	cur_block.x = 0;
 						  // }
+		old_is_last_rotate = is_last_rotate;
+		is_last_rotate = 0;
 	}
 
 	// Only check for collision if we actually moved horz.
@@ -1934,7 +1938,7 @@ void movement(void)
 	if (cur_block.x != old_x && is_cluster_colliding())
 	{
 		cur_block.x = old_x;
-
+		is_last_rotate = old_is_last_rotate;
 		// This pains me, but I am NOT implementing this fix for the NES version to avoid
 		// complicating high scores ("which version did you get the score on!?").
 #if VS_SYS_ENABLED
@@ -1980,7 +1984,8 @@ void movement(void)
 				{
 					++cur_block.y;
 				}
-
+				old_is_last_rotate = is_last_rotate;
+				is_last_rotate = 0;
 				// No delay lock on hard drops.
 				delay_lock_skip = 1;
 
@@ -2037,6 +2042,8 @@ void movement(void)
 			start_delay_remaining = 0;
 
 			cur_block.y += 1;
+			old_is_last_rotate = is_last_rotate;
+			is_last_rotate = 0;
 			fall_frame_counter = fall_rate;
 		}
 	}
@@ -2073,6 +2080,7 @@ void movement(void)
 		if (delay_lock_remaining == 0 || delay_lock_skip)
 		{
 			hit = 1;
+			is_last_rotate = old_is_last_rotate;
 			delay_lock_remaining = -1;
 		}
 	}
@@ -2083,6 +2091,7 @@ void movement(void)
 
 	if (hit)
 	{
+		is_tspin = check_tspin();
 		put_cur_cluster();
 		// Spawn a new block.
 		//spawn_new_cluster();
@@ -2215,16 +2224,21 @@ void put_cur_cluster()
 	//PROFILE_POKE(0x3f); //green
 }
 
-unsigned char is_block_free(unsigned char x, unsigned char y)
+unsigned char is_block_full(unsigned char x, unsigned char y)
 {
+
 	if (y > BOARD_END_Y_PX_BOARD || x > BOARD_END_X_PX_BOARD)
 	{
 		// consider this blocked.
-		return 0;
+		return 1;
 	}
 
 	//return get_block(x, y) == 0;
-	return game_board[TILE_TO_BOARD_INDEX(x, y)] == 0;
+	if (game_board[TILE_TO_BOARD_INDEX(x, y)]) // != 5 && game_board[TILE_TO_BOARD_INDEX(x,y)] != 0)
+	{
+		return 1;
+	}
+	return 0;
 }
 
 unsigned char is_cluster_colliding()
@@ -2275,7 +2289,7 @@ void spawn_new_cluster()
 	fall_frame_counter = fall_rate;
 
 	cur_rot = 0;
-	//old_dir = 0;
+	is_last_rotate = 0;
 
 	// Copy the next cluster to the current one.
 	memcpy(cur_cluster.def, next_cluster.def, 4 * 4);
@@ -2289,17 +2303,18 @@ void spawn_new_cluster()
 
 	// By checking twice we go from 1 in 7 chance of a dupe to
 	// 1 in 49 chance.
-	
+
 	//id = rand() % NUM_CLUSTERS;
 	//if (id == cur_cluster.id)
 	//{
 	//	id = rand() % NUM_CLUSTERS;
 	//}
-	if(bag_index == 0){
+	if (bag_index == 0)
+	{
 		randomize_bag(bag, NUM_CLUSTERS);
 	}
 	id = bag[bag_index];
-	bag_index =  (bag_index + 1 == NUM_CLUSTERS ? 0 : bag_index + 1);
+	bag_index = (bag_index + 1 == NUM_CLUSTERS ? 0 : bag_index + 1);
 
 	next_cluster.id = id;
 	memcpy(next_cluster.def, cluster_defs_classic[id], (4 * 4));
@@ -2342,31 +2357,31 @@ void spawn_new_cluster()
 	}
 }
 
-void randomize_bag (unsigned char arr[], unsigned char n )
-{ 
-    // Use a different seed value so that we don't get same 
-    // result each time we run this program 
-    //srand ( time(NULL) ); 
-  
-    // Start from the last element and swap one by one. We don't 
-    // need to run for the first element that's why i > 0 
-	unsigned char i;
-    for (i = n-1; i > 0; i--) 
-    { 
-        // Pick a random index from 0 to i 
-        unsigned char j = rand() % (i+1); 
-  
-        // Swap arr[i] with the element at random index 
-        swap(&arr[i], &arr[j]); 
-    } 
-} 
+void randomize_bag(unsigned char arr[], unsigned char n)
+{
+	// Use a different seed value so that we don't get same
+	// result each time we run this program
+	//srand ( time(NULL) );
 
-void swap (unsigned char *a, unsigned char *b) 
-{ 
-    unsigned char temp = *a; 
-    *a = *b; 
-    *b = temp; 
-} 
+	// Start from the last element and swap one by one. We don't
+	// need to run for the first element that's why i > 0
+	unsigned char i;
+	for (i = n - 1; i > 0; i--)
+	{
+		// Pick a random index from 0 to i
+		unsigned char j = rand() % (i + 1);
+
+		// Swap arr[i] with the element at random index
+		swap(&arr[i], &arr[j]);
+	}
+}
+
+void swap(unsigned char *a, unsigned char *b)
+{
+	unsigned char temp = *a;
+	*a = *b;
+	*b = temp;
+}
 
 /*
 (pad_all_new & PAD_A) //Clockwise //rotate_cur_cluster(1);
@@ -2374,10 +2389,10 @@ void swap (unsigned char *a, unsigned char *b)
 */
 void rotate_cur_cluster(char dir)
 {
-	static unsigned char old_rot, result;
+	static unsigned char old_rot, old_is_last_rotate, result;
 
 	old_rot = cur_rot;
-
+	old_is_last_rotate = is_last_rotate;
 	cur_rot = (cur_rot + dir) & 3; // % 4
 
 	memcpy(cur_cluster.layout, cur_cluster.def[cur_rot], 4);
@@ -2464,13 +2479,15 @@ void rotate_cur_cluster(char dir)
 	if (result == 0)
 	{
 		cur_rot = old_rot;
+		is_last_rotate = old_is_last_rotate;
 		memcpy(cur_cluster.layout, cur_cluster.def[cur_rot], 4);
 		SFX_PLAY_WRAPPER(SOUND_BLOCKED);
 	}
-	//else
-	//{
-	//SFX_PLAY_WRAPPER(SOUND_ROTATE);
-	//}
+	else
+	{
+		is_last_rotate = 1;
+		SFX_PLAY_WRAPPER(SOUND_ROTATE);
+	}
 }
 
 unsigned char rotate_srs(unsigned char case_id)
@@ -3170,6 +3187,7 @@ void clear_rows_in_data(unsigned char start_y)
 	static unsigned char line_complete;
 	static unsigned char i;
 	static unsigned char prev_level;
+
 	//PROFILE_POKE(0x9f); //blue
 	i = 0;
 	prev_level = cur_level;
@@ -3236,11 +3254,16 @@ void clear_rows_in_data(unsigned char start_y)
 	}
 
 	// If any lines we cleared, time to move to the next phase...
-	if (i > 0)
+	if (i == 0 & is_tspin != 0)
+	{
+		cur_score += (40 * is_tspin * (cur_level + 1));
+		display_score();
+	}
+	else if (i > 0)
 	{
 		if (prev_level != cur_level)
 		{
-			if (i == 4)
+			if (i == 4|| (i == 3 & is_tspin != 0))
 			{
 				screen_shake_remaining = 5;
 				SFX_PLAY_WRAPPER(SOUND_LEVELUP_MULTI);
@@ -3250,7 +3273,7 @@ void clear_rows_in_data(unsigned char start_y)
 				SFX_PLAY_WRAPPER(SOUND_LEVELUP);
 			}
 		}
-		else if (i == 4)
+		else if (i == 4 || (i == 3 & is_tspin != 0))
 		{
 			// play a shake on big drops. This will happen after the rows are cleared
 			// and the pieces fall.
@@ -3291,7 +3314,7 @@ void clear_rows_in_data(unsigned char start_y)
 			break;
 		}
 		}
-		cur_score += (line_score_mod * (cur_level + 1));
+		cur_score += (line_score_mod * (4*is_tspin + 1) * (cur_level + 1));
 		display_score();
 
 		// potential hit reaction.
@@ -3720,6 +3743,53 @@ void difficulty_to_leaderboard_pos(unsigned char dif)
 		in_y = 22;
 		break;
 	}
+}
+
+unsigned char check_tspin()
+{
+	static unsigned char x;
+	static unsigned char y;
+	static unsigned char offset_x;
+	static unsigned char offset_y;
+	static unsigned char j;
+	static unsigned char result;
+	result = 0;
+	if (cur_cluster.id == 4 & is_last_rotate == 1) //Is T cluster
+	{
+
+		j = cur_cluster.layout[2];
+
+		// convert that to x,y offsets.
+		local_ix = morton_compact_one_by_one(j >> 0); //index_to_x_lookup[j];
+		local_iy = morton_compact_one_by_one(j >> 1); //index_to_y_lookup[j];
+
+		x = cur_block.x + local_ix;
+		y = cur_block.y + local_iy;
+
+		offset_x = x + 1;
+		offset_y = y - 1;
+		result += is_block_full(offset_x, offset_y);
+		offset_x = x - 1;
+		offset_y = y + 1;
+		result += is_block_full(offset_x, offset_y);
+		offset_x = x + 1;
+		offset_y = y + 1;
+		result += is_block_full(offset_x, offset_y);
+		offset_x = x - 1;
+		offset_y = y - 1;
+		result += is_block_full(offset_x, offset_y);
+
+		if (result >= 3)
+		{
+			result = 1;
+		}
+		else
+		{
+			result = 0;
+		}
+	}
+
+	return result;
 }
 
 // DEBUG

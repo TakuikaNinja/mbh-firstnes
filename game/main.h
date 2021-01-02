@@ -395,9 +395,9 @@ const unsigned char def_Z[4][4] =
 const unsigned char def_T[4][4] =
     {
         {1, 2, 3, 6},
-        {1, 3, 6, 9},
-        {2, 3, 6, 9},
-        {1, 2, 3, 9},
+        {6, 1, 3, 9},
+        {9, 6, 3, 2},
+        {2, 9, 3, 1},
 
 };
 
@@ -847,6 +847,10 @@ void spawn_new_cluster();
 // Rotate the current cluster by 90degs.
 void rotate_cur_cluster(char dir);
 
+//Check if position counts as tspin
+unsigned char check_tspin();
+unsigned char is_tspin;
+unsigned char is_last_rotate;
 // Do the rotate
 unsigned char rotate_srs(unsigned char case_id);
 
