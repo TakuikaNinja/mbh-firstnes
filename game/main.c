@@ -2393,7 +2393,7 @@ void rotate_cur_cluster(char dir)
 	{
 		if (cur_cluster.id != 2) //Is not line cluster
 		{
-			if (((old_rot == 0) & (cur_rot == 1)) ||((old_rot == 2) & (cur_rot == 1)))
+			if (((old_rot == 0) & (cur_rot == 1)) || ((old_rot == 2) & (cur_rot == 1)))
 			{
 				result = rotate_srs(0);
 			}
@@ -3709,8 +3709,8 @@ unsigned char check_tspin()
 {
 	static unsigned char x;
 	static unsigned char y;
-	static unsigned char offset_x;
-	static unsigned char offset_y;
+	//static unsigned char offset_x;
+	//static unsigned char offset_y;
 	static unsigned char j;
 	static unsigned char result;
 	result = 0;
@@ -3720,24 +3720,16 @@ unsigned char check_tspin()
 		j = cur_cluster.layout[2];
 
 		// convert that to x,y offsets.
-		local_ix = morton_compact_one_by_one(j >> 0); //index_to_x_lookup[j];
-		local_iy = morton_compact_one_by_one(j >> 1); //index_to_y_lookup[j];
+		local_ix = morton_compact_one_by_one(j >> 0); 
+		local_iy = morton_compact_one_by_one(j >> 1); 
 
 		x = cur_block.x + local_ix;
 		y = cur_block.y + local_iy;
 
-		offset_x = x + 1;
-		offset_y = y - 1;
-		result += is_block_full(offset_x, offset_y);
-		offset_x = x - 1;
-		offset_y = y + 1;
-		result += is_block_full(offset_x, offset_y);
-		offset_x = x + 1;
-		offset_y = y + 1;
-		result += is_block_full(offset_x, offset_y);
-		offset_x = x - 1;
-		offset_y = y - 1;
-		result += is_block_full(offset_x, offset_y);
+		result += is_block_full(x + 1, y - 1);
+		result += is_block_full(x - 1, y + 1);
+		result += is_block_full(x + 1, y + 1);
+		result += is_block_full(x - 1, y - 1);
 
 		if (result >= 3)
 		{
