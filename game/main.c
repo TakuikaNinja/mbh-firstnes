@@ -17,6 +17,7 @@
 #include "BG/sound_screen.h"
 #include "BG/ty_screen.h"
 #include "../include/stdlib.h"
+//#include "../include/string.h"
 #include "main.h"
 
 /*
@@ -1407,7 +1408,7 @@ void main(void)
 					// Support looping back.
 					if (temp_table[cur_initial_index] > 'Z')
 					{
-						temp_table[cur_initial_index] = 'A';
+						temp_table[cur_initial_index] = last_initials[cur_initial_index];
 					}
 				}
 				else if (pad_all_new & PAD_LEFT)
@@ -1415,6 +1416,7 @@ void main(void)
 					ticks_in_state_large = 0;
 					--temp_table[cur_initial_index];
 
+<<<<<<< HEAD
 					if (temp_table[cur_initial_index] < 'A')
 					{
 						temp_table[cur_initial_index] = 'Z';
@@ -1443,6 +1445,105 @@ void main(void)
 						--cur_initial_index;
 					}
 				}
+=======
+					// output to in_x, in_y
+					difficulty_to_leaderboard_pos (cur_level_vs_setting);
+
+					in_id = (ticks_in_state_large % 128 < 64) ? 0 : 2;
+
+					oam_spr((in_x + 0) << 3, (in_y + high_score_entry_placement) << 3, temp_table[0],  (cur_initial_index == 0) ? in_id : 2);
+					if (cur_initial_index > 0)
+					{
+						oam_spr((in_x + 1) << 3, (in_y + high_score_entry_placement) << 3, temp_table[1], (cur_initial_index == 1) ? in_id : 2);
+					}
+					if (cur_initial_index > 1)
+					{
+						oam_spr((in_x + 2) << 3, (in_y + high_score_entry_placement) << 3, temp_table[2], in_id);
+					}
+
+					if (pad_all_new & PAD_RIGHT)
+					{
+						// Reset the timer on movement, like on a modern OS.
+						ticks_in_state_large = 0;
+
+						// Increment the character. Works because A-Z is in order.
+						++temp_table[cur_initial_index];
+
+						i = temp_table[cur_initial_index];
+
+						// NOTE: multiple ifs takes less space that if else if
+						if (i > 0x5a) // passed Z
+						{
+							temp_table[cur_initial_index] = 0x2e; // .
+						}
+						if (i == 0x2f) // passed .
+						{
+							temp_table[cur_initial_index] = '0';
+						}
+						if (i == 0x3a) // passed 9
+						{
+							temp_table[cur_initial_index] = 'A';
+						}
+					}
+					else if (pad_all_new & PAD_LEFT)
+					{
+						ticks_in_state_large = 0;
+						--temp_table[cur_initial_index];
+
+						i = temp_table[cur_initial_index];
+
+						if (i < 0x2e) // passed .
+						{
+							temp_table[cur_initial_index] = 'Z';
+						}
+						if (i == 0x2f) // passed 0
+						{
+							temp_table[cur_initial_index] = 0x2e;
+						}
+						if (i == 0x40) // passed A
+						{
+							temp_table[cur_initial_index] = '9';
+						}
+					}
+					else if ((pad_all_new & PAD_A) || (ticks_in_state_large > AUTO_FORWARD_DELAY))
+					{
+						ticks_in_state_large = 0;
+
+						// If the users changes away from the default, assume they don't want to continue
+						// using the previous initials.
+						if (temp_table[cur_initial_index] != last_initials[cur_initial_index])
+						{
+							// NOTE: last_initials doesn't get populated for this entry until the end of
+							//		 the name entry sequence.
+							memfill(last_initials, 'A', 3);
+						}
+
+						// Overflow caught below.
+						++cur_initial_index;
+					}
+					else if (pad_all_new & PAD_B)
+					{
+						if (cur_initial_index > 0)
+						{
+							//ticks_in_state_large = 0;
+							temp_table[cur_initial_index] = '-';
+							--cur_initial_index;
+						}
+					}
+
+					// If the user takes to long to enter their initials auto complete it.
+					// NOTE: The tick counter is reset every time they press a button, so it's really just
+					//		 here to handle cases where they walk away in the middle of entering initials.
+					if (cur_initial_index >= 3)
+					{
+						memcpy(last_initials, temp_table, 3);
+						SFX_PLAY_WRAPPER(SOUND_LEVELUP);
+						fade_to_black();
+						auto_forward_leaderboards = 1;
+						go_to_state(STATE_HIGH_SCORE_TABLE);
+						fade_from_black();
+					}
+>>>>>>> 2a5b5af3105c12b6767589574dd5b159535bce1e
 #if VS_SRAM_ENABLED
 				// Reliquish control.
 				POKE(0x4016, 0);
@@ -1581,22 +1682,8 @@ void draw_menu_sprites(void)
 	oam_spr(22 << 3, 23 << 3, local_ix, 0);
 
 	// TENTACLES
-	oam_spr(19 << 3, 14 << 3, 0x60, 1);
-	oam_spr(20 << 3, 14 << 3, 0x61, 1);
+	oam_meta_spr(19<<3, 14<<3, metasprite_tentacle_title);
 
-	oam_spr(19 << 3, 15 << 3, 0x70, 1);
-	oam_spr(20 << 3, 15 << 3, 0x71, 1);
-
-	oam_spr(19 << 3, 16 << 3, 0x80, 1);
-	oam_spr(20 << 3, 16 << 3, 0x81, 1);
-
-	oam_spr(19 << 3, 17 << 3, 0x90, 1);
-	oam_spr(20 << 3, 17 << 3, 0x91, 1);
-
-	// oam_spr(26 << 3, 26 << 3, 'C', 0);
-	// oam_spr(27 << 3, 26 << 3, 'R', 0);
-	// oam_spr(28 << 3, 26 << 3, 'E', 0);
-	// oam_spr(29 << 3, 26 << 3, 'D', 0);
 
 #if VS_SYS_ENABLED
 	//3<<3, 26<<3
@@ -2591,7 +2678,15 @@ void go_to_state(unsigned char new_state)
 #endif // #if VS_SRAM_ENABLED
 			for (i = 0; i < 3; ++i)
 			{
+<<<<<<< HEAD
 				if (high_scores_vs_value[attack_style][cur_level_vs_setting][i] == NO_SCORE || cur_score > high_scores_vs_value[attack_style][cur_level_vs_setting][i])
+=======
+#if VS_SRAM_ENABLED				
+				// take control of SRAM.
+				POKE(0x4016, 2);
+#endif // #if VS_SRAM_ENABLED
+				for (i = 0; i < 3; ++i)
+>>>>>>> 2a5b5af3105c12b6767589574dd5b159535bce1e
 				{
 					high_score_entry_placement = i;
 					for (j = 2; j != i; --j)
