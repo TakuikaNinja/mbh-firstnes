@@ -2288,14 +2288,18 @@ void spawn_new_cluster()
 	cur_block.x = 3; //(BOARD_END_Y_PX_BOARD >> 1);
 	cur_block.y = cluster_offsets[cur_cluster.id];
 
+	
+#if VS_SYS_ENABLED
+	// NES Randomizer - simpler
 	// By checking twice we go from 1 in 7 chance of a dupe to
 	// 1 in 49 chance.
-
-	//id = rand() % NUM_CLUSTERS;
-	//if (id == cur_cluster.id)
-	//{
-	//	id = rand() % NUM_CLUSTERS;
-	//}
+	id = rand() % NUM_CLUSTERS;
+	if (id == cur_cluster.id)
+	{
+		id = rand() % NUM_CLUSTERS;
+	}
+#else
+	//Use 7-bag for NES as it complies closer to Guidelines
 	if (bag_index == 0)
 	{
 		randomize_bag(bag, NUM_CLUSTERS);
@@ -2307,7 +2311,7 @@ void spawn_new_cluster()
 		id = bag[bag_index];
 	}
 	bag_index = (bag_index + 1 == NUM_CLUSTERS ? 0 : bag_index + 1);
-
+#endif
 	next_cluster.id = id;
 	memcpy(next_cluster.def, cluster_defs_classic[id], (4 * 4));
 	memcpy(next_cluster.layout, next_cluster.def[0], 4);
@@ -2348,7 +2352,7 @@ void spawn_new_cluster()
 		go_to_state(STATE_OVER);
 	}
 }
-
+#if !VS_SYS_ENABLED
 void randomize_bag(unsigned char arr[], unsigned char n)
 {
 	// Use a different seed value so that we don't get same
@@ -2374,7 +2378,7 @@ void swap(unsigned char *a, unsigned char *b)
 	*a = *b;
 	*b = temp;
 }
-
+#endif
 /*
 (pad_all_new & PAD_A) //Clockwise //rotate_cur_cluster(1);
 (pad_all_new & PAD_B) //Counter-Clockwise //rotate_cur_cluster(-1);
@@ -2453,14 +2457,12 @@ void rotate_cur_cluster(char dir)
 unsigned char rotate_srs(unsigned char case_id)
 {
 	static unsigned char test;
-	static signed char morton, new_x, new_y;
+	static signed char morton;//, new_x, new_y;
 	for (test = 0; test < 5; ++test)
 	{
 		morton = (cur_cluster.id == 2 ? srs_line_rotate_lookup[case_id][test] : srs_non_line_rotate_lookup[case_id][test]);
-		new_x = morton_compact_one_by_one(morton >> 0) - 3;
-		new_y = morton_compact_one_by_one(morton >> 1) - 3;
-		cur_block.x += new_x;
-		cur_block.y += new_y;
+		cur_block.x += (morton_compact_one_by_one(morton >> 0) - 3);
+		cur_block.y += (morton_compact_one_by_one(morton >> 1) - 3);
 		if (!is_cluster_colliding())
 		{
 			return 1;

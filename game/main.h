@@ -415,11 +415,12 @@ const unsigned char **cluster_defs_classic[NUM_CLUSTERS] =
         def_L_rev,
 };
 
-
+#if !VS_SYS_ENABLED
 unsigned char bag[NUM_CLUSTERS] = {0,1,2,3,4,5,6};
 unsigned char bag_index = 0;
 void randomize_bag ( unsigned char arr[], unsigned char n ); 
 void swap (unsigned char *a, unsigned char *b);
+#endif
 
 unsigned char cur_rot;
 
@@ -454,8 +455,6 @@ const unsigned char cluster_sprites[NUM_CLUSTERS] =
     {
         0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6};
 
-//def_Z, def_S, def_line, def_square, def_T, def_L, def_L_rev
-//0,     1      2         3           4      5      6
 const unsigned char cluster_offsets[NUM_CLUSTERS] =
     {
         4, 4, 3, 3, 4, 4, 4,
