@@ -443,6 +443,7 @@ const unsigned char srs_line_rotate_lookup[4][SRS_TESTS] =
 
 struct cluster cur_cluster; // = { def_z_clust }; // 165 1010 0101
 struct cluster next_cluster;
+//struct cluster hold_cluster;
 #define ATTACK_QUEUE_SIZE 3
 #define ATTACK_MAX 10
 
