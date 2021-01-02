@@ -2393,73 +2393,41 @@ void rotate_cur_cluster(char dir)
 	{
 		if (cur_cluster.id != 2) //Is not line cluster
 		{
-			if ((old_rot == 0) & (cur_rot == 1))
+			if (((old_rot == 0) & (cur_rot == 1)) ||((old_rot == 2) & (cur_rot == 1)))
 			{
 				result = rotate_srs(0);
 			}
-			else if ((old_rot == 1) & (cur_rot == 0))
+			else if (((old_rot == 1) & (cur_rot == 0)) || ((old_rot == 1) & (cur_rot == 2)))
 			{
 				result = rotate_srs(1);
 			}
-			else if ((old_rot == 1) & (cur_rot == 2))
-			{
-				result = rotate_srs(1);
-			}
-			else if ((old_rot == 2) & (cur_rot == 1))
-			{
-				result = rotate_srs(0);
-			}
-			else if ((old_rot == 2) & (cur_rot == 3))
+			else if (((old_rot == 2) & (cur_rot == 3)) || ((old_rot == 0) & (cur_rot == 3)))
 			{
 				result = rotate_srs(2);
 			}
-			else if ((old_rot == 3) & (cur_rot == 2))
+			else if (((old_rot == 3) & (cur_rot == 2)) || ((old_rot == 3) & (cur_rot == 0)))
 			{
 				result = rotate_srs(3);
-			}
-			else if ((old_rot == 3) & (cur_rot == 0))
-			{
-				result = rotate_srs(3);
-			}
-			else if ((old_rot == 0) & (cur_rot == 3))
-			{
-				result = rotate_srs(2);
-			}
+			}			
 		}
 		else
 		{
 
-			if ((old_rot == 0) & (cur_rot == 1))
+			if (((old_rot == 0) & (cur_rot == 1)) ||  ((old_rot == 3) & (cur_rot == 2)))
 			{
 				result = rotate_srs(0);
 			}
-			else if ((old_rot == 1) & (cur_rot == 0))
+			else if (((old_rot == 1) & (cur_rot == 0)) || ((old_rot == 2) & (cur_rot == 3)))
 			{
 				result = rotate_srs(1);
 			}
-			else if ((old_rot == 1) & (cur_rot == 2))
+			else if (((old_rot == 1) & (cur_rot == 2)) || ((old_rot == 0) & (cur_rot == 3)))
 			{
 				result = rotate_srs(2);
 			}
-			else if ((old_rot == 2) & (cur_rot == 1))
+			else if (((old_rot == 2) & (cur_rot == 1)) || ((old_rot == 3) & (cur_rot == 0)))
 			{
 				result = rotate_srs(3);
-			}
-			else if ((old_rot == 2) & (cur_rot == 3))
-			{
-				result = rotate_srs(1);
-			}
-			else if ((old_rot == 3) & (cur_rot == 2))
-			{
-				result = rotate_srs(0);
-			}
-			else if ((old_rot == 3) & (cur_rot == 0))
-			{
-				result = rotate_srs(3);
-			}
-			else if ((old_rot == 0) & (cur_rot == 3))
-			{
-				result = rotate_srs(2);
 			}
 		}
 	}
