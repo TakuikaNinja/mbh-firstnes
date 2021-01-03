@@ -2087,6 +2087,43 @@ void movement(void)
 	//PROFILE_POKE(0x1e); //none
 }
 
+unsigned char check_tspin()
+{
+	static unsigned char x;
+	static unsigned char y;
+	static unsigned char j;
+	static unsigned char result;
+	result = 0;
+	if (cur_cluster.id == 4 & is_last_rotate == 1) //Is T cluster
+	{
+
+		j = cur_cluster.layout[2];
+
+		// convert that to x,y offsets.
+		local_ix = morton_compact_one_by_one(j >> 0); 
+		local_iy = morton_compact_one_by_one(j >> 1); 
+
+		x = cur_block.x + local_ix;
+		y = cur_block.y + local_iy;
+
+		result += is_block_occupied(x + 1, y - 1);
+		result += is_block_occupied(x - 1, y + 1);
+		result += is_block_occupied(x + 1, y + 1);
+		result += is_block_occupied(x - 1, y - 1);
+
+		if (result >= 3)
+		{
+			result = 1;
+		}
+		else
+		{
+			result = 0;
+		}
+	}
+
+	return result;
+}
+
 void set_block(/*unsigned char x, unsigned char y, unsigned char id*/)
 {
 	// w = 10 tiles,  80 px
@@ -3699,43 +3736,6 @@ void difficulty_to_leaderboard_pos(unsigned char dif)
 		in_y = 22;
 		break;
 	}
-}
-
-unsigned char check_tspin()
-{
-	static unsigned char x;
-	static unsigned char y;
-	static unsigned char j;
-	static unsigned char result;
-	result = 0;
-	if (cur_cluster.id == 4 & is_last_rotate == 1) //Is T cluster
-	{
-
-		j = cur_cluster.layout[2];
-
-		// convert that to x,y offsets.
-		local_ix = morton_compact_one_by_one(j >> 0); 
-		local_iy = morton_compact_one_by_one(j >> 1); 
-
-		x = cur_block.x + local_ix;
-		y = cur_block.y + local_iy;
-
-		result += is_block_occupied(x + 1, y - 1);
-		result += is_block_occupied(x - 1, y + 1);
-		result += is_block_occupied(x + 1, y + 1);
-		result += is_block_occupied(x - 1, y - 1);
-
-		if (result >= 3)
-		{
-			result = 1;
-		}
-		else
-		{
-			result = 0;
-		}
-	}
-
-	return result;
 }
 
 // DEBUG

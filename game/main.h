@@ -848,7 +848,7 @@ void put_cur_cluster();
 unsigned char get_block(unsigned char x, unsigned char y);
 
 // x, y in map space.
-unsigned char is_block_free(unsigned char x, unsigned char y);
+unsigned char is_block_occupied(unsigned char x, unsigned char y);
 
 // Checks if the entire cluster is currently hitting any other blocks.
 unsigned char is_cluster_colliding();
@@ -862,12 +862,13 @@ void spawn_new_cluster();
 // Rotate the current cluster by 90degs.
 void rotate_cur_cluster(char dir);
 
+// Do the rotate
+unsigned char rotate_srs(unsigned char case_id);
+
 //Check if position counts as tspin
 unsigned char check_tspin();
 unsigned char is_tspin;
 unsigned char is_last_rotate;
-// Do the rotate
-unsigned char rotate_srs(unsigned char case_id);
 
 // Transition to a new state.
 void go_to_state(unsigned char new_state);
