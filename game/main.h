@@ -1,6 +1,7 @@
 /** (C) Matt Hughson 2020 */
 
 #define DEBUG_ENABLED 0
+#define INDEV_FEATURES_ENABLED 0
 
 #if DEBUG_ENABLED
 #define PROFILE_POKE(val) POKE((0x2001), (val));
@@ -447,7 +448,17 @@ const unsigned char srs_line_rotate_lookup[4][SRS_TESTS] =
 
 struct cluster cur_cluster; // = { def_z_clust }; // 165 1010 0101
 struct cluster next_cluster;
-//struct cluster hold_cluster;
+
+#if INDEV_FEATURES_ENABLED
+
+struct cluster held_cluster; 
+struct cluster staging_cluster; //Need staging cluster to temp store held cluster when swapping with current cluster
+//unsigned char has_hold_cluster; //Initially no clusters are held or put random cluster on start?
+unsigned char can_hold_cluster; //Cannot hold repeatly - only until next cluster is loaded
+void hold_cluster();
+
+#endif
+
 #define ATTACK_QUEUE_SIZE 3
 #define ATTACK_MAX 10
 
@@ -858,6 +869,9 @@ unsigned char morton_compact_one_by_one(unsigned char x);
 
 // Creates a new cluster at the top of the play area.
 void spawn_new_cluster();
+
+// Hold a cluster
+//void hold_cluster()
 
 // Rotate the current cluster by 90degs.
 void rotate_cur_cluster(char dir);

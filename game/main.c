@@ -2301,6 +2301,10 @@ unsigned char is_cluster_colliding()
 	return 0;
 }
 
+#if INDEV_FEATURES_ENABLED
+
+#endif
+
 void spawn_new_cluster()
 {
 	static unsigned char i;
@@ -2390,6 +2394,7 @@ void spawn_new_cluster()
 		go_to_state(STATE_OVER);
 	}
 }
+
 #if !VS_SYS_ENABLED
 void randomize_bag(unsigned char arr[], unsigned char n)
 {
@@ -3824,3 +3829,60 @@ void debug_display_number(unsigned char num, unsigned char index)
 	clear_vram_buffer();
 }
 #endif //DEBUG_ENABLED
+
+
+#if INDEV_FEATURES_ENABLED
+	
+void held_cluster()
+{
+	static unsigned char i;
+	static unsigned char j;
+
+	//If next is not empty //Instead put random piece in held box
+    //if(has_hold_cluster == 1)
+	{
+		// Save contents temporarily so to deploy as current cluster
+
+
+		// Copy the current cluster to the held one.
+		memcpy(held_cluster.def, cur_cluster.def, 4 * 4);
+		memcpy(held_cluster.layout, cur_cluster.def[0], 4);
+		held_cluster.sprite = cur_cluster.sprite;
+		held_cluster.id = cur_cluster.id;
+
+
+		// Deploy from temp as current cluster
+		
+		// Reset the block.
+		cur_block.x = 3; 
+		cur_block.y = cluster_offsets[cur_cluster.id];
+		cur_cluster.id = id;
+		memcpy(cur_cluster.def, cluster_defs_classic[id], (4 * 4));
+		memcpy(cur_cluster.layout, temp_held_cluster.def[0], 4);
+		cur_cluster.sprite = cluster_sprites[id];
+
+
+	}
+
+	//Draw Held Cluster
+	local_iy = 0;
+	local_ix = 0;
+	local_t = held_cluster.sprite;
+
+	// clear out the middle 2 rows of the "next piece" (all pieces spawn with only those 2 rows containing visuals).
+	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 120, 16));
+	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 120, 24));
+
+	for (i = 0; i < 4; ++i)
+	{
+		// store the index into the x,y offset for each solid piece in the first rotation.
+		j = held_cluster.layout[i];
+
+		// convert that to x,y offsets.
+		local_ix = morton_compact_one_by_one(j >> 0); //index_to_x_lookup[j];
+		local_iy = morton_compact_one_by_one(j >> 1); //index_to_y_lookup[j];
+
+		one_vram_buffer(local_t, get_ppu_addr(cur_nt, 280 + (local_ix << 3), (held_cluster.id != 3 ? 16 : 8) + (local_iy << 3))); //8 + (local_iy << 3)
+	}
+}
+#endif
