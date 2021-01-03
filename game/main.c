@@ -2121,6 +2121,7 @@ void set_block_nt(unsigned char x, unsigned char y, unsigned char id, unsigned c
 	game_board[TILE_TO_BOARD_INDEX(x, y)] = id;
 }
 
+/*
 void clear_block(unsigned char x, unsigned char y)
 {
 	in_x = x;
@@ -2128,7 +2129,7 @@ void clear_block(unsigned char x, unsigned char y)
 	in_id = 0;
 	set_block();
 }
-
+*/
 void put_cur_cluster()
 {
 	static unsigned char i;
@@ -2211,7 +2212,7 @@ void put_cur_cluster()
 	//PROFILE_POKE(0x3f); //green
 }
 
-unsigned char is_block_full(unsigned char x, unsigned char y)
+unsigned char is_block_occupied(unsigned char x, unsigned char y)
 {
 
 	if (y > BOARD_END_Y_PX_BOARD || x > BOARD_END_X_PX_BOARD)
@@ -2355,10 +2356,6 @@ void spawn_new_cluster()
 #if !VS_SYS_ENABLED
 void randomize_bag(unsigned char arr[], unsigned char n)
 {
-	// Use a different seed value so that we don't get same
-	// result each time we run this program
-	//srand ( time(NULL) );
-
 	// Start from the last element and swap one by one. We don't
 	// need to run for the first element that's why i > 0
 	unsigned char i;
@@ -2379,10 +2376,7 @@ void swap(unsigned char *a, unsigned char *b)
 	*b = temp;
 }
 #endif
-/*
-(pad_all_new & PAD_A) //Clockwise //rotate_cur_cluster(1);
-(pad_all_new & PAD_B) //Counter-Clockwise //rotate_cur_cluster(-1);
-*/
+
 void rotate_cur_cluster(char dir)
 {
 	static unsigned char old_rot, old_is_last_rotate, result;
@@ -3711,8 +3705,6 @@ unsigned char check_tspin()
 {
 	static unsigned char x;
 	static unsigned char y;
-	//static unsigned char offset_x;
-	//static unsigned char offset_y;
 	static unsigned char j;
 	static unsigned char result;
 	result = 0;
@@ -3728,10 +3720,10 @@ unsigned char check_tspin()
 		x = cur_block.x + local_ix;
 		y = cur_block.y + local_iy;
 
-		result += is_block_full(x + 1, y - 1);
-		result += is_block_full(x - 1, y + 1);
-		result += is_block_full(x + 1, y + 1);
-		result += is_block_full(x - 1, y - 1);
+		result += is_block_occupied(x + 1, y - 1);
+		result += is_block_occupied(x - 1, y + 1);
+		result += is_block_occupied(x + 1, y + 1);
+		result += is_block_occupied(x - 1, y - 1);
 
 		if (result >= 3)
 		{

@@ -1,6 +1,6 @@
 /** (C) Matt Hughson 2020 */
 
-#define DEBUG_ENABLED 1
+#define DEBUG_ENABLED 0
 
 #if DEBUG_ENABLED
 #define PROFILE_POKE(val) POKE((0x2001), (val));
@@ -416,10 +416,12 @@ const unsigned char **cluster_defs_classic[NUM_CLUSTERS] =
 };
 
 #if !VS_SYS_ENABLED
+
 unsigned char bag[NUM_CLUSTERS] = {0,1,2,3,4,5,6};
 unsigned char bag_index = 0;
 void randomize_bag ( unsigned char arr[], unsigned char n ); 
 void swap (unsigned char *a, unsigned char *b);
+
 #endif
 
 unsigned char cur_rot;
@@ -837,7 +839,7 @@ void movement(void);
 void set_block(/*unsigned char x, unsigned char y, unsigned char id*/);
 void set_block_nt(unsigned char x, unsigned char y, unsigned char id, unsigned char nt);
 // x, y in board space.
-void clear_block(unsigned char x, unsigned char y);
+//void clear_block(unsigned char x, unsigned char y);
 
 // Drops the current cluster at its current location.
 void put_cur_cluster();
