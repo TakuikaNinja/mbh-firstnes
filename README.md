@@ -26,4 +26,4 @@ With Visual Studio Code (https://code.visualstudio.com/):
 All of the source for the game is found in [here](game/). The 2 files you will be most interested in are [main.h](game/main.h) and [main.c](game/main.c) which contain all the logic for the game.
 
 # NOTES
-Due to changes of the code from the original source, the VS version *cannot* be compiled due to memory limitations as adding SRS and T-Spin scoring has exceeded the memory. For the time being only NES version can be compiled.
+Due to changes of the code from the original source, the VS version *cannot* be compiled due to memory limitations as adding SRS and T-Spin scoring has exceeded the memory. For the time being only the NES version can be compiled.

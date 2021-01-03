@@ -431,19 +431,16 @@ unsigned char cur_rot;
 //8 cases with 5 tests (1st test is not included since it accounts for no offset [No wall kick required], last test is to revert change)
 //So for each case iterate over 5
 #define SRS_TESTS 5
-const unsigned char srs_non_line_rotate_lookup[4][SRS_TESTS] =
+const unsigned char srs_rotate_lookup[8][SRS_TESTS] =
     {
-        {14, 13, 56, 14, 18}, //0
-        {26, 37, 4, 26, 38},  //1
-        {26, 13, 44, 26, 6},  //2
-        {14, 37, 16, 14, 50}  //3
-};
-const unsigned char srs_line_rotate_lookup[4][SRS_TESTS] =
-    {
-        {11, 30, 32, 20, 38}, //0
-        {27, 10, 28, 40, 18}, //1
-        {14, 30, 2, 60, 9},   //2
-        {26, 10, 54, 0, 49}   //3
+        {14, 13, 56, 14, 18}, //0 Non Line
+        {26, 37, 4, 26, 38},  //1 Non Line
+        {26, 13, 44, 26, 6},  //2 Non Line
+        {14, 37, 16, 14, 50}, //3 Non Line
+        {11, 30, 32, 20, 38}, //4 Line
+        {27, 10, 28, 40, 18}, //5 Line
+        {14, 30, 2, 60, 9},   //6 Line
+        {26, 10, 54, 0, 49}   //7 Line
 };
 
 struct cluster cur_cluster; // = { def_z_clust }; // 165 1010 0101

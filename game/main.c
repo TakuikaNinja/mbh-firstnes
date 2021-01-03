@@ -2452,22 +2452,21 @@ void rotate_cur_cluster(char dir)
 		}
 		else
 		{
-
 			if (((old_rot == 0) & (cur_rot == 1)) ||  ((old_rot == 3) & (cur_rot == 2)))
 			{
-				result = rotate_srs(0);
+				result = rotate_srs(4);
 			}
 			else if (((old_rot == 1) & (cur_rot == 0)) || ((old_rot == 2) & (cur_rot == 3)))
 			{
-				result = rotate_srs(1);
+				result = rotate_srs(5);
 			}
 			else if (((old_rot == 1) & (cur_rot == 2)) || ((old_rot == 0) & (cur_rot == 3)))
 			{
-				result = rotate_srs(2);
+				result = rotate_srs(6);
 			}
 			else if (((old_rot == 2) & (cur_rot == 1)) || ((old_rot == 3) & (cur_rot == 0)))
 			{
-				result = rotate_srs(3);
+				result = rotate_srs(7);
 			}
 		}
 	}
@@ -2496,7 +2495,7 @@ unsigned char rotate_srs(unsigned char case_id)
 	static signed char morton;//, new_x, new_y;
 	for (test = 0; test < 5; ++test)
 	{
-		morton = (cur_cluster.id == 2 ? srs_line_rotate_lookup[case_id][test] : srs_non_line_rotate_lookup[case_id][test]);
+		morton = srs_rotate_lookup[case_id][test];
 		cur_block.x += (morton_compact_one_by_one(morton >> 0) - 3);
 		cur_block.y += (morton_compact_one_by_one(morton >> 1) - 3);
 		if (!is_cluster_colliding())
