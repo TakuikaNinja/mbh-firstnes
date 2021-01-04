@@ -3608,8 +3608,10 @@ void reset_gameplay_area()
 	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 120, 24));
 
 	// clear the "hold" block for cases of restarting
-	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 220, 16));
-	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 220, 24));
+	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 228, 16));
+	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 228, 24));
+	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 228, 32));
+	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 228, 40));
 	
 	// Reset the ppu for gameover case.
 	copy_board_to_nt();
@@ -3841,27 +3843,31 @@ void hold_cluster()
 	{
 		// Copy the current cluster to the held one.
 		held_cluster_id = cur_cluster.id;
+		held_cluster_rot = cur_rot;
 		memcpy(held_cluster_def, cluster_defs_classic[held_cluster_id], (4 * 4));
 		
 		// Deploy next instead
 		spawn_new_cluster();
+		can_hold_cluster = 1;
 	}
 	else
 	{
 		// Save contents to staging cluster so to deploy as current cluster
 		staging_cluster_id = held_cluster_id;
+		staging_cluster_rot = held_cluster_rot;
 
 		// Copy the current cluster to the held one.
 		held_cluster_id = cur_cluster.id;
+		held_cluster_rot = cur_rot;
 		memcpy(held_cluster_def, cluster_defs_classic[held_cluster_id], (4 * 4));
 
 		// Deploy from staging as current cluster
 		cur_cluster.id = staging_cluster_id; //id
-		cur_rot = 0; 
+		cur_rot = staging_cluster_rot; 
 		cur_block.x = 3; // Reset the block.
 		cur_block.y = cluster_offsets[staging_cluster_id];
 		memcpy(cur_cluster.def, cluster_defs_classic[staging_cluster_id], 4 * 4); //cluster_defs_classic[id]
-		memcpy(cur_cluster.layout, cur_cluster.def[0], 4); 
+		memcpy(cur_cluster.layout, cur_cluster.def[cur_rot], 4); 
 		cur_cluster.sprite = cluster_sprites[staging_cluster_id] ; //cluster_sprites[id] 
 
 
@@ -3873,18 +3879,24 @@ void hold_cluster()
 	local_t = cluster_sprites[held_cluster_id];
 
 	// clear out the middle 2 rows of the "next piece" (all pieces spawn with only those 2 rows containing visuals).
-	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 220, 16));
-	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 220, 24));
+	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 228, 16));
+	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 228, 24));
+	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 228, 32));
+	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 228, 40));
+
 	for (i = 0; i < 4; ++i)
 	{
 		// store the index into the x,y offset for each solid piece in the first rotation.
-		j =	held_cluster_def[0][i];
+		j =	held_cluster_def[held_cluster_rot][i];
 		
 		// convert that to x,y offsets.
 		local_ix = morton_compact_one_by_one(j >> 0); //index_to_x_lookup[j];
 		local_iy = morton_compact_one_by_one(j >> 1); //index_to_y_lookup[j];
 
-		one_vram_buffer(local_t, get_ppu_addr(cur_nt, 220 + (local_ix << 3), (held_cluster_id != 3 ? 16 : 8) + (local_iy << 3))); //8 + (local_iy << 3)
+		one_vram_buffer(local_t, get_ppu_addr(cur_nt, 
+											  228 + (local_ix << 3),
+											  16 + (local_iy << 3))
+							); //8 + (local_iy << 3)
 	}
 	
 }
