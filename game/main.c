@@ -3857,6 +3857,7 @@ void hold_cluster()
 
 		// Deploy from staging as current cluster
 		cur_cluster.id = staging_cluster_id; //id
+		cur_rot = 0; 
 		cur_block.x = 3; // Reset the block.
 		cur_block.y = cluster_offsets[staging_cluster_id];
 		memcpy(cur_cluster.def, cluster_defs_classic[staging_cluster_id], 4 * 4); //cluster_defs_classic[id]
