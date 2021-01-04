@@ -2,7 +2,7 @@
 
 #define DEBUG_ENABLED 0
 #define INDEV_FEATURES_ENABLED 0
-
+#define VS_SYS_ENABLED 0
 #if DEBUG_ENABLED
 #define PROFILE_POKE(val) POKE((0x2001), (val));
 #else
@@ -448,9 +448,8 @@ struct cluster next_cluster;
 
 #if INDEV_FEATURES_ENABLED
 
-struct cluster held_cluster; 
-struct cluster staging_cluster; //Need staging cluster to temp store held cluster when swapping with current cluster
-//unsigned char has_hold_cluster; //Initially no clusters are held or put random cluster on start?
+unsigned char held_cluster_id = 0; 
+unsigned char staging_cluster_id; //Need staging cluster to temp store held cluster when swapping with current cluster
 unsigned char can_hold_cluster; //Cannot hold repeatly - only until next cluster is loaded
 void hold_cluster();
 

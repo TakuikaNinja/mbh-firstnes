@@ -1854,10 +1854,18 @@ void movement(void)
 		// Don't allow forcing the tentacle up while it is on the way down.
 		// Not too serious, but looks weird when the height in increases
 		// while the sprites are not moving up.
+		#if !INDEV_FEATURES_ENABLED
 		if (row_to_clear == -1)
 		{
 			attack_queued = 1;
 		}
+		#endif
+		#if INDEV_FEATURES_ENABLED
+		if(can_hold_cluster)
+			hold_cluster();
+		#endif
+
+
 	}
 
 	// INPUT
@@ -2298,6 +2306,10 @@ void spawn_new_cluster()
 
 	require_new_down_button = 1;
 	fall_frame_counter = fall_rate;
+
+	#if INDEV_FEATURES_ENABLED
+		can_hold_cluster = 1;
+	#endif
 
 	cur_rot = 0;
 	is_last_rotate = 0;
@@ -3818,51 +3830,46 @@ void hold_cluster()
 {
 	static unsigned char i;
 	static unsigned char j;
-
+	can_hold_cluster = 0;
 	//If next is not empty //Instead put random piece in held box
     //if(has_hold_cluster == 1)
 	{
 		// Save contents to staging cluster so to deploy as current cluster
-		memcpy(staging_cluster.def, held_cluster.def, 4 * 4);
-		memcpy(staging_cluster.layout, held_cluster.def[0], 4);
-		staging_cluster.sprite = held_cluster.sprite;
-		staging_cluster.id = held_cluster.id;
+		staging_cluster_id = held_cluster_id;
 
 		// Copy the current cluster to the held one.
-		memcpy(held_cluster.def, cur_cluster.def, 4 * 4);
-		memcpy(held_cluster.layout, cur_cluster.def[0], 4);
-		held_cluster.sprite = cur_cluster.sprite;
-		held_cluster.id = cur_cluster.id;
+		held_cluster_id = cur_cluster.id;
 
 		// Deploy from staging as current cluster
+		cur_cluster.id = staging_cluster_id; //id
 		cur_block.x = 3; // Reset the block.
-		cur_block.y = cluster_offsets[cur_cluster.id];
-		memcpy(cur_cluster.def, staging_cluster.def, 4 * 4); //cluster_defs_classic[id]
-		memcpy(cur_cluster.layout, staging_cluster.def[0], 4); 
-		cur_cluster.sprite = staging_cluster.sprite; //cluster_sprites[id] 
-		cur_cluster.id = staging_cluster.id; //id
+		cur_block.y = cluster_offsets[staging_cluster_id];
+		memcpy(cur_cluster.def, cluster_defs_classic[staging_cluster_id], 4 * 4); //cluster_defs_classic[id]
+		memcpy(cur_cluster.layout, cur_cluster.def[0], 4); 
+		cur_cluster.sprite = cluster_sprites[staging_cluster_id] ; //cluster_sprites[id] 
+
 
 	}
 
 	//Draw Held Cluster
 	local_iy = 0;
 	local_ix = 0;
-	local_t = held_cluster.sprite;
+	local_t = cluster_sprites[held_cluster_id];
 
 	// clear out the middle 2 rows of the "next piece" (all pieces spawn with only those 2 rows containing visuals).
-	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 120, 16));
-	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 120, 24));
+	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 280, 16));
+	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 280, 24));
 
 	for (i = 0; i < 4; ++i)
 	{
 		// store the index into the x,y offset for each solid piece in the first rotation.
-		j = held_cluster.layout[i];
+		j = (*cluster_defs_classic[staging_cluster_id])[i];
 
 		// convert that to x,y offsets.
 		local_ix = morton_compact_one_by_one(j >> 0); //index_to_x_lookup[j];
 		local_iy = morton_compact_one_by_one(j >> 1); //index_to_y_lookup[j];
 
-		one_vram_buffer(local_t, get_ppu_addr(cur_nt, 280 + (local_ix << 3), (held_cluster.id != 3 ? 16 : 8) + (local_iy << 3))); //8 + (local_iy << 3)
+		one_vram_buffer(local_t, get_ppu_addr(cur_nt, 280 + (local_ix << 3), (held_cluster_id != 3 ? 16 : 8) + (local_iy << 3))); //8 + (local_iy << 3)
 	}
 }
 #endif
