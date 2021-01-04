@@ -1,7 +1,7 @@
 /** (C) Matt Hughson 2020 */
 
 #define DEBUG_ENABLED 0
-#define INDEV_FEATURES_ENABLED 0
+#define INDEV_FEATURES_ENABLED 1
 
 #if DEBUG_ENABLED
 #define PROFILE_POKE(val) POKE((0x2001), (val));
@@ -448,7 +448,8 @@ struct cluster next_cluster;
 
 #if INDEV_FEATURES_ENABLED
 
-unsigned char held_cluster_id = 0; 
+unsigned char held_cluster_id; 
+unsigned char held_cluster_def[4][4];
 unsigned char staging_cluster_id; //Need staging cluster to temp store held cluster when swapping with current cluster
 unsigned char can_hold_cluster; //Cannot hold repeatly - only until next cluster is loaded
 void hold_cluster();

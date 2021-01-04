@@ -11,6 +11,7 @@ Differences from the original:
 - No line: 40 points (same as 1 line)
 - 1, 2, and 3 Lines: 5x score
 3. T-Spin triple plays Tetris sound with the shake 
+4. Can hold piece using SELECT button (loses Kraken attack function 😢))
 
 # COMPILING
 

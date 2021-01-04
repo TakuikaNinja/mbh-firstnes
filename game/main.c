@@ -3581,6 +3581,7 @@ void reset_gameplay_area()
 
 	// Reset stats.
 	lines_cleared_one = lines_cleared_ten = lines_cleared_hundred = cur_score = 0;
+	held_cluster_id = 255; // Doesn't exist
 	cur_level = saved_starting_level;
 	fall_rate = fall_rates_per_level[MIN(cur_level, sizeof(fall_rates_per_level))];
 	row_to_clear = -1;
@@ -3606,6 +3607,10 @@ void reset_gameplay_area()
 	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 120, 16));
 	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 120, 24));
 
+	// clear the "hold" block for cases of restarting
+	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 220, 16));
+	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 220, 24));
+	
 	// Reset the ppu for gameover case.
 	copy_board_to_nt();
 }
@@ -3831,14 +3836,24 @@ void hold_cluster()
 	static unsigned char i;
 	static unsigned char j;
 	can_hold_cluster = 0;
-	//If next is not empty //Instead put random piece in held box
-    //if(has_hold_cluster == 1)
+
+    if(held_cluster_id == 255) //Nothing is held
+	{
+		// Copy the current cluster to the held one.
+		held_cluster_id = cur_cluster.id;
+		memcpy(held_cluster_def, cluster_defs_classic[held_cluster_id], (4 * 4));
+		
+		// Deploy next instead
+		spawn_new_cluster();
+	}
+	else
 	{
 		// Save contents to staging cluster so to deploy as current cluster
 		staging_cluster_id = held_cluster_id;
 
 		// Copy the current cluster to the held one.
 		held_cluster_id = cur_cluster.id;
+		memcpy(held_cluster_def, cluster_defs_classic[held_cluster_id], (4 * 4));
 
 		// Deploy from staging as current cluster
 		cur_cluster.id = staging_cluster_id; //id
@@ -3857,19 +3872,19 @@ void hold_cluster()
 	local_t = cluster_sprites[held_cluster_id];
 
 	// clear out the middle 2 rows of the "next piece" (all pieces spawn with only those 2 rows containing visuals).
-	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 280, 16));
-	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 280, 24));
-
+	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 220, 16));
+	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 220, 24));
 	for (i = 0; i < 4; ++i)
 	{
 		// store the index into the x,y offset for each solid piece in the first rotation.
-		j = (*cluster_defs_classic[staging_cluster_id])[i];
-
+		j =	held_cluster_def[0][i];
+		
 		// convert that to x,y offsets.
 		local_ix = morton_compact_one_by_one(j >> 0); //index_to_x_lookup[j];
 		local_iy = morton_compact_one_by_one(j >> 1); //index_to_y_lookup[j];
 
-		one_vram_buffer(local_t, get_ppu_addr(cur_nt, 280 + (local_ix << 3), (held_cluster_id != 3 ? 16 : 8) + (local_iy << 3))); //8 + (local_iy << 3)
+		one_vram_buffer(local_t, get_ppu_addr(cur_nt, 220 + (local_ix << 3), (held_cluster_id != 3 ? 16 : 8) + (local_iy << 3))); //8 + (local_iy << 3)
 	}
+	
 }
 #endif
