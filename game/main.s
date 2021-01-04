@@ -20,7 +20,7 @@
 	.dbg		file, "BG/sound_screen.h", 1418, 1608948989
 	.dbg		file, "BG/ty_screen.h", 1872, 1608948989
 	.dbg		file, "../include/stdlib.h", 6147, 1608948990
-	.dbg		file, "main.h", 26665, 1609739541
+	.dbg		file, "main.h", 26641, 1609739597
 	.forceimport	__STARTUP__
 	.dbg		sym, "pal_bg", "00", extern, "_pal_bg"
 	.dbg		sym, "pal_spr", "00", extern, "_pal_spr"

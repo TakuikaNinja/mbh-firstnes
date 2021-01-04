@@ -92,7 +92,7 @@ file	id=4,name="MUSIC/famitone2.s",size=28839,mtime=0x5FE69CFD,mod=0
 file	id=5,name="MUSIC/songs.s",size=53720,mtime=0x5FEC16B5,mod=0
 file	id=6,name="MUSIC/sounds.s",size=12813,mtime=0x5FEC16B5,mod=0
 file	id=7,name="chrrom.chr",size=8192,mtime=0x5FE69CFE,mod=0
-file	id=8,name="main.s",size=212211,mtime=0x5FF2AD15,mod=1
+file	id=8,name="main.s",size=212211,mtime=0x5FF2AD57,mod=1
 file	id=9,name="..\asminc/longbranch.mac",size=2720,mtime=0x5FE69CFB,mod=1
 file	id=10,name="main.c",size=99258,mtime=0x5FF2AD15,mod=1
 file	id=11,name="LIB/neslib.h",size=9361,mtime=0x5FE69CFD,mod=1
@@ -104,7 +104,7 @@ file	id=16,name="BG/options_screen.h",size=2359,mtime=0x5FE69CFD,mod=1
 file	id=17,name="BG/sound_screen.h",size=1418,mtime=0x5FE69CFD,mod=1
 file	id=18,name="BG/ty_screen.h",size=1872,mtime=0x5FE69CFD,mod=1
 file	id=19,name="../include/stdlib.h",size=6147,mtime=0x5FE69CFE,mod=1
-file	id=20,name="main.h",size=26665,mtime=0x5FF2AD15,mod=1
+file	id=20,name="main.h",size=26641,mtime=0x5FF2AD4D,mod=1
 file	id=21,name="/home/travis/build/cc65/cc65/asminc/cpu.mac",size=843,mtime=0x5ED0C156,mod=2+4+15+18+23+24+26+35+37+44
 file	id=22,name="/home/travis/build/cc65/cc65/asminc/generic.mac",size=956,mtime=0x5ED0C156,mod=39
 file	id=23,name="/home/travis/build/cc65/cc65/asminc/zeropage.inc",size=721,mtime=0x5ED0C156,mod=48
