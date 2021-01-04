@@ -2251,19 +2251,7 @@ void put_cur_cluster()
 
 unsigned char is_block_occupied(unsigned char x, unsigned char y)
 {
-
-	if (y > BOARD_END_Y_PX_BOARD || x > BOARD_END_X_PX_BOARD)
-	{
-		// consider this blocked.
-		return 1;
-	}
-
-	//return get_block(x, y) == 0;
-	if (game_board[TILE_TO_BOARD_INDEX(x, y)]) // != 5 && game_board[TILE_TO_BOARD_INDEX(x,y)] != 0)
-	{
-		return 1;
-	}
-	return 0;
+	return (y > BOARD_END_Y_PX_BOARD || x > BOARD_END_X_PX_BOARD || game_board[TILE_TO_BOARD_INDEX(x, y)]);
 }
 
 unsigned char is_cluster_colliding()
@@ -2285,15 +2273,9 @@ unsigned char is_cluster_colliding()
 		x = cur_block.x + local_ix;
 		y = cur_block.y + local_iy;
 
-		if (y > BOARD_END_Y_PX_BOARD || x > BOARD_END_X_PX_BOARD)
+		if (y > BOARD_END_Y_PX_BOARD || x > BOARD_END_X_PX_BOARD || game_board[TILE_TO_BOARD_INDEX(x, y)])
 		{
 			// consider this blocked.
-			return 1;
-		}
-
-		//return get_block(x, y) == 0;
-		if (game_board[TILE_TO_BOARD_INDEX(x, y)]) // != 5 && game_board[TILE_TO_BOARD_INDEX(x,y)] != 0)
-		{
 			return 1;
 		}
 	}
