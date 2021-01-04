@@ -1,7 +1,7 @@
 /** (C) Matt Hughson 2020 */
 
 #define DEBUG_ENABLED 0
-#define INDEV_FEATURES_ENABLED 1
+#define HOLD_PIECE_ENABLED 1
 
 #if DEBUG_ENABLED
 #define PROFILE_POKE(val) POKE((0x2001), (val));
@@ -446,7 +446,7 @@ const unsigned char srs_rotate_lookup[8][SRS_TESTS] =
 struct cluster cur_cluster; // = { def_z_clust }; // 165 1010 0101
 struct cluster next_cluster;
 
-#if INDEV_FEATURES_ENABLED
+#if HOLD_PIECE_ENABLED
 
 unsigned char held_cluster_id; 
 unsigned char held_cluster_def[4][4];

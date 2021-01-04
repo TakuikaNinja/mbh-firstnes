@@ -1854,13 +1854,13 @@ void movement(void)
 		// Don't allow forcing the tentacle up while it is on the way down.
 		// Not too serious, but looks weird when the height in increases
 		// while the sprites are not moving up.
-		#if !INDEV_FEATURES_ENABLED
+		#if !HOLD_PIECE_ENABLED
 		if (row_to_clear == -1)
 		{
 			attack_queued = 1;
 		}
 		#endif
-		#if INDEV_FEATURES_ENABLED
+		#if HOLD_PIECE_ENABLED
 		if(can_hold_cluster)
 			hold_cluster();
 		#endif
@@ -2291,7 +2291,7 @@ unsigned char is_cluster_colliding()
 	return 0;
 }
 
-#if INDEV_FEATURES_ENABLED
+#if HOLD_PIECE_ENABLED
 
 #endif
 
@@ -2307,7 +2307,7 @@ void spawn_new_cluster()
 	require_new_down_button = 1;
 	fall_frame_counter = fall_rate;
 
-	#if INDEV_FEATURES_ENABLED
+	#if HOLD_PIECE_ENABLED
 		can_hold_cluster = 1;
 	#endif
 
@@ -3829,7 +3829,7 @@ void debug_display_number(unsigned char num, unsigned char index)
 #endif //DEBUG_ENABLED
 
 
-#if INDEV_FEATURES_ENABLED
+#if HOLD_PIECE_ENABLED
 	
 void hold_cluster()
 {
