@@ -3814,7 +3814,7 @@ void debug_display_number(unsigned char num, unsigned char index)
 
 #if INDEV_FEATURES_ENABLED
 	
-void held_cluster()
+void hold_cluster()
 {
 	static unsigned char i;
 	static unsigned char j;
@@ -3822,8 +3822,11 @@ void held_cluster()
 	//If next is not empty //Instead put random piece in held box
     //if(has_hold_cluster == 1)
 	{
-		// Save contents temporarily so to deploy as current cluster
-
+		// Save contents to staging cluster so to deploy as current cluster
+		memcpy(staging_cluster.def, held_cluster.def, 4 * 4);
+		memcpy(staging_cluster.layout, held_cluster.def[0], 4);
+		staging_cluster.sprite = held_cluster.sprite;
+		staging_cluster.id = held_cluster.id;
 
 		// Copy the current cluster to the held one.
 		memcpy(held_cluster.def, cur_cluster.def, 4 * 4);
@@ -3831,17 +3834,13 @@ void held_cluster()
 		held_cluster.sprite = cur_cluster.sprite;
 		held_cluster.id = cur_cluster.id;
 
-
-		// Deploy from temp as current cluster
-		
-		// Reset the block.
-		cur_block.x = 3; 
+		// Deploy from staging as current cluster
+		cur_block.x = 3; // Reset the block.
 		cur_block.y = cluster_offsets[cur_cluster.id];
-		cur_cluster.id = id;
-		memcpy(cur_cluster.def, cluster_defs_classic[id], (4 * 4));
-		memcpy(cur_cluster.layout, temp_held_cluster.def[0], 4);
-		cur_cluster.sprite = cluster_sprites[id];
-
+		memcpy(cur_cluster.def, staging_cluster.def, 4 * 4); //cluster_defs_classic[id]
+		memcpy(cur_cluster.layout, staging_cluster.def[0], 4); 
+		cur_cluster.sprite = staging_cluster.sprite; //cluster_sprites[id] 
+		cur_cluster.id = staging_cluster.id; //id
 
 	}
 

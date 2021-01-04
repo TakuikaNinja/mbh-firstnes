@@ -10,7 +10,7 @@
 	.importzp	sp, sreg, regsave, regbank
 	.importzp	tmp1, tmp2, tmp3, tmp4, ptr1, ptr2, ptr3, ptr4
 	.macpack	longbranch
-	.dbg		file, "main.c", 99018, 1609727558
+	.dbg		file, "main.c", 99286, 1609729040
 	.dbg		file, "LIB/neslib.h", 9361, 1608948989
 	.dbg		file, "LIB/nesdoug.h", 6862, 1608948989
 	.dbg		file, "BG/game_area.h", 4039, 1608948989
@@ -20,7 +20,7 @@
 	.dbg		file, "BG/sound_screen.h", 1418, 1608948989
 	.dbg		file, "BG/ty_screen.h", 1872, 1608948989
 	.dbg		file, "../include/stdlib.h", 6147, 1608948990
-	.dbg		file, "main.h", 26733, 1609675414
+	.dbg		file, "main.h", 26733, 1609729106
 	.forceimport	__STARTUP__
 	.dbg		sym, "pal_bg", "00", extern, "_pal_bg"
 	.dbg		sym, "pal_spr", "00", extern, "_pal_spr"
