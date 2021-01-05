@@ -3608,8 +3608,15 @@ void reset_gameplay_area()
 	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 120, 24));
 
 	// clear the "hold" block for cases of restarting
+	delay(1);
+	clear_vram_buffer();
+	
 	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 228, 16));
 	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 228, 24));
+	
+	delay(1);
+	clear_vram_buffer();
+	
 	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 228, 32));
 	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 228, 40));
 	
@@ -3835,8 +3842,8 @@ void debug_display_number(unsigned char num, unsigned char index)
 	
 void hold_cluster()
 {
-	static unsigned char i;
-	static unsigned char j;
+	static unsigned char l;
+	static unsigned char m;
 	can_hold_cluster = 0;
 
     if(held_cluster_id == 255) //Nothing is held
@@ -3879,19 +3886,27 @@ void hold_cluster()
 	local_t = cluster_sprites[held_cluster_id];
 
 	// clear out the middle 2 rows of the "next piece" (all pieces spawn with only those 2 rows containing visuals).
+		// clear the "hold" block for cases of restarting
+	delay(1);
+	clear_vram_buffer();
+	
 	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 228, 16));
 	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 228, 24));
+	
+	delay(1);
+	clear_vram_buffer();
+	
 	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 228, 32));
 	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 228, 40));
 
-	for (i = 0; i < 4; ++i)
+	for (l = 0; l < 4; ++l)
 	{
 		// store the index into the x,y offset for each solid piece in the first rotation.
-		j =	held_cluster_def[held_cluster_rot][i];
+		m =	held_cluster_def[held_cluster_rot][l];
 		
 		// convert that to x,y offsets.
-		local_ix = morton_compact_one_by_one(j >> 0); //index_to_x_lookup[j];
-		local_iy = morton_compact_one_by_one(j >> 1); //index_to_y_lookup[j];
+		local_ix = morton_compact_one_by_one(m >> 0); //index_to_x_lookup[j];
+		local_iy = morton_compact_one_by_one(m >> 1); //index_to_y_lookup[j];
 
 		one_vram_buffer(local_t, get_ppu_addr(cur_nt, 
 											  228 + (local_ix << 3),
