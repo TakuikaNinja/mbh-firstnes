@@ -453,7 +453,8 @@ unsigned char held_cluster_rot;
 unsigned char held_cluster_def[4][4];
 unsigned char staging_cluster_id; //Need staging cluster to temp store held cluster when swapping with current cluster
 unsigned char staging_cluster_rot;
-const char empty_row_hold[10] = {0x08,0x08,0x08,0x08,0x08,0x08,0x08,0x08,0x08,0x08};
+const char empty_row_hold[4] = {0x08,0x08,0x08,0x08};
+//const char empty_row_hold_sky[4] = {0x08,0x08,0x08,0x06};
 unsigned char can_hold_cluster; //Cannot hold repeatly - only until next cluster is loaded
 void hold_cluster();
 

@@ -3611,15 +3611,15 @@ void reset_gameplay_area()
 	delay(1);
 	clear_vram_buffer();
 	
-	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 228, 16));
-	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 228, 24));
+	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 24));
+	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 32));
 	
 	delay(1);
 	clear_vram_buffer();
-	
-	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 228, 32));
-	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 228, 40));
-	
+
+	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 40));
+	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 48));
+
 	// Reset the ppu for gameover case.
 	copy_board_to_nt();
 }
@@ -3886,18 +3886,18 @@ void hold_cluster()
 	local_t = cluster_sprites[held_cluster_id];
 
 	// clear out the middle 2 rows of the "next piece" (all pieces spawn with only those 2 rows containing visuals).
-		// clear the "hold" block for cases of restarting
 	delay(1);
 	clear_vram_buffer();
 	
-	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 228, 16));
-	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 228, 24));
+	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 24));
+	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 32));
 	
 	delay(1);
 	clear_vram_buffer();
-	
-	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 228, 32));
-	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 228, 40));
+
+	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 40));
+	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 48));
+
 
 	for (l = 0; l < 4; ++l)
 	{
@@ -3909,8 +3909,8 @@ void hold_cluster()
 		local_iy = morton_compact_one_by_one(m >> 1); //index_to_y_lookup[j];
 
 		one_vram_buffer(local_t, get_ppu_addr(cur_nt, 
-											  228 + (local_ix << 3),
-											  16 + (local_iy << 3))
+											  220 + (local_ix << 3),
+											  32 - (( held_cluster_id == 3 || (held_cluster_id != 2 && held_cluster_rot == 2) ) ? 8 : 0) + (local_iy << 3))
 							); //8 + (local_iy << 3)
 	}
 	
