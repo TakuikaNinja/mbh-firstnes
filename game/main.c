@@ -3608,17 +3608,18 @@ void reset_gameplay_area()
 	multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 120, 24));
 
 	// clear the "hold" block for cases of restarting
-	delay(1);
-	clear_vram_buffer();
+	//delay(1);
+	//clear_vram_buffer();
 	
-	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 24));
+	//multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 24));
 	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 32));
+	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 40));
 	
 	delay(1);
 	clear_vram_buffer();
 
-	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 40));
 	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 48));
+	multi_vram_buffer_horz(empty_row_hold_sky, 4, get_ppu_addr(cur_nt, 220, 56));
 
 	// Reset the ppu for gameover case.
 	copy_board_to_nt();
@@ -3889,15 +3890,15 @@ void hold_cluster()
 	delay(1);
 	clear_vram_buffer();
 	
-	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 24));
+	//multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 24));
 	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 32));
+	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 40));
 	
 	delay(1);
 	clear_vram_buffer();
 
-	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 40));
 	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 48));
-
+	multi_vram_buffer_horz(empty_row_hold_sky, 4, get_ppu_addr(cur_nt, 220, 56));
 
 	for (l = 0; l < 4; ++l)
 	{
