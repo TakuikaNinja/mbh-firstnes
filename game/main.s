@@ -14,7 +14,7 @@
 	.dbg		file, "LIB/neslib.h", 9361, 1608948989
 	.dbg		file, "LIB/nesdoug.h", 6862, 1608948989
 	.dbg		file, "BG/game_area.h", 4059, 1609910372
-	.dbg		file, "BG/title_screen.h", 2757, 1608948989
+	.dbg		file, "BG/title_screen.h", 2757, 1609916919
 	.dbg		file, "BG/boot_screen.h", 1422, 1609911923
 	.dbg		file, "BG/options_screen.h", 2359, 1608948989
 	.dbg		file, "BG/sound_screen.h", 1418, 1608948989
@@ -1545,8 +1545,8 @@ _title_screen:
 	.byte	$08
 	.byte	$09
 	.byte	$08
-	.byte	$06
-	.byte	$07
+	.byte	$20
+	.byte	$20
 	.byte	$08
 	.byte	$09
 	.byte	$06
