@@ -2871,7 +2871,13 @@ void go_to_state(unsigned char new_state)
 	case STATE_PAUSE:
 	{
 		pal_bright(2);
-		MUSIC_PLAY_WRAPPER(MUSIC_PAUSE);
+		if(select_gameplay_music == MUSIC_MUSICA){
+			music_stop();
+			SFX_MUSIC_PLAY_WRAPPER(SOUND_PAUSE);
+
+		}else{
+			MUSIC_PLAY_WRAPPER(MUSIC_PAUSE);
+		}
 		break;
 	}
 #endif //#if !VS_SYS_ENABLED
