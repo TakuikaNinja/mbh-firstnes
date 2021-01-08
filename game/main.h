@@ -519,7 +519,8 @@ enum
     MUSIC_TITLE,
     MUSIC_GAMEPLAY,
     MUSIC_STRESS,
-    MUSIC_PAUSE
+    MUSIC_PAUSE,
+    MUSIC_MUSICA
 };
 enum
 {
@@ -539,6 +540,9 @@ enum
 };
 
 unsigned char cur_gameplay_music;
+unsigned char select_gameplay_music = MUSIC_GAMEPLAY;
+
+
 #define STRESS_MUSIC_LEVEL 7 // 5 blocks down from the out of bounds area
 unsigned char attack_queued;
 

@@ -916,7 +916,13 @@ void main(void)
 				vram_unrle(title_screen);
 				ppu_on_all();
 				fade_from_black();
-
+				if (pad_all & PAD_SELECT)
+				{
+					select_gameplay_music = MUSIC_MUSICA;
+				}else
+				{
+					select_gameplay_music = MUSIC_GAMEPLAY;
+				}
 				// little cheat to start at very high levels.
 				if (cur_level == 9 && pad_all & PAD_SELECT)
 				{
@@ -1197,7 +1203,7 @@ void main(void)
 						// music is stressed even if it doesn't start playing this frame.
 						local_t = 1;
 
-						if (cur_gameplay_music == MUSIC_GAMEPLAY)
+						if (cur_gameplay_music == select_gameplay_music)
 						{
 							cur_gameplay_music = MUSIC_STRESS;
 							MUSIC_PLAY_WRAPPER(MUSIC_STRESS);
@@ -1208,8 +1214,8 @@ void main(void)
 
 				if (local_t == 0 && cur_gameplay_music == MUSIC_STRESS)
 				{
-					cur_gameplay_music = MUSIC_GAMEPLAY;
-					MUSIC_PLAY_WRAPPER(MUSIC_GAMEPLAY);
+					cur_gameplay_music = select_gameplay_music;
+					MUSIC_PLAY_WRAPPER(select_gameplay_music);
 				}
 			}
 
@@ -2855,8 +2861,8 @@ void go_to_state(unsigned char new_state)
 			// Do this at the end of the state change so that
 			// the up beat music doesn't kick in until after
 			// everything transitions in.
-			cur_gameplay_music = MUSIC_GAMEPLAY;
-			MUSIC_PLAY_WRAPPER(MUSIC_GAMEPLAY);
+			cur_gameplay_music = select_gameplay_music;
+			MUSIC_PLAY_WRAPPER(select_gameplay_music);
 		}
 
 		break;
@@ -3479,10 +3485,10 @@ void copy_board_to_nt()
 	// 	cur_gameplay_music = MUSIC_STRESS;
 	// 	music_play(MUSIC_STRESS);
 	// }
-	// else if (!fast_music && cur_gameplay_music != MUSIC_GAMEPLAY)
+	// else if (!fast_music && cur_gameplay_music != select_gameplay_music)
 	// {
-	// 	cur_gameplay_music = MUSIC_GAMEPLAY;
-	// 	music_play(MUSIC_GAMEPLAY);
+	// 	cur_gameplay_music = select_gameplay_music;
+	// 	music_play(select_gameplay_music);
 	// }
 }
 
