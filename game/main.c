@@ -1203,7 +1203,7 @@ void main(void)
 						// music is stressed even if it doesn't start playing this frame.
 						local_t = 1;
 
-						if (cur_gameplay_music == select_gameplay_music)
+						if (cur_gameplay_music == select_gameplay_music && select_gameplay_music == MUSIC_GAMEPLAY)
 						{
 							cur_gameplay_music = MUSIC_STRESS;
 							MUSIC_PLAY_WRAPPER(MUSIC_STRESS);
@@ -1212,7 +1212,7 @@ void main(void)
 					}
 				}
 
-				if (local_t == 0 && cur_gameplay_music == MUSIC_STRESS)
+				if (local_t == 0 && cur_gameplay_music == MUSIC_STRESS && select_gameplay_music == MUSIC_GAMEPLAY)
 				{
 					cur_gameplay_music = select_gameplay_music;
 					MUSIC_PLAY_WRAPPER(select_gameplay_music);
