@@ -13,6 +13,7 @@ Differences from the original:
 - 1, 2, and 3 Lines: 5x score
 3. T-Spin triple plays Tetris sound with the shake 
 4. Can hold a piece using SELECT button (you lose the force Kraken attack function though 😢)
+5. A secret song can be played
 
 # COMPILING
 

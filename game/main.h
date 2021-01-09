@@ -484,6 +484,8 @@ unsigned char lines_cleared_one;
 unsigned char lines_cleared_ten;
 unsigned char lines_cleared_hundred;
 unsigned long cur_score; // NOTE: long!
+unsigned char last_lines;
+unsigned char combo_count;
 unsigned char cur_nt;
 unsigned char off_nt;
 

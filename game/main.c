@@ -1984,7 +1984,9 @@ void movement(void)
 				while (!is_cluster_colliding())
 				{
 					++cur_block.y;
+					cur_score += 2;	
 				}
+				display_score();
 				old_is_last_rotate = is_last_rotate;
 				is_last_rotate = 0;
 				// No delay lock on hard drops.
@@ -2028,11 +2030,14 @@ void movement(void)
 
 			// fall this frame.
 			fall_frame_counter = 0;
+			
 		}
 		else if ((pad_all & PAD_DOWN) && require_new_down_button == 0)
 		{
 			// fall every other frame.
 			fall_frame_counter = MIN(fall_frame_counter, 1);
+			cur_score += 1;	
+			//display_score();
 		}
 
 		if (fall_frame_counter == 0)
@@ -2097,6 +2102,7 @@ void movement(void)
 		// Spawn a new block.
 		//spawn_new_cluster();
 		delay_spawn_remaining = DELAY_SPAWN_LEN;
+		display_score();
 	}
 	//PROFILE_POKE(0x1e); //none
 }
@@ -3257,10 +3263,16 @@ void clear_rows_in_data(unsigned char start_y)
 	}
 
 	// If any lines we cleared, time to move to the next phase...
-	if (i == 0 & is_tspin != 0)
+	if (i == 0 )
 	{
-		cur_score += (40 * is_tspin * (cur_level + 1));
-		display_score();
+		last_lines = 0;
+		//combo calculate
+		cur_score += 20 * combo_count * cur_level;
+		combo_count = 0;
+		if(is_tspin != 0){
+			cur_score += (40 * is_tspin * (cur_level + 1));
+			display_score();
+		}
 	}
 	else if (i > 0)
 	{
@@ -3317,8 +3329,12 @@ void clear_rows_in_data(unsigned char start_y)
 			break;
 		}
 		}
-		cur_score += (line_score_mod * (4*is_tspin + 1) * (cur_level + 1));
+		if(last_lines == i & i == 4) //Back to Back Tetris x 1.5
+			line_score_mod = line_score_mod + (line_score_mod / 2);
+		cur_score += (line_score_mod * (4*is_tspin + 1) * (cur_level + 1));	
 		display_score();
+		last_lines = i;
+		combo_count += 1;
 
 		// potential hit reaction.
 		if (hit_reaction_remaining > 0)
@@ -3599,6 +3615,8 @@ void reset_gameplay_area()
 	row_to_clear = -1;
 	delay_lock_remaining = -1;
 	kill_row_cur = 0;
+	last_lines = 0;
+	combo_count = 0;
 	start_delay_remaining = START_DELAY;
 
 	// load the palettes

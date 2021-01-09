@@ -10,7 +10,7 @@
 	.importzp	sp, sreg, regsave, regbank
 	.importzp	tmp1, tmp2, tmp3, tmp4, ptr1, ptr2, ptr3, ptr4
 	.macpack	longbranch
-	.dbg		file, "main.c", 101077, 1610166097
+	.dbg		file, "main.c", 101509, 1610181107
 	.dbg		file, "LIB/neslib.h", 9361, 1608948989
 	.dbg		file, "LIB/nesdoug.h", 6862, 1608948989
 	.dbg		file, "BG/game_area.h", 4059, 1609910372
@@ -20,7 +20,7 @@
 	.dbg		file, "BG/sound_screen.h", 1418, 1608948989
 	.dbg		file, "BG/ty_screen.h", 1872, 1608948989
 	.dbg		file, "../include/stdlib.h", 6147, 1608948990
-	.dbg		file, "main.h", 26929, 1610091375
+	.dbg		file, "main.h", 26984, 1610180960
 	.forceimport	__STARTUP__
 	.dbg		sym, "pal_bg", "00", extern, "_pal_bg"
 	.dbg		sym, "pal_spr", "00", extern, "_pal_spr"
@@ -156,6 +156,8 @@
 	.export		_lines_cleared_ten
 	.export		_lines_cleared_hundred
 	.export		_cur_score
+	.export		_last_lines
+	.export		_combo_count
 	.export		_cur_nt
 	.export		_off_nt
 	.export		_hit
@@ -3522,19 +3524,19 @@ _metasprite_tentacle_title:
 	.byte	$91
 	.byte	$01
 	.byte	$80
-L147E:
+L1484:
 	.byte	$47,$41,$4D,$45,$20,$4F,$56,$45,$52,$21,$00
-L1488:
+L148E:
 	.byte	$41,$2D,$52,$45,$53,$54,$41,$52,$54,$20,$00
-L1492:
+L1498:
 	.byte	$42,$2D,$51,$55,$49,$54,$20,$20,$20,$20,$00
-L1544:
+L154A:
 	.byte	$30,$30,$30,$30,$30,$30,$30,$00
-L1523:
+L1529:
 	.byte	$20,$20,$20,$20,$20,$20,$00
-L180B	:=	L1544+4
-L17E6	:=	L1544+4
-L1568	:=	L1544+5
+L1826	:=	L154A+4
+L1801	:=	L154A+4
+L156E	:=	L154A+5
 
 .segment	"BSS"
 
@@ -3617,6 +3619,10 @@ _lines_cleared_hundred:
 	.res	1,$00
 _cur_score:
 	.res	4,$00
+_last_lines:
+	.res	1,$00
+_combo_count:
+	.res	1,$00
 _cur_nt:
 	.res	1,$00
 _off_nt:
@@ -3725,25 +3731,25 @@ _is_last_rotate:
 ;
 ; {
 ;
-	.dbg	line, "main.c", 2400
+	.dbg	line, "main.c", 2406
 	jsr     pusha
 ;
 ; for (i = n - 1; i > 0; i--)
 ;
-	.dbg	line, "main.c", 2404
+	.dbg	line, "main.c", 2410
 	jsr     decsp1
 	ldy     #$01
 	lda     (sp),y
 	sec
 	sbc     #$01
 	dey
-L195F:	sta     (sp),y
+L197A:	sta     (sp),y
 	lda     (sp),y
-	beq     L1258
+	beq     L125E
 ;
 ; unsigned char j = rand() % (i + 1);
 ;
-	.dbg	line, "main.c", 2407
+	.dbg	line, "main.c", 2413
 	jsr     _rand
 	jsr     pushax
 	ldy     #$02
@@ -3751,14 +3757,14 @@ L195F:	sta     (sp),y
 	lda     (sp),y
 	clc
 	adc     #$01
-	bcc     L1262
+	bcc     L1268
 	inx
-L1262:	jsr     tosumodax
+L1268:	jsr     tosumodax
 	jsr     pusha
 ;
 ; swap(&arr[i], &arr[j]);
 ;
-	.dbg	line, "main.c", 2410
+	.dbg	line, "main.c", 2416
 	ldy     #$01
 	lda     (sp),y
 	clc
@@ -3786,22 +3792,22 @@ L1262:	jsr     tosumodax
 ;
 ; }
 ;
-	.dbg	line, "main.c", 2411
+	.dbg	line, "main.c", 2417
 	jsr     incsp1
 ;
 ; for (i = n - 1; i > 0; i--)
 ;
-	.dbg	line, "main.c", 2404
+	.dbg	line, "main.c", 2410
 	ldy     #$00
 	lda     (sp),y
 	sec
 	sbc     #$01
-	jmp     L195F
+	jmp     L197A
 ;
 ; }
 ;
-	.dbg	line, "main.c", 2412
-L1258:	jmp     incsp4
+	.dbg	line, "main.c", 2418
+L125E:	jmp     incsp4
 	.dbg	line
 
 .endproc
@@ -3824,12 +3830,12 @@ L1258:	jmp     incsp4
 ;
 ; {
 ;
-	.dbg	line, "main.c", 2415
+	.dbg	line, "main.c", 2421
 	jsr     pushax
 ;
 ; unsigned char temp = *a;
 ;
-	.dbg	line, "main.c", 2416
+	.dbg	line, "main.c", 2422
 	ldy     #$03
 	lda     (sp),y
 	sta     ptr1+1
@@ -3842,7 +3848,7 @@ L1258:	jmp     incsp4
 ;
 ; *a = *b;
 ;
-	.dbg	line, "main.c", 2417
+	.dbg	line, "main.c", 2423
 	ldy     #$06
 	jsr     pushwysp
 	ldy     #$04
@@ -3857,7 +3863,7 @@ L1258:	jmp     incsp4
 ;
 ; *b = temp;
 ;
-	.dbg	line, "main.c", 2418
+	.dbg	line, "main.c", 2424
 	ldy     #$02
 	lda     (sp),y
 	sta     ptr1+1
@@ -3870,7 +3876,7 @@ L1258:	jmp     incsp4
 ;
 ; }
 ;
-	.dbg	line, "main.c", 2419
+	.dbg	line, "main.c", 2425
 	jmp     incsp5
 	.dbg	line
 
@@ -3888,9 +3894,9 @@ L1258:	jmp     incsp4
 
 .segment	"BSS"
 
-L18D4:
+L18EF:
 	.res	1,$00
-L18D5:
+L18F0:
 	.res	1,$00
 
 .segment	"CODE"
@@ -3898,42 +3904,42 @@ L18D5:
 ;
 ; can_hold_cluster = 0;
 ;
-	.dbg	line, "main.c", 3860
+	.dbg	line, "main.c", 3878
 	lda     #$00
 	sta     _can_hold_cluster
 ;
 ; if(held_cluster_id == 255) //Nothing is held
 ;
-	.dbg	line, "main.c", 3862
+	.dbg	line, "main.c", 3880
 	lda     _held_cluster_id
 	cmp     #$FF
-	bne     L1968
+	bne     L1983
 ;
 ; held_cluster_id = cur_cluster.id;
 ;
-	.dbg	line, "main.c", 3865
+	.dbg	line, "main.c", 3883
 	lda     _cur_cluster+21
 	sta     _held_cluster_id
 ;
 ; held_cluster_rot = cur_rot;
 ;
-	.dbg	line, "main.c", 3866
+	.dbg	line, "main.c", 3884
 	lda     _cur_rot
 	sta     _held_cluster_rot
 ;
 ; memcpy(held_cluster_def, cluster_defs_classic[held_cluster_id], (4 * 4));
 ;
-	.dbg	line, "main.c", 3867
+	.dbg	line, "main.c", 3885
 	lda     #<(_held_cluster_def)
 	ldx     #>(_held_cluster_def)
 	jsr     pushax
 	ldx     #$00
 	lda     _held_cluster_id
 	asl     a
-	bcc     L1965
+	bcc     L1980
 	inx
 	clc
-L1965:	adc     #<(_cluster_defs_classic)
+L1980:	adc     #<(_cluster_defs_classic)
 	sta     ptr1
 	txa
 	adc     #>(_cluster_defs_classic)
@@ -3950,57 +3956,57 @@ L1965:	adc     #<(_cluster_defs_classic)
 ;
 ; spawn_new_cluster();
 ;
-	.dbg	line, "main.c", 3870
+	.dbg	line, "main.c", 3888
 	jsr     _spawn_new_cluster
 ;
 ; can_hold_cluster = 1;
 ;
-	.dbg	line, "main.c", 3871
+	.dbg	line, "main.c", 3889
 	lda     #$01
 	sta     _can_hold_cluster
 ;
 ; else
 ;
-	.dbg	line, "main.c", 3873
-	jmp     L1969
+	.dbg	line, "main.c", 3891
+	jmp     L1984
 ;
 ; staging_cluster_id = held_cluster_id;
 ;
-	.dbg	line, "main.c", 3876
-L1968:	lda     _held_cluster_id
+	.dbg	line, "main.c", 3894
+L1983:	lda     _held_cluster_id
 	sta     _staging_cluster_id
 ;
 ; staging_cluster_rot = held_cluster_rot;
 ;
-	.dbg	line, "main.c", 3877
+	.dbg	line, "main.c", 3895
 	lda     _held_cluster_rot
 	sta     _staging_cluster_rot
 ;
 ; held_cluster_id = cur_cluster.id;
 ;
-	.dbg	line, "main.c", 3880
+	.dbg	line, "main.c", 3898
 	lda     _cur_cluster+21
 	sta     _held_cluster_id
 ;
 ; held_cluster_rot = cur_rot;
 ;
-	.dbg	line, "main.c", 3881
+	.dbg	line, "main.c", 3899
 	lda     _cur_rot
 	sta     _held_cluster_rot
 ;
 ; memcpy(held_cluster_def, cluster_defs_classic[held_cluster_id], (4 * 4));
 ;
-	.dbg	line, "main.c", 3882
+	.dbg	line, "main.c", 3900
 	lda     #<(_held_cluster_def)
 	ldx     #>(_held_cluster_def)
 	jsr     pushax
 	ldx     #$00
 	lda     _held_cluster_id
 	asl     a
-	bcc     L1966
+	bcc     L1981
 	inx
 	clc
-L1966:	adc     #<(_cluster_defs_classic)
+L1981:	adc     #<(_cluster_defs_classic)
 	sta     ptr1
 	txa
 	adc     #>(_cluster_defs_classic)
@@ -4017,42 +4023,42 @@ L1966:	adc     #<(_cluster_defs_classic)
 ;
 ; cur_cluster.id = staging_cluster_id; //id
 ;
-	.dbg	line, "main.c", 3885
+	.dbg	line, "main.c", 3903
 	lda     _staging_cluster_id
 	sta     _cur_cluster+21
 ;
 ; cur_rot = staging_cluster_rot; 
 ;
-	.dbg	line, "main.c", 3886
+	.dbg	line, "main.c", 3904
 	lda     _staging_cluster_rot
 	sta     _cur_rot
 ;
 ; cur_block.x = 3; // Reset the block.
 ;
-	.dbg	line, "main.c", 3887
+	.dbg	line, "main.c", 3905
 	lda     #$03
 	sta     _cur_block
 ;
 ; cur_block.y = cluster_offsets[staging_cluster_id];
 ;
-	.dbg	line, "main.c", 3888
+	.dbg	line, "main.c", 3906
 	ldy     _staging_cluster_id
 	lda     _cluster_offsets,y
 	sta     _cur_block+1
 ;
 ; memcpy(cur_cluster.def, cluster_defs_classic[staging_cluster_id], 4 * 4); //cluster_defs_classic[id]
 ;
-	.dbg	line, "main.c", 3889
+	.dbg	line, "main.c", 3907
 	lda     #<(_cur_cluster+4)
 	ldx     #>(_cur_cluster+4)
 	jsr     pushax
 	ldx     #$00
 	lda     _staging_cluster_id
 	asl     a
-	bcc     L1967
+	bcc     L1982
 	inx
 	clc
-L1967:	adc     #<(_cluster_defs_classic)
+L1982:	adc     #<(_cluster_defs_classic)
 	sta     ptr1
 	txa
 	adc     #>(_cluster_defs_classic)
@@ -4069,7 +4075,7 @@ L1967:	adc     #<(_cluster_defs_classic)
 ;
 ; memcpy(cur_cluster.layout, cur_cluster.def[cur_rot], 4); 
 ;
-	.dbg	line, "main.c", 3890
+	.dbg	line, "main.c", 3908
 	lda     #<(_cur_cluster)
 	ldx     #>(_cur_cluster)
 	jsr     pushax
@@ -4090,25 +4096,25 @@ L1967:	adc     #<(_cluster_defs_classic)
 ;
 ; cur_cluster.sprite = cluster_sprites[staging_cluster_id] ; //cluster_sprites[id] 
 ;
-	.dbg	line, "main.c", 3891
+	.dbg	line, "main.c", 3909
 	ldy     _staging_cluster_id
 	lda     _cluster_sprites,y
 	sta     _cur_cluster+20
 ;
 ; local_iy = 0;
 ;
-	.dbg	line, "main.c", 3897
-L1969:	lda     #$00
+	.dbg	line, "main.c", 3915
+L1984:	lda     #$00
 	sta     _local_iy
 ;
 ; local_ix = 0;
 ;
-	.dbg	line, "main.c", 3898
+	.dbg	line, "main.c", 3916
 	sta     _local_ix
 ;
 ; local_t = cluster_sprites[held_cluster_id];
 ;
-	.dbg	line, "main.c", 3899
+	.dbg	line, "main.c", 3917
 	ldy     _held_cluster_id
 	sta     _local_t+1
 	lda     _cluster_sprites,y
@@ -4116,18 +4122,18 @@ L1969:	lda     #$00
 ;
 ; delay(1);
 ;
-	.dbg	line, "main.c", 3902
+	.dbg	line, "main.c", 3920
 	lda     #$01
 	jsr     _delay
 ;
 ; clear_vram_buffer();
 ;
-	.dbg	line, "main.c", 3903
+	.dbg	line, "main.c", 3921
 	jsr     _clear_vram_buffer
 ;
 ; multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 32));
 ;
-	.dbg	line, "main.c", 3906
+	.dbg	line, "main.c", 3924
 	jsr     decsp3
 	lda     #<(_empty_row_hold)
 	ldy     #$01
@@ -4151,7 +4157,7 @@ L1969:	lda     #$00
 ;
 ; multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 40));
 ;
-	.dbg	line, "main.c", 3907
+	.dbg	line, "main.c", 3925
 	jsr     decsp3
 	lda     #<(_empty_row_hold)
 	ldy     #$01
@@ -4175,18 +4181,18 @@ L1969:	lda     #$00
 ;
 ; delay(1);
 ;
-	.dbg	line, "main.c", 3909
+	.dbg	line, "main.c", 3927
 	lda     #$01
 	jsr     _delay
 ;
 ; clear_vram_buffer();
 ;
-	.dbg	line, "main.c", 3910
+	.dbg	line, "main.c", 3928
 	jsr     _clear_vram_buffer
 ;
 ; multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 48));
 ;
-	.dbg	line, "main.c", 3912
+	.dbg	line, "main.c", 3930
 	jsr     decsp3
 	lda     #<(_empty_row_hold)
 	ldy     #$01
@@ -4210,7 +4216,7 @@ L1969:	lda     #$00
 ;
 ; multi_vram_buffer_horz(empty_row_hold_sky, 4, get_ppu_addr(cur_nt, 220, 56));
 ;
-	.dbg	line, "main.c", 3913
+	.dbg	line, "main.c", 3931
 	jsr     decsp3
 	lda     #<(_empty_row_hold_sky)
 	ldy     #$01
@@ -4234,22 +4240,22 @@ L1969:	lda     #$00
 ;
 ; for (l = 0; l < 4; ++l)
 ;
-	.dbg	line, "main.c", 3915
+	.dbg	line, "main.c", 3933
 	lda     #$00
-	sta     L18D4
-L196A:	lda     L18D4
+	sta     L18EF
+L1985:	lda     L18EF
 	cmp     #$04
-	bcc     L1973
+	bcc     L198E
 ;
 ; }
 ;
-	.dbg	line, "main.c", 3930
+	.dbg	line, "main.c", 3948
 	rts
 ;
 ; m = held_cluster_def[held_cluster_rot][l];
 ;
-	.dbg	line, "main.c", 3918
-L1973:	ldx     #$00
+	.dbg	line, "main.c", 3936
+L198E:	ldx     #$00
 	lda     _held_cluster_rot
 	jsr     aslax2
 	clc
@@ -4258,27 +4264,27 @@ L1973:	ldx     #$00
 	txa
 	adc     #>(_held_cluster_def)
 	sta     ptr1+1
-	ldy     L18D4
+	ldy     L18EF
 	lda     (ptr1),y
-	sta     L18D5
+	sta     L18F0
 ;
 ; local_ix = morton_compact_one_by_one(m >> 0); //index_to_x_lookup[j];
 ;
-	.dbg	line, "main.c", 3921
+	.dbg	line, "main.c", 3939
 	jsr     _morton_compact_one_by_one
 	sta     _local_ix
 ;
 ; local_iy = morton_compact_one_by_one(m >> 1); //index_to_y_lookup[j];
 ;
-	.dbg	line, "main.c", 3922
-	lda     L18D5
+	.dbg	line, "main.c", 3940
+	lda     L18F0
 	lsr     a
 	jsr     _morton_compact_one_by_one
 	sta     _local_iy
 ;
 ; one_vram_buffer(local_t, get_ppu_addr(cur_nt, 
 ;
-	.dbg	line, "main.c", 3924
+	.dbg	line, "main.c", 3942
 	lda     _local_t
 	jsr     pusha
 	jsr     decsp2
@@ -4288,7 +4294,7 @@ L1973:	ldx     #$00
 ;
 ; 220 + (local_ix << 3),
 ;
-	.dbg	line, "main.c", 3925
+	.dbg	line, "main.c", 3943
 	lda     _local_ix
 	asl     a
 	asl     a
@@ -4300,21 +4306,21 @@ L1973:	ldx     #$00
 ;
 ; 32 - (( held_cluster_id == 3 || (held_cluster_id != 2 && held_cluster_rot == 2) ) ? 8 : 0) + (local_iy << 3))
 ;
-	.dbg	line, "main.c", 3926
+	.dbg	line, "main.c", 3944
 	lda     #$20
 	jsr     pusha0
 	lda     _held_cluster_id
 	cmp     #$03
-	beq     L1971
+	beq     L198C
 	cmp     #$02
-	beq     L196B
+	beq     L1986
 	lda     _held_cluster_rot
 	cmp     #$02
-	beq     L1971
-L196B:	lda     #$00
-	jmp     L195A
-L1971:	lda     #$08
-L195A:	jsr     tossuba0
+	beq     L198C
+L1986:	lda     #$00
+	jmp     L1975
+L198C:	lda     #$08
+L1975:	jsr     tossuba0
 	sta     ptr1
 	stx     ptr1+1
 	ldx     #$00
@@ -4329,15 +4335,15 @@ L195A:	jsr     tossuba0
 ;
 ; ); //8 + (local_iy << 3)
 ;
-	.dbg	line, "main.c", 3927
+	.dbg	line, "main.c", 3945
 	jsr     _get_ppu_addr
 	jsr     _one_vram_buffer
 ;
 ; for (l = 0; l < 4; ++l)
 ;
-	.dbg	line, "main.c", 3915
-	inc     L18D4
-	jmp     L196A
+	.dbg	line, "main.c", 3933
+	inc     L18EF
+	jmp     L1985
 	.dbg	line
 
 .endproc
@@ -4376,7 +4382,7 @@ L0EFD:
 ;
 	.dbg	line, "main.c", 1570
 	cmp     #$31
-	bcc     L1975
+	bcc     L1990
 ;
 ; local_ix = 0x69;
 ;
@@ -4386,10 +4392,10 @@ L0EFD:
 ; else if (t > 32)
 ;
 	.dbg	line, "main.c", 1574
-	jmp     L1974
-L1975:	lda     L0EFD
+	jmp     L198F
+L1990:	lda     L0EFD
 	cmp     #$21
-	bcc     L1976
+	bcc     L1991
 ;
 ; local_ix = 0x68;
 ;
@@ -4399,10 +4405,10 @@ L1975:	lda     L0EFD
 ; else if (t > 16)
 ;
 	.dbg	line, "main.c", 1578
-	jmp     L1974
-L1976:	lda     L0EFD
+	jmp     L198F
+L1991:	lda     L0EFD
 	cmp     #$11
-	bcc     L1977
+	bcc     L1992
 ;
 ; local_ix = 0x67;
 ;
@@ -4412,13 +4418,13 @@ L1976:	lda     L0EFD
 ; else
 ;
 	.dbg	line, "main.c", 1582
-	jmp     L1974
+	jmp     L198F
 ;
 ; local_ix = 0x66;
 ;
 	.dbg	line, "main.c", 1584
-L1977:	lda     #$66
-L1974:	sta     _local_ix
+L1992:	lda     #$66
+L198F:	sta     _local_ix
 ;
 ; oam_spr(10 << 3, 23 << 3, local_ix, 0);
 ;
@@ -4525,16 +4531,16 @@ L0F24:
 	.dbg	line, "main.c", 1631
 	lda     _cur_block+1
 	cmp     #$FF
-	beq     L1984
+	beq     L199F
 ;
 ; for (i = 0; i < 4; ++i)
 ;
 	.dbg	line, "main.c", 1633
 	lda     #$00
 	sta     L0F23
-L1983:	lda     L0F23
+L199E:	lda     L0F23
 	cmp     #$04
-	bcs     L1984
+	bcs     L199F
 ;
 ; j = cur_cluster.layout[i];
 ;
@@ -4565,9 +4571,9 @@ L1983:	lda     L0F23
 	jsr     aslax3
 	clc
 	adc     _local_start_y
-	bcc     L197B
+	bcc     L1996
 	inx
-L197B:	sec
+L1996:	sec
 	sbc     _OOB_TOP
 	sta     tmp1
 	txa
@@ -4606,14 +4612,14 @@ L197B:	sec
 ;
 	.dbg	line, "main.c", 1633
 L0F32:	inc     L0F23
-	jmp     L1983
+	jmp     L199E
 ;
 ; if (attack_style != ATTACK_NEVER)
 ;
 	.dbg	line, "main.c", 1654
-L1984:	lda     _attack_style
+L199F:	lda     _attack_style
 	cmp     #$02
-	jeq     L198A
+	jeq     L19A5
 ;
 ; shake_offset = 0;
 ;
@@ -4626,7 +4632,7 @@ L1984:	lda     _attack_style
 	.dbg	line, "main.c", 1657
 	lda     _attack_style
 	cmp     #$01
-	bne     L1986
+	bne     L19A1
 ;
 ; if (attack_queue_ticks_remaining < 120)
 ;
@@ -4646,13 +4652,13 @@ L0F54:	bcs     L0F52
 ; else if (attack_queue_ticks_remaining < 300)
 ;
 	.dbg	line, "main.c", 1663
-	jmp     L1991
+	jmp     L19AC
 L0F52:	lda     _attack_queue_ticks_remaining+1
 	cmp     #$01
 	bne     L0F5A
 	lda     _attack_queue_ticks_remaining
 	cmp     #$2C
-L0F5A:	bcs     L1985
+L0F5A:	bcs     L19A0
 ;
 ; speed = tick_count >> 3;
 ;
@@ -4662,26 +4668,26 @@ L0F5A:	bcs     L1985
 ; else
 ;
 	.dbg	line, "main.c", 1667
-	jmp     L1994
+	jmp     L19AF
 ;
 ; speed = tick_count >> 5;
 ;
 	.dbg	line, "main.c", 1669
-L1985:	lda     _tick_count
+L19A0:	lda     _tick_count
 	lsr     a
 ;
 ; else
 ;
 	.dbg	line, "main.c", 1672
-	jmp     L1997
+	jmp     L19B2
 ;
 ; speed = tick_count >> 4;
 ;
 	.dbg	line, "main.c", 1674
-L1986:	lda     _tick_count
-L1997:	lsr     a
-L1994:	lsr     a
-L1991:	lsr     a
+L19A1:	lda     _tick_count
+L19B2:	lsr     a
+L19AF:	lsr     a
+L19AC:	lsr     a
 	lsr     a
 	sta     L0F22
 ;
@@ -4690,9 +4696,9 @@ L1991:	lsr     a
 	.dbg	line, "main.c", 1678
 	lda     #$00
 	sta     _local_ix
-L1987:	lda     _local_ix
+L19A2:	lda     _local_ix
 	cmp     #$0A
-	jcs     L198A
+	jcs     L19A5
 ;
 ; local_row_status = attack_row_status[local_ix];
 ;
@@ -4705,7 +4711,7 @@ L1987:	lda     _local_ix
 ;
 	.dbg	line, "main.c", 1681
 	lda     _local_row_status
-	jeq     L1989
+	jeq     L19A4
 ;
 ; for (local_iy = 0; local_iy < local_row_status /*&& local_iy < ATTACK_QUEUE_SIZE*/; ++local_iy)
 ;
@@ -4713,9 +4719,9 @@ L1987:	lda     _local_ix
 	lda     #$00
 	sta     _local_iy
 	tax
-L1988:	lda     _local_iy
+L19A3:	lda     _local_iy
 	cmp     _local_row_status
-	jcs     L1989
+	jcs     L19A4
 ;
 ; shake_offset = tentacle_offsets[((local_iy + speed) & 3)]; // &3 = %4 = number of entries in array.
 ;
@@ -4779,7 +4785,7 @@ L0F81:	cpx     #$00
 ; else
 ;
 	.dbg	line, "main.c", 1704
-	jmp     L1995
+	jmp     L19B0
 ;
 ; BOARD_START_X_PX + (local_ix << 3) + shake_offset,
 ;
@@ -4811,7 +4817,7 @@ L0F7F:	jsr     decsp3
 ;
 	.dbg	line, "main.c", 1709
 	lda     #$F8
-L1995:	dey
+L19B0:	dey
 	sta     (sp),y
 ;
 ; 1);
@@ -4825,19 +4831,19 @@ L1995:	dey
 	.dbg	line, "main.c", 1683
 	ldx     #$00
 	inc     _local_iy
-	jmp     L1988
+	jmp     L19A3
 ;
 ; for (local_ix = 0; local_ix < BOARD_WIDTH; ++local_ix)
 ;
 	.dbg	line, "main.c", 1678
-L1989:	inc     _local_ix
-	jmp     L1987
+L19A4:	inc     _local_ix
+	jmp     L19A2
 ;
 ; if (hit_reaction_remaining > 0)
 ;
 	.dbg	line, "main.c", 1726
-L198A:	lda     _hit_reaction_remaining
-	beq     L198B
+L19A5:	lda     _hit_reaction_remaining
+	beq     L19A6
 ;
 ; oam_spr((3 << 3) /*+ r*/, (24 << 3), 0x65, 1);
 ;
@@ -4886,12 +4892,12 @@ L198A:	lda     _hit_reaction_remaining
 ; else
 ;
 	.dbg	line, "main.c", 1751
-	jmp     L1996
+	jmp     L19B1
 ;
 ; if (attack_style == ATTACK_NEVER)
 ;
 	.dbg	line, "main.c", 1753
-L198B:	lda     _attack_style
+L19A6:	lda     _attack_style
 	cmp     #$02
 	bne     L0FAD
 ;
@@ -4926,7 +4932,7 @@ L198B:	lda     _attack_style
 ; else
 ;
 	.dbg	line, "main.c", 1759
-	jmp     L1996
+	jmp     L19B1
 ;
 ; local_t = tick_count_large % BLINK_LEN;
 ;
@@ -4950,7 +4956,7 @@ L0FAD:	lda     _tick_count_large
 ; else if (local_t > (BLINK_LEN - 10))
 ;
 	.dbg	line, "main.c", 1770
-	bcs     L19AB
+	bcs     L19C6
 	lda     _local_t
 	cmp     #$23
 	lda     _local_t+1
@@ -4988,17 +4994,17 @@ L0FAD:	lda     _tick_count_large
 ; else if (local_t > BLINK_LEN - 15)
 ;
 	.dbg	line, "main.c", 1775
-	jmp     L1996
+	jmp     L19B1
 L0FCB:	lda     _local_t
 	cmp     #$1E
 	lda     _local_t+1
 	sbc     #$01
-	bcc     L198C
+	bcc     L19A7
 ;
 ; oam_spr(3 << 3, 25 << 3, 0x62, 1);
 ;
 	.dbg	line, "main.c", 1777
-L19AB:	jsr     decsp3
+L19C6:	jsr     decsp3
 	lda     #$18
 	ldy     #$02
 	sta     (sp),y
@@ -5022,7 +5028,7 @@ L19AB:	jsr     decsp3
 	dey
 	sta     (sp),y
 	lda     #$72
-L1996:	dey
+L19B1:	dey
 	sta     (sp),y
 	lda     #$01
 	jsr     _oam_spr
@@ -5030,7 +5036,7 @@ L1996:	dey
 ; local_t = tick_count & 63;
 ;
 	.dbg	line, "main.c", 1784
-L198C:	lda     _tick_count
+L19A7:	lda     _tick_count
 	ldx     #$00
 	and     #$3F
 	sta     _local_t
@@ -5050,7 +5056,7 @@ L198C:	lda     _tick_count
 ; else if (local_t > 32)
 ;
 	.dbg	line, "main.c", 1789
-	jmp     L1982
+	jmp     L199D
 L0FE9:	lda     _local_t
 	cmp     #$21
 	lda     _local_t+1
@@ -5065,12 +5071,12 @@ L0FE9:	lda     _local_t
 ; else if (local_t > 16)
 ;
 	.dbg	line, "main.c", 1793
-	jmp     L1982
+	jmp     L199D
 L0FEE:	lda     _local_t
 	cmp     #$11
 	lda     _local_t+1
 	sbc     #$00
-	bcc     L198D
+	bcc     L19A8
 ;
 ; local_ix = 0x67;
 ;
@@ -5080,13 +5086,13 @@ L0FEE:	lda     _local_t
 ; else
 ;
 	.dbg	line, "main.c", 1797
-	jmp     L1982
+	jmp     L199D
 ;
 ; local_ix = 0x66;
 ;
 	.dbg	line, "main.c", 1799
-L198D:	lda     #$66
-L1982:	sta     _local_ix
+L19A8:	lda     #$66
+L199D:	sta     _local_ix
 ;
 ; oam_spr(8 << 3, 1 << 3, local_ix, 2);
 ;
@@ -5200,7 +5206,7 @@ L1010:
 ;
 	.dbg	line, "main.c", 1819
 	lda     _start_delay_remaining
-	bne     L19B4
+	bne     L19CE
 ;
 ; --fall_frame_counter;
 ;
@@ -5210,25 +5216,25 @@ L1010:
 ; else
 ;
 	.dbg	line, "main.c", 1823
-	jmp     L19B5
+	jmp     L19CF
 ;
 ; --start_delay_remaining;
 ;
 	.dbg	line, "main.c", 1825
-L19B4:	dec     _start_delay_remaining
+L19CE:	dec     _start_delay_remaining
 ;
 ; if (pad_all_new & PAD_SELECT)
 ;
 	.dbg	line, "main.c", 1831
-L19B5:	lda     _pad_all_new
+L19CF:	lda     _pad_all_new
 	and     #$20
-	beq     L19B6
+	beq     L19D0
 ;
 ; if(can_hold_cluster)
 ;
 	.dbg	line, "main.c", 1870
 	lda     _can_hold_cluster
-	beq     L19B6
+	beq     L19D0
 ;
 ; hold_cluster();
 ;
@@ -5238,9 +5244,9 @@ L19B5:	lda     _pad_all_new
 ; if (pad_all_new & PAD_A)
 ;
 	.dbg	line, "main.c", 1879
-L19B6:	lda     _pad_all_new
+L19D0:	lda     _pad_all_new
 	and     #$80
-	beq     L19B7
+	beq     L19D1
 ;
 ; rotate_cur_cluster(1);
 ;
@@ -5250,22 +5256,22 @@ L19B6:	lda     _pad_all_new
 ; else if (pad_all_new & PAD_B)
 ;
 	.dbg	line, "main.c", 1883
-	jmp     L19B0
-L19B7:	lda     _pad_all_new
+	jmp     L19CB
+L19D1:	lda     _pad_all_new
 	and     #$40
-	beq     L19B8
+	beq     L19D2
 ;
 ; rotate_cur_cluster(-1);
 ;
 	.dbg	line, "main.c", 1885
 	lda     #$FF
-L19B0:	jsr     _rotate_cur_cluster
+L19CB:	jsr     _rotate_cur_cluster
 ;
 ; if (horz_button_delay > 0)
 ;
 	.dbg	line, "main.c", 1888
-L19B8:	lda     _horz_button_delay
-	beq     L19B9
+L19D2:	lda     _horz_button_delay
+	beq     L19D3
 ;
 ; --horz_button_delay;
 ;
@@ -5275,7 +5281,7 @@ L19B8:	lda     _horz_button_delay
 ; old_x = cur_block.x;
 ;
 	.dbg	line, "main.c", 1893
-L19B9:	lda     _cur_block
+L19D3:	lda     _cur_block
 	sta     _old_x
 ;
 ; if (((pad_all & PAD_RIGHT) && horz_button_delay == 0) || (pad_all_new & PAD_RIGHT))
@@ -5283,17 +5289,17 @@ L19B9:	lda     _cur_block
 	.dbg	line, "main.c", 1894
 	lda     _pad_all
 	and     #$01
-	beq     L19BD
+	beq     L19D7
 	lda     _horz_button_delay
-	beq     L19C0
-L19BD:	lda     _pad_all_new
+	beq     L19DA
+L19D7:	lda     _pad_all_new
 	and     #$01
-	beq     L19C2
+	beq     L19DC
 ;
 ; horz_button_delay = button_delay;
 ;
 	.dbg	line, "main.c", 1896
-L19C0:	lda     _button_delay
+L19DA:	lda     _button_delay
 	sta     _horz_button_delay
 ;
 ; if ((pad_all_new & PAD_RIGHT))
@@ -5301,7 +5307,7 @@ L19C0:	lda     _button_delay
 	.dbg	line, "main.c", 1897
 	lda     _pad_all_new
 	and     #$01
-	beq     L19C1
+	beq     L19DB
 ;
 ; horz_button_delay <<= 1;
 ;
@@ -5313,7 +5319,7 @@ L19C0:	lda     _button_delay
 ; old_x = cur_block.x;
 ;
 	.dbg	line, "main.c", 1904
-L19C1:	lda     _cur_block
+L19DB:	lda     _cur_block
 	sta     _old_x
 ;
 ; cur_block.x += 1;
@@ -5324,20 +5330,20 @@ L19C1:	lda     _cur_block
 ; else if (((pad_all & PAD_LEFT) && horz_button_delay == 0) || pad_all_new & PAD_LEFT)
 ;
 	.dbg	line, "main.c", 1914
-	jmp     L19ED
-L19C2:	lda     _pad_all
+	jmp     L1A08
+L19DC:	lda     _pad_all
 	and     #$02
-	beq     L19C6
+	beq     L19E0
 	lda     _horz_button_delay
-	beq     L19C9
-L19C6:	lda     _pad_all_new
+	beq     L19E3
+L19E0:	lda     _pad_all_new
 	and     #$02
-	beq     L19CB
+	beq     L19E5
 ;
 ; horz_button_delay = button_delay;
 ;
 	.dbg	line, "main.c", 1916
-L19C9:	lda     _button_delay
+L19E3:	lda     _button_delay
 	sta     _horz_button_delay
 ;
 ; if ((pad_all_new & PAD_LEFT))
@@ -5345,7 +5351,7 @@ L19C9:	lda     _button_delay
 	.dbg	line, "main.c", 1917
 	lda     _pad_all_new
 	and     #$02
-	beq     L19CA
+	beq     L19E4
 ;
 ; horz_button_delay <<= 1;
 ;
@@ -5357,7 +5363,7 @@ L19C9:	lda     _button_delay
 ; old_x = cur_block.x;
 ;
 	.dbg	line, "main.c", 1925
-L19CA:	lda     _cur_block
+L19E4:	lda     _cur_block
 	sta     _old_x
 ;
 ; cur_block.x -= 1; // note: wrap around
@@ -5368,7 +5374,7 @@ L19CA:	lda     _cur_block
 ; old_is_last_rotate = is_last_rotate;
 ;
 	.dbg	line, "main.c", 1932
-L19ED:	lda     _is_last_rotate
+L1A08:	lda     _is_last_rotate
 	sta     L1010
 ;
 ; is_last_rotate = 0;
@@ -5380,12 +5386,12 @@ L19ED:	lda     _is_last_rotate
 ; if (cur_block.x != old_x && is_cluster_colliding())
 ;
 	.dbg	line, "main.c", 1939
-L19CB:	lda     _old_x
+L19E5:	lda     _old_x
 	cmp     _cur_block
-	beq     L19CD
+	beq     L19E7
 	jsr     _is_cluster_colliding
 	tax
-	beq     L19CD
+	beq     L19E7
 ;
 ; cur_block.x = old_x;
 ;
@@ -5402,7 +5408,7 @@ L19CB:	lda     _old_x
 ; temp_fall_frame_counter = fall_frame_counter;
 ;
 	.dbg	line, "main.c", 1969
-L19CD:	lda     _fall_frame_counter
+L19E7:	lda     _fall_frame_counter
 	sta     _temp_fall_frame_counter
 ;
 ; hard_drop_performed = 0;
@@ -5415,35 +5421,35 @@ L19CD:	lda     _fall_frame_counter
 ;
 	.dbg	line, "main.c", 1972
 	lda     _hard_drops_on
-	beq     L19D9
+	beq     L19F3
 	lda     _pad_all
 	and     #$08
-	beq     L19D9
+	beq     L19F3
 	lda     _pad_all
 	and     #$03
-	bne     L19D9
+	bne     L19F3
 ;
 ; if ((pad_all & PAD_UP && hard_drop_tap_required == 0) || pad_all_new & PAD_UP)
 ;
 	.dbg	line, "main.c", 1974
 	lda     _pad_all
 	and     #$08
-	beq     L19D4
+	beq     L19EE
 	lda     _hard_drop_tap_required
-	beq     L19D7
-L19D4:	lda     _pad_all_new
+	beq     L19F1
+L19EE:	lda     _pad_all_new
 	and     #$08
-	beq     L19DC
+	beq     L19F6
 ;
 ; --hard_drop_hold_remaining;
 ;
 	.dbg	line, "main.c", 1976
-L19D7:	dec     _hard_drop_hold_remaining
+L19F1:	dec     _hard_drop_hold_remaining
 ;
 ; if (hard_drop_hold_remaining == 0)
 ;
 	.dbg	line, "main.c", 1978
-	bne     L19DC
+	bne     L19F6
 ;
 ; hard_drop_performed = 1;
 ;
@@ -5464,193 +5470,220 @@ L19D7:	dec     _hard_drop_hold_remaining
 ; ++cur_block.y;
 ;
 	.dbg	line, "main.c", 1986
-L19D8:	inc     _cur_block+1
+L19F2:	inc     _cur_block+1
+;
+; cur_score += 2; 
+;
+	.dbg	line, "main.c", 1987
+	ldy     #<(_cur_score)
+	sty     ptr1
+	ldy     #>(_cur_score)
+	lda     #$02
+	jsr     laddeqa
 ;
 ; while (!is_cluster_colliding())
 ;
 	.dbg	line, "main.c", 1984
 L1081:	jsr     _is_cluster_colliding
 	tax
-	beq     L19D8
+	beq     L19F2
+;
+; display_score();
+;
+	.dbg	line, "main.c", 1989
+	jsr     _display_score
 ;
 ; old_is_last_rotate = is_last_rotate;
 ;
-	.dbg	line, "main.c", 1988
+	.dbg	line, "main.c", 1990
 	lda     _is_last_rotate
 	sta     L1010
 ;
 ; is_last_rotate = 0;
 ;
-	.dbg	line, "main.c", 1989
+	.dbg	line, "main.c", 1991
 	lda     #$00
 	sta     _is_last_rotate
 ;
 ; delay_lock_skip = 1;
 ;
-	.dbg	line, "main.c", 1991
+	.dbg	line, "main.c", 1993
 	lda     #$01
 	sta     _delay_lock_skip
 ;
 ; else
 ;
-	.dbg	line, "main.c", 1999
-	jmp     L19DC
+	.dbg	line, "main.c", 2001
+	jmp     L19F6
 ;
 ; if ((pad_all & (PAD_LEFT | PAD_RIGHT)) == 0)
 ;
-	.dbg	line, "main.c", 2001
-L19D9:	lda     _pad_all
+	.dbg	line, "main.c", 2003
+L19F3:	lda     _pad_all
 	and     #$03
-	bne     L19DA
+	bne     L19F4
 ;
 ; hard_drop_tap_required = 0;
 ;
-	.dbg	line, "main.c", 2003
+	.dbg	line, "main.c", 2005
 	sta     _hard_drop_tap_required
 ;
 ; if (hard_drops_on == 1) // tap
 ;
-	.dbg	line, "main.c", 2005
-L19DA:	lda     _hard_drops_on
+	.dbg	line, "main.c", 2007
+L19F4:	lda     _hard_drops_on
 	cmp     #$01
 ;
 ; else if (hard_drops_on == 2) // hold
 ;
-	.dbg	line, "main.c", 2009
-	beq     L19B2
+	.dbg	line, "main.c", 2011
+	beq     L19CD
 	cmp     #$02
-	bne     L19DC
+	bne     L19F6
 ;
 ; hard_drop_hold_remaining = HARD_DROP_HOLD_TIME;
 ;
-	.dbg	line, "main.c", 2011
-L19B2:	sta     _hard_drop_hold_remaining
+	.dbg	line, "main.c", 2013
+L19CD:	sta     _hard_drop_hold_remaining
 ;
 ; if (hard_drop_performed == 0)
 ;
-	.dbg	line, "main.c", 2015
-L19DC:	lda     L100F
-	bne     L19E6
+	.dbg	line, "main.c", 2017
+L19F6:	lda     L100F
+	bne     L1A01
 ;
 ; if (pad_all_new & PAD_DOWN || delay_lock_remaining != -1)
 ;
-	.dbg	line, "main.c", 2020
+	.dbg	line, "main.c", 2022
 	lda     _pad_all_new
 	and     #$04
-	bne     L19DD
+	bne     L19F7
 	lda     _delay_lock_remaining
 	cmp     #$FF
-	beq     L19E0
+	beq     L19FA
 ;
 ; if (pad_all_new & PAD_DOWN)
 ;
-	.dbg	line, "main.c", 2022
-L19DD:	lda     _pad_all_new
+	.dbg	line, "main.c", 2024
+L19F7:	lda     _pad_all_new
 	and     #$04
-	beq     L19DF
+	beq     L19F9
 ;
 ; delay_lock_skip = 1;
 ;
-	.dbg	line, "main.c", 2025
+	.dbg	line, "main.c", 2027
 	lda     #$01
 	sta     _delay_lock_skip
 ;
 ; require_new_down_button = 0;
 ;
-	.dbg	line, "main.c", 2027
+	.dbg	line, "main.c", 2029
 	lda     #$00
-L19DF:	sta     _require_new_down_button
+L19F9:	sta     _require_new_down_button
+;
+; fall_frame_counter = 0;
+;
+	.dbg	line, "main.c", 2032
+	sta     _fall_frame_counter
 ;
 ; else if ((pad_all & PAD_DOWN) && require_new_down_button == 0)
 ;
-	.dbg	line, "main.c", 2032
-	jmp     L19B3
-L19E0:	lda     _pad_all
+	.dbg	line, "main.c", 2035
+	jmp     L1A00
+L19FA:	lda     _pad_all
 	and     #$04
-	beq     L19E5
+	beq     L1A00
 	lda     _require_new_down_button
-	bne     L19E5
+	bne     L1A00
 ;
 ; fall_frame_counter = MIN(fall_frame_counter, 1);
 ;
-	.dbg	line, "main.c", 2035
+	.dbg	line, "main.c", 2038
 	lda     _fall_frame_counter
-	bne     L19E4
-	jmp     L19B3
-L19E4:	lda     #$01
-L19B3:	sta     _fall_frame_counter
+	bne     L19FE
+	jmp     L19FF
+L19FE:	lda     #$01
+L19FF:	sta     _fall_frame_counter
+;
+; cur_score += 1; 
+;
+	.dbg	line, "main.c", 2039
+	ldy     #<(_cur_score)
+	sty     ptr1
+	ldy     #>(_cur_score)
+	jsr     laddeq1
 ;
 ; if (fall_frame_counter == 0)
 ;
-	.dbg	line, "main.c", 2038
-L19E5:	lda     _fall_frame_counter
-	bne     L19E6
+	.dbg	line, "main.c", 2043
+L1A00:	lda     _fall_frame_counter
+	bne     L1A01
 ;
 ; start_delay_remaining = 0;
 ;
-	.dbg	line, "main.c", 2043
+	.dbg	line, "main.c", 2048
 	sta     _start_delay_remaining
 ;
 ; cur_block.y += 1;
 ;
-	.dbg	line, "main.c", 2045
+	.dbg	line, "main.c", 2050
 	inc     _cur_block+1
 ;
 ; old_is_last_rotate = is_last_rotate;
 ;
-	.dbg	line, "main.c", 2046
+	.dbg	line, "main.c", 2051
 	lda     _is_last_rotate
 	sta     L1010
 ;
 ; is_last_rotate = 0;
 ;
-	.dbg	line, "main.c", 2047
+	.dbg	line, "main.c", 2052
 	lda     #$00
 	sta     _is_last_rotate
 ;
 ; fall_frame_counter = fall_rate;
 ;
-	.dbg	line, "main.c", 2048
+	.dbg	line, "main.c", 2053
 	lda     _fall_rate
 	sta     _fall_frame_counter
 ;
 ; if (fall_rate > DELAY_LOCK_LEN)
 ;
-	.dbg	line, "main.c", 2054
-L19E6:	lda     _fall_rate
+	.dbg	line, "main.c", 2059
+L1A01:	lda     _fall_rate
 	cmp     #$10
 	lda     #$00
-	bcc     L19E8
+	bcc     L1A03
 ;
 ; delay_lock_skip = 1;
 ;
-	.dbg	line, "main.c", 2056
+	.dbg	line, "main.c", 2061
 	lda     #$01
 	sta     _delay_lock_skip
 ;
 ; hit = 0;
 ;
-	.dbg	line, "main.c", 2061
+	.dbg	line, "main.c", 2066
 	lda     #$00
-L19E8:	sta     _hit
+L1A03:	sta     _hit
 ;
 ; if (is_cluster_colliding())
 ;
-	.dbg	line, "main.c", 2064
+	.dbg	line, "main.c", 2069
 	jsr     _is_cluster_colliding
 	tax
-	beq     L10CC
+	beq     L10D1
 ;
 ; if (delay_lock_remaining == -1)
 ;
-	.dbg	line, "main.c", 2066
+	.dbg	line, "main.c", 2071
 	lda     _delay_lock_remaining
 	cmp     #$FF
-	bne     L10CE
+	bne     L10D3
 ;
 ; delay_lock_remaining = DELAY_LOCK_LEN - fall_rate;
 ;
-	.dbg	line, "main.c", 2068
+	.dbg	line, "main.c", 2073
 	lda     #$0F
 	sec
 	sbc     _fall_rate
@@ -5659,67 +5692,72 @@ L19E8:	sta     _hit
 ;
 ; --delay_lock_remaining;
 ;
-	.dbg	line, "main.c", 2074
-L10CE:	dec     _delay_lock_remaining
+	.dbg	line, "main.c", 2079
+L10D3:	dec     _delay_lock_remaining
 ;
 ; cur_block.y -= 1;
 ;
-	.dbg	line, "main.c", 2080
+	.dbg	line, "main.c", 2085
 	dec     _cur_block+1
 ;
 ; if (delay_lock_remaining == 0 || delay_lock_skip)
 ;
-	.dbg	line, "main.c", 2081
+	.dbg	line, "main.c", 2086
 	lda     _delay_lock_remaining
-	beq     L10D9
+	beq     L10DE
 	lda     _delay_lock_skip
-	beq     L10E2
+	beq     L10E7
 ;
 ; hit = 1;
 ;
-	.dbg	line, "main.c", 2083
-L10D9:	lda     #$01
+	.dbg	line, "main.c", 2088
+L10DE:	lda     #$01
 	sta     _hit
 ;
 ; is_last_rotate = old_is_last_rotate;
 ;
-	.dbg	line, "main.c", 2084
+	.dbg	line, "main.c", 2089
 	lda     L1010
 	sta     _is_last_rotate
 ;
 ; delay_lock_remaining = -1;
 ;
-	.dbg	line, "main.c", 2090
-L10CC:	lda     #$FF
+	.dbg	line, "main.c", 2095
+L10D1:	lda     #$FF
 	sta     _delay_lock_remaining
 ;
 ; if (hit)
 ;
-	.dbg	line, "main.c", 2093
-L10E2:	lda     _hit
-	beq     L10E5
+	.dbg	line, "main.c", 2098
+L10E7:	lda     _hit
+	beq     L10EA
 ;
 ; is_tspin = check_tspin();
 ;
-	.dbg	line, "main.c", 2095
+	.dbg	line, "main.c", 2100
 	jsr     _check_tspin
 	sta     _is_tspin
 ;
 ; put_cur_cluster();
 ;
-	.dbg	line, "main.c", 2096
+	.dbg	line, "main.c", 2101
 	jsr     _put_cur_cluster
 ;
 ; delay_spawn_remaining = DELAY_SPAWN_LEN;
 ;
-	.dbg	line, "main.c", 2099
+	.dbg	line, "main.c", 2104
 	lda     #$05
 	sta     _delay_spawn_remaining
 ;
+; display_score();
+;
+	.dbg	line, "main.c", 2105
+	jmp     _display_score
+;
 ; }
 ;
-	.dbg	line, "main.c", 2102
-L10E5:	rts
+	.dbg	line, "main.c", 2108
+L10EA:	rts
 	.dbg	line
 
 .endproc
@@ -5739,18 +5777,18 @@ L10E5:	rts
 ;
 ; if (in_y <= BOARD_OOB_END)
 ;
-	.dbg	line, "main.c", 2148
+	.dbg	line, "main.c", 2154
 	lda     _in_y
 	cmp     #$04
 ;
 ; return;
 ;
-	.dbg	line, "main.c", 2151
-	bcc     L1122
+	.dbg	line, "main.c", 2157
+	bcc     L1128
 ;
 ; address = get_ppu_addr(cur_nt, (in_x << 3) + BOARD_START_X_PX, (in_y << 3) + BOARD_START_Y_PX);
 ;
-	.dbg	line, "main.c", 2154
+	.dbg	line, "main.c", 2160
 	jsr     decsp2
 	lda     _cur_nt
 	ldy     #$01
@@ -5775,7 +5813,7 @@ L10E5:	rts
 ;
 ; one_vram_buffer(in_id, address);
 ;
-	.dbg	line, "main.c", 2155
+	.dbg	line, "main.c", 2161
 	lda     _in_id
 	jsr     pusha
 	lda     _address
@@ -5784,16 +5822,16 @@ L10E5:	rts
 ;
 ; game_board[TILE_TO_BOARD_INDEX(in_x, in_y)] = in_id;
 ;
-	.dbg	line, "main.c", 2158
+	.dbg	line, "main.c", 2164
 	ldy     _in_y
 	ldx     #$00
 	lda     _board_lookup_y,y
 	clc
 	adc     _in_x
-	bcc     L19EF
+	bcc     L1A0A
 	inx
 	clc
-L19EF:	adc     #<(_game_board)
+L1A0A:	adc     #<(_game_board)
 	sta     ptr1
 	txa
 	adc     #>(_game_board)
@@ -5804,8 +5842,8 @@ L19EF:	adc     #<(_game_board)
 ;
 ; }
 ;
-	.dbg	line, "main.c", 2159
-L1122:	rts
+	.dbg	line, "main.c", 2165
+L1128:	rts
 	.dbg	line
 
 .endproc
@@ -5829,24 +5867,24 @@ L1122:	rts
 ;
 ; {
 ;
-	.dbg	line, "main.c", 2162
+	.dbg	line, "main.c", 2168
 	jsr     pusha
 ;
 ; if (y <= BOARD_OOB_END)
 ;
-	.dbg	line, "main.c", 2163
+	.dbg	line, "main.c", 2169
 	ldy     #$02
 	lda     (sp),y
 	cmp     #$04
 ;
 ; return;
 ;
-	.dbg	line, "main.c", 2166
-	bcc     L113A
+	.dbg	line, "main.c", 2172
+	bcc     L1140
 ;
 ; address = get_ppu_addr(nt, (x << 3) + BOARD_START_X_PX, (y << 3) + BOARD_START_Y_PX);
 ;
-	.dbg	line, "main.c", 2169
+	.dbg	line, "main.c", 2175
 	jsr     decsp2
 	lda     (sp),y
 	dey
@@ -5873,7 +5911,7 @@ L1122:	rts
 ;
 ; one_vram_buffer(id, address);
 ;
-	.dbg	line, "main.c", 2170
+	.dbg	line, "main.c", 2176
 	ldy     #$01
 	lda     (sp),y
 	jsr     pusha
@@ -5883,7 +5921,7 @@ L1122:	rts
 ;
 ; game_board[TILE_TO_BOARD_INDEX(x, y)] = id;
 ;
-	.dbg	line, "main.c", 2172
+	.dbg	line, "main.c", 2178
 	ldy     #$02
 	lda     (sp),y
 	tay
@@ -5894,10 +5932,10 @@ L1122:	rts
 	lda     (sp),y
 	clc
 	adc     ptr1
-	bcc     L19F1
+	bcc     L1A0C
 	inx
 	clc
-L19F1:	adc     #<(_game_board)
+L1A0C:	adc     #<(_game_board)
 	sta     ptr1
 	txa
 	adc     #>(_game_board)
@@ -5909,8 +5947,8 @@ L19F1:	adc     #<(_game_board)
 ;
 ; }
 ;
-	.dbg	line, "main.c", 2173
-L113A:	jmp     incsp4
+	.dbg	line, "main.c", 2179
+L1140:	jmp     incsp4
 	.dbg	line
 
 .endproc
@@ -5927,9 +5965,9 @@ L113A:	jmp     incsp4
 
 .segment	"BSS"
 
-L1153:
+L1159:
 	.res	1,$00
-L1154:
+L115A:
 	.res	1,$00
 
 .segment	"CODE"
@@ -5937,49 +5975,49 @@ L1154:
 ;
 ; max_y = 0;
 ;
-	.dbg	line, "main.c", 2191
+	.dbg	line, "main.c", 2197
 	lda     #$00
 	sta     _max_y
 ;
 ; min_y = 0xff; // max
 ;
-	.dbg	line, "main.c", 2192
+	.dbg	line, "main.c", 2198
 	lda     #$FF
 	sta     _min_y
 ;
 ; for (i = 0; i < 4; ++i)
 ;
-	.dbg	line, "main.c", 2194
+	.dbg	line, "main.c", 2200
 	lda     #$00
-	sta     L1153
-L19F4:	lda     L1153
+	sta     L1159
+L1A0F:	lda     L1159
 	cmp     #$04
-	bcs     L115A
+	bcs     L1160
 ;
 ; j = cur_cluster.layout[i];
 ;
-	.dbg	line, "main.c", 2197
-	ldy     L1153
+	.dbg	line, "main.c", 2203
+	ldy     L1159
 	lda     _cur_cluster,y
-	sta     L1154
+	sta     L115A
 ;
 ; local_ix = morton_compact_one_by_one(j >> 0); //index_to_x_lookup[j];
 ;
-	.dbg	line, "main.c", 2200
+	.dbg	line, "main.c", 2206
 	jsr     _morton_compact_one_by_one
 	sta     _local_ix
 ;
 ; local_iy = morton_compact_one_by_one(j >> 1); //index_to_y_lookup[j];
 ;
-	.dbg	line, "main.c", 2201
-	lda     L1154
+	.dbg	line, "main.c", 2207
+	lda     L115A
 	lsr     a
 	jsr     _morton_compact_one_by_one
 	sta     _local_iy
 ;
 ; in_x = cur_block.x + local_ix;
 ;
-	.dbg	line, "main.c", 2205
+	.dbg	line, "main.c", 2211
 	lda     _cur_block
 	clc
 	adc     _local_ix
@@ -5987,7 +6025,7 @@ L19F4:	lda     L1153
 ;
 ; in_y = cur_block.y + local_iy;
 ;
-	.dbg	line, "main.c", 2206
+	.dbg	line, "main.c", 2212
 	lda     _cur_block+1
 	clc
 	adc     _local_iy
@@ -5995,53 +6033,53 @@ L19F4:	lda     L1153
 ;
 ; in_id = cur_cluster.sprite;
 ;
-	.dbg	line, "main.c", 2207
+	.dbg	line, "main.c", 2213
 	lda     _cur_cluster+20
 	sta     _in_id
 ;
 ; if (in_y < min_y)
 ;
-	.dbg	line, "main.c", 2211
+	.dbg	line, "main.c", 2217
 	lda     _in_y
 	cmp     _min_y
-	bcs     L19F5
+	bcs     L1A10
 ;
 ; min_y = in_y;
 ;
-	.dbg	line, "main.c", 2213
+	.dbg	line, "main.c", 2219
 	sta     _min_y
 ;
 ; if (in_y > max_y)
 ;
-	.dbg	line, "main.c", 2215
-L19F5:	lda     _in_y
+	.dbg	line, "main.c", 2221
+L1A10:	lda     _in_y
 	sec
 	sbc     _max_y
-	bcc     L1175
-	beq     L1175
+	bcc     L117B
+	beq     L117B
 ;
 ; max_y = in_y;
 ;
-	.dbg	line, "main.c", 2217
+	.dbg	line, "main.c", 2223
 	lda     _in_y
 	sta     _max_y
 ;
 ; set_block();
 ;
-	.dbg	line, "main.c", 2220
-L1175:	jsr     _set_block
+	.dbg	line, "main.c", 2226
+L117B:	jsr     _set_block
 ;
 ; for (i = 0; i < 4; ++i)
 ;
-	.dbg	line, "main.c", 2194
-	inc     L1153
-	jmp     L19F4
+	.dbg	line, "main.c", 2200
+	inc     L1159
+	jmp     L1A0F
 ;
 ; SFX_PLAY_WRAPPER(SOUND_LAND);
 ;
-	.dbg	line, "main.c", 2225
-L115A:	lda     _sfx_on
-	beq     L19F6
+	.dbg	line, "main.c", 2231
+L1160:	lda     _sfx_on
+	beq     L1A11
 	lda     #$01
 	jsr     pusha
 	lda     #$00
@@ -6049,19 +6087,19 @@ L115A:	lda     _sfx_on
 ;
 ; cur_block.y = 255;
 ;
-	.dbg	line, "main.c", 2238
-L19F6:	lda     #$FF
+	.dbg	line, "main.c", 2244
+L1A11:	lda     #$FF
 	sta     _cur_block+1
 ;
 ; oam_set(0);
 ;
-	.dbg	line, "main.c", 2242
+	.dbg	line, "main.c", 2248
 	lda     #$00
 	jsr     _oam_set
 ;
 ; oam_spr(0, 0, 0, 0);
 ;
-	.dbg	line, "main.c", 2244
+	.dbg	line, "main.c", 2250
 	jsr     decsp3
 	lda     #$00
 	ldy     #$02
@@ -6074,7 +6112,7 @@ L19F6:	lda     #$FF
 ;
 ; oam_spr(0, 0, 0, 0);
 ;
-	.dbg	line, "main.c", 2245
+	.dbg	line, "main.c", 2251
 	jsr     decsp3
 	lda     #$00
 	ldy     #$02
@@ -6087,7 +6125,7 @@ L19F6:	lda     #$FF
 ;
 ; oam_spr(0, 0, 0, 0);
 ;
-	.dbg	line, "main.c", 2246
+	.dbg	line, "main.c", 2252
 	jsr     decsp3
 	lda     #$00
 	ldy     #$02
@@ -6100,7 +6138,7 @@ L19F6:	lda     #$FF
 ;
 ; oam_spr(0, 0, 0, 0);
 ;
-	.dbg	line, "main.c", 2247
+	.dbg	line, "main.c", 2253
 	jsr     decsp3
 	lda     #$00
 	ldy     #$02
@@ -6113,20 +6151,20 @@ L19F6:	lda     #$FF
 ;
 ; if (attack_style == ATTACK_ON_LAND)
 ;
-	.dbg	line, "main.c", 2250
+	.dbg	line, "main.c", 2256
 	lda     _attack_style
-	bne     L1198
+	bne     L119E
 ;
 ; attack_queued = 1;
 ;
-	.dbg	line, "main.c", 2252
+	.dbg	line, "main.c", 2258
 	lda     #$01
 	sta     _attack_queued
 ;
 ; clear_rows_in_data(max_y);
 ;
-	.dbg	line, "main.c", 2261
-L1198:	lda     _max_y
+	.dbg	line, "main.c", 2267
+L119E:	lda     _max_y
 	jmp     _clear_rows_in_data
 	.dbg	line
 
@@ -6149,20 +6187,20 @@ L1198:	lda     _max_y
 ;
 ; {
 ;
-	.dbg	line, "main.c", 2267
+	.dbg	line, "main.c", 2273
 	jsr     pusha
 ;
 ; return (y > BOARD_END_Y_PX_BOARD || x > BOARD_END_X_PX_BOARD || game_board[TILE_TO_BOARD_INDEX(x, y)]);
 ;
-	.dbg	line, "main.c", 2268
+	.dbg	line, "main.c", 2274
 	ldy     #$00
 	lda     (sp),y
 	cmp     #$18
-	bcs     L19F8
+	bcs     L1A13
 	iny
 	lda     (sp),y
 	cmp     #$0A
-	bcs     L19F8
+	bcs     L1A13
 	dey
 	lda     (sp),y
 	tay
@@ -6173,24 +6211,24 @@ L1198:	lda     _max_y
 	lda     (sp),y
 	clc
 	adc     ptr1
-	bcc     L19F7
+	bcc     L1A12
 	inx
-L19F7:	sta     ptr1
+L1A12:	sta     ptr1
 	txa
 	clc
 	adc     #>(_game_board)
 	sta     ptr1+1
 	ldy     #<(_game_board)
 	lda     (ptr1),y
-	bne     L19F8
+	bne     L1A13
 	tax
 	jmp     incsp2
-L19F8:	lda     #$01
+L1A13:	lda     #$01
 	ldx     #$00
 ;
 ; }
 ;
-	.dbg	line, "main.c", 2269
+	.dbg	line, "main.c", 2275
 	jmp     incsp2
 	.dbg	line
 
@@ -6208,13 +6246,13 @@ L19F8:	lda     #$01
 
 .segment	"BSS"
 
-L11AA:
+L11B0:
 	.res	1,$00
-L11AB:
+L11B1:
 	.res	1,$00
-L11AC:
+L11B2:
 	.res	1,$00
-L11AD:
+L11B3:
 	.res	1,$00
 
 .segment	"CODE"
@@ -6222,98 +6260,98 @@ L11AD:
 ;
 ; for (i = 0; i < 4; ++i)
 ;
-	.dbg	line, "main.c", 2278
+	.dbg	line, "main.c", 2284
 	lda     #$00
-	sta     L11AC
+	sta     L11B2
 	tax
-L19FD:	lda     L11AC
+L1A18:	lda     L11B2
 	cmp     #$04
-	bcs     L1A00
+	bcs     L1A1B
 ;
 ; j = cur_cluster.layout[i];
 ;
-	.dbg	line, "main.c", 2281
-	ldy     L11AC
+	.dbg	line, "main.c", 2287
+	ldy     L11B2
 	lda     _cur_cluster,y
-	sta     L11AD
+	sta     L11B3
 ;
 ; local_ix = morton_compact_one_by_one(j >> 0); //index_to_x_lookup[j];
 ;
-	.dbg	line, "main.c", 2284
+	.dbg	line, "main.c", 2290
 	jsr     _morton_compact_one_by_one
 	sta     _local_ix
 ;
 ; local_iy = morton_compact_one_by_one(j >> 1); //index_to_y_lookup[j];
 ;
-	.dbg	line, "main.c", 2285
-	lda     L11AD
+	.dbg	line, "main.c", 2291
+	lda     L11B3
 	lsr     a
 	jsr     _morton_compact_one_by_one
 	sta     _local_iy
 ;
 ; x = cur_block.x + local_ix;
 ;
-	.dbg	line, "main.c", 2287
+	.dbg	line, "main.c", 2293
 	lda     _cur_block
 	clc
 	adc     _local_ix
-	sta     L11AA
+	sta     L11B0
 ;
 ; y = cur_block.y + local_iy;
 ;
-	.dbg	line, "main.c", 2288
+	.dbg	line, "main.c", 2294
 	lda     _cur_block+1
 	clc
 	adc     _local_iy
-	sta     L11AB
+	sta     L11B1
 ;
 ; if (y > BOARD_END_Y_PX_BOARD || x > BOARD_END_X_PX_BOARD || game_board[TILE_TO_BOARD_INDEX(x, y)])
 ;
-	.dbg	line, "main.c", 2290
+	.dbg	line, "main.c", 2296
 	cmp     #$18
-	bcs     L19FE
-	lda     L11AA
+	bcs     L1A19
+	lda     L11B0
 	cmp     #$0A
-	bcs     L19FE
-	ldy     L11AB
+	bcs     L1A19
+	ldy     L11B1
 	ldx     #$00
 	lda     _board_lookup_y,y
 	clc
-	adc     L11AA
-	bcc     L19FC
+	adc     L11B0
+	bcc     L1A17
 	inx
-L19FC:	sta     ptr1
+L1A17:	sta     ptr1
 	txa
 	clc
 	adc     #>(_game_board)
 	sta     ptr1+1
 	ldy     #<(_game_board)
 	lda     (ptr1),y
-	bne     L19FE
+	bne     L1A19
 	tax
-	jmp     L19FF
+	jmp     L1A1A
 ;
 ; return 1;
 ;
-	.dbg	line, "main.c", 2293
-L19FE:	ldx     #$00
+	.dbg	line, "main.c", 2299
+L1A19:	ldx     #$00
 	lda     #$01
 	rts
 ;
 ; for (i = 0; i < 4; ++i)
 ;
-	.dbg	line, "main.c", 2278
-L19FF:	inc     L11AC
-	jmp     L19FD
+	.dbg	line, "main.c", 2284
+L1A1A:	inc     L11B2
+	jmp     L1A18
 ;
 ; return 0;
 ;
-	.dbg	line, "main.c", 2297
-L1A00:	txa
+	.dbg	line, "main.c", 2303
+L1A1B:	txa
 ;
 ; }
 ;
-	.dbg	line, "main.c", 2298
+	.dbg	line, "main.c", 2304
 	rts
 	.dbg	line
 
@@ -6335,12 +6373,12 @@ L1A00:	txa
 ;
 ; {
 ;
-	.dbg	line, "main.c", 2510
+	.dbg	line, "main.c", 2516
 	jsr     pusha
 ;
 ; x &= 0x55;
 ;
-	.dbg	line, "main.c", 2511
+	.dbg	line, "main.c", 2517
 	ldy     #$00
 	lda     (sp),y
 	and     #$55
@@ -6348,7 +6386,7 @@ L1A00:	txa
 ;
 ; x = ((x ^ (x >> 1)) & 0x33);
 ;
-	.dbg	line, "main.c", 2512
+	.dbg	line, "main.c", 2518
 	lsr     a
 	eor     (sp),y
 	and     #$33
@@ -6356,7 +6394,7 @@ L1A00:	txa
 ;
 ; x = ((x ^ (x >> 2)) & 0x0f);
 ;
-	.dbg	line, "main.c", 2513
+	.dbg	line, "main.c", 2519
 	lsr     a
 	lsr     a
 	eor     (sp),y
@@ -6365,13 +6403,13 @@ L1A00:	txa
 ;
 ; return x;
 ;
-	.dbg	line, "main.c", 2514
+	.dbg	line, "main.c", 2520
 	ldx     #$00
 	lda     (sp),y
 ;
 ; }
 ;
-	.dbg	line, "main.c", 2515
+	.dbg	line, "main.c", 2521
 	jmp     incsp1
 	.dbg	line
 
@@ -6389,9 +6427,9 @@ L1A00:	txa
 
 .segment	"BSS"
 
-L11D1:
+L11D7:
 	.res	1,$00
-L11D2:
+L11D8:
 	.res	1,$00
 
 .segment	"CODE"
@@ -6399,97 +6437,97 @@ L11D2:
 ;
 ; id = 0;
 ;
-	.dbg	line, "main.c", 2309
+	.dbg	line, "main.c", 2315
 	lda     #$00
 	sta     _id
 ;
 ; delay_lock_remaining = -1;
 ;
-	.dbg	line, "main.c", 2311
+	.dbg	line, "main.c", 2317
 	lda     #$FF
 	sta     _delay_lock_remaining
 ;
 ; require_new_down_button = 1;
 ;
-	.dbg	line, "main.c", 2313
+	.dbg	line, "main.c", 2319
 	lda     #$01
 	sta     _require_new_down_button
 ;
 ; fall_frame_counter = fall_rate;
 ;
-	.dbg	line, "main.c", 2314
+	.dbg	line, "main.c", 2320
 	lda     _fall_rate
 	sta     _fall_frame_counter
 ;
 ; can_hold_cluster = 1;
 ;
-	.dbg	line, "main.c", 2317
+	.dbg	line, "main.c", 2323
 	lda     #$01
 	sta     _can_hold_cluster
 ;
 ; cur_rot = 0;
 ;
-	.dbg	line, "main.c", 2320
+	.dbg	line, "main.c", 2326
 	lda     #$00
 	sta     _cur_rot
 ;
 ; is_last_rotate = 0;
 ;
-	.dbg	line, "main.c", 2321
+	.dbg	line, "main.c", 2327
 	sta     _is_last_rotate
 ;
 ; memcpy(cur_cluster.def, next_cluster.def, 4 * 4);
 ;
-	.dbg	line, "main.c", 2324
+	.dbg	line, "main.c", 2330
 	ldy     #$0F
-L11E5:	lda     _next_cluster+4,y
+L11EB:	lda     _next_cluster+4,y
 	sta     _cur_cluster+4,y
-	dey
-	bpl     L11E5
-;
-; memcpy(cur_cluster.layout, cur_cluster.def[0], 4);
-;
-	.dbg	line, "main.c", 2325
-	ldy     #$03
-L11EB:	lda     _cur_cluster+4,y
-	sta     _cur_cluster,y
 	dey
 	bpl     L11EB
 ;
+; memcpy(cur_cluster.layout, cur_cluster.def[0], 4);
+;
+	.dbg	line, "main.c", 2331
+	ldy     #$03
+L11F1:	lda     _cur_cluster+4,y
+	sta     _cur_cluster,y
+	dey
+	bpl     L11F1
+;
 ; cur_cluster.sprite = next_cluster.sprite;
 ;
-	.dbg	line, "main.c", 2326
+	.dbg	line, "main.c", 2332
 	lda     _next_cluster+20
 	sta     _cur_cluster+20
 ;
 ; cur_cluster.id = next_cluster.id;
 ;
-	.dbg	line, "main.c", 2327
+	.dbg	line, "main.c", 2333
 	lda     _next_cluster+21
 	sta     _cur_cluster+21
 ;
 ; cur_block.x = 3; //(BOARD_END_Y_PX_BOARD >> 1);
 ;
-	.dbg	line, "main.c", 2330
+	.dbg	line, "main.c", 2336
 	lda     #$03
 	sta     _cur_block
 ;
 ; cur_block.y = cluster_offsets[cur_cluster.id];
 ;
-	.dbg	line, "main.c", 2331
+	.dbg	line, "main.c", 2337
 	ldy     _cur_cluster+21
 	lda     _cluster_offsets,y
 	sta     _cur_block+1
 ;
 ; if (bag_index == 0)
 ;
-	.dbg	line, "main.c", 2345
+	.dbg	line, "main.c", 2351
 	lda     _bag_index
-	bne     L11F6
+	bne     L11FC
 ;
 ; randomize_bag(bag, NUM_CLUSTERS);
 ;
-	.dbg	line, "main.c", 2347
+	.dbg	line, "main.c", 2353
 	lda     #<(_bag)
 	ldx     #>(_bag)
 	jsr     pushax
@@ -6498,50 +6536,50 @@ L11EB:	lda     _cur_cluster+4,y
 ;
 ; id = bag[bag_index];
 ;
-	.dbg	line, "main.c", 2349
-L11F6:	ldy     _bag_index
+	.dbg	line, "main.c", 2355
+L11FC:	ldy     _bag_index
 	lda     _bag,y
 	sta     _id
 ;
 ; bag_index = (bag_index + 1 == NUM_CLUSTERS ? 0 : bag_index + 1);
 ;
-	.dbg	line, "main.c", 2355
+	.dbg	line, "main.c", 2361
 	ldx     #$00
 	lda     _bag_index
 	clc
 	adc     #$01
-	bcc     L1202
+	bcc     L1208
 	inx
-L1202:	cpx     #$00
-	bne     L1204
+L1208:	cpx     #$00
+	bne     L120A
 	cmp     #$07
-	bne     L1204
+	bne     L120A
 	txa
-	jmp     L1A04
-L1204:	lda     _bag_index
+	jmp     L1A1F
+L120A:	lda     _bag_index
 	clc
 	adc     #$01
-L1A04:	sta     _bag_index
+L1A1F:	sta     _bag_index
 ;
 ; next_cluster.id = id;
 ;
-	.dbg	line, "main.c", 2357
+	.dbg	line, "main.c", 2363
 	lda     _id
 	sta     _next_cluster+21
 ;
 ; memcpy(next_cluster.def, cluster_defs_classic[id], (4 * 4));
 ;
-	.dbg	line, "main.c", 2358
+	.dbg	line, "main.c", 2364
 	lda     #<(_next_cluster+4)
 	ldx     #>(_next_cluster+4)
 	jsr     pushax
 	ldx     #$00
 	lda     _id
 	asl     a
-	bcc     L1A03
+	bcc     L1A1E
 	inx
 	clc
-L1A03:	adc     #<(_cluster_defs_classic)
+L1A1E:	adc     #<(_cluster_defs_classic)
 	sta     ptr1
 	txa
 	adc     #>(_cluster_defs_classic)
@@ -6558,41 +6596,41 @@ L1A03:	adc     #<(_cluster_defs_classic)
 ;
 ; memcpy(next_cluster.layout, next_cluster.def[0], 4);
 ;
-	.dbg	line, "main.c", 2359
+	.dbg	line, "main.c", 2365
 	ldy     #$03
-L1216:	lda     _next_cluster+4,y
+L121C:	lda     _next_cluster+4,y
 	sta     _next_cluster,y
 	dey
-	bpl     L1216
+	bpl     L121C
 ;
 ; next_cluster.sprite = cluster_sprites[id];
 ;
-	.dbg	line, "main.c", 2360
+	.dbg	line, "main.c", 2366
 	ldy     _id
 	lda     _cluster_sprites,y
 	sta     _next_cluster+20
 ;
 ; local_iy = 0;
 ;
-	.dbg	line, "main.c", 2364
+	.dbg	line, "main.c", 2370
 	lda     #$00
 	sta     _local_iy
 ;
 ; local_ix = 0;
 ;
-	.dbg	line, "main.c", 2365
+	.dbg	line, "main.c", 2371
 	sta     _local_ix
 ;
 ; local_t = next_cluster.sprite;
 ;
-	.dbg	line, "main.c", 2366
+	.dbg	line, "main.c", 2372
 	sta     _local_t+1
 	lda     _next_cluster+20
 	sta     _local_t
 ;
 ; multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 120, 16));
 ;
-	.dbg	line, "main.c", 2369
+	.dbg	line, "main.c", 2375
 	jsr     decsp3
 	lda     #<(_empty_row)
 	ldy     #$01
@@ -6616,7 +6654,7 @@ L1216:	lda     _next_cluster+4,y
 ;
 ; multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 120, 24));
 ;
-	.dbg	line, "main.c", 2370
+	.dbg	line, "main.c", 2376
 	jsr     decsp3
 	lda     #<(_empty_row)
 	ldy     #$01
@@ -6640,37 +6678,37 @@ L1216:	lda     _next_cluster+4,y
 ;
 ; for (i = 0; i < 4; ++i)
 ;
-	.dbg	line, "main.c", 2372
+	.dbg	line, "main.c", 2378
 	lda     #$00
-	sta     L11D1
-L1A05:	lda     L11D1
+	sta     L11D7
+L1A20:	lda     L11D7
 	cmp     #$04
-	bcs     L1A07
+	bcs     L1A22
 ;
 ; j = next_cluster.layout[i];
 ;
-	.dbg	line, "main.c", 2375
-	ldy     L11D1
+	.dbg	line, "main.c", 2381
+	ldy     L11D7
 	lda     _next_cluster,y
-	sta     L11D2
+	sta     L11D8
 ;
 ; local_ix = morton_compact_one_by_one(j >> 0); //index_to_x_lookup[j];
 ;
-	.dbg	line, "main.c", 2378
+	.dbg	line, "main.c", 2384
 	jsr     _morton_compact_one_by_one
 	sta     _local_ix
 ;
 ; local_iy = morton_compact_one_by_one(j >> 1); //index_to_y_lookup[j];
 ;
-	.dbg	line, "main.c", 2379
-	lda     L11D2
+	.dbg	line, "main.c", 2385
+	lda     L11D8
 	lsr     a
 	jsr     _morton_compact_one_by_one
 	sta     _local_iy
 ;
 ; one_vram_buffer(local_t, get_ppu_addr(cur_nt, 120 + (local_ix << 3), (next_cluster.id != 3 ? 16 : 8) + (local_iy << 3))); //8 + (local_iy << 3)
 ;
-	.dbg	line, "main.c", 2381
+	.dbg	line, "main.c", 2387
 	lda     _local_t
 	jsr     pusha
 	jsr     decsp2
@@ -6687,11 +6725,11 @@ L1A05:	lda     L11D1
 	sta     (sp),y
 	lda     _next_cluster+21
 	cmp     #$03
-	beq     L1A06
+	beq     L1A21
 	lda     #$10
-	jmp     L124C
-L1A06:	lda     #$08
-L124C:	sta     ptr1
+	jmp     L1252
+L1A21:	lda     #$08
+L1252:	sta     ptr1
 	lda     _local_iy
 	asl     a
 	asl     a
@@ -6703,29 +6741,29 @@ L124C:	sta     ptr1
 ;
 ; for (i = 0; i < 4; ++i)
 ;
-	.dbg	line, "main.c", 2372
-	inc     L11D1
-	jmp     L1A05
+	.dbg	line, "main.c", 2378
+	inc     L11D7
+	jmp     L1A20
 ;
 ; if (state != STATE_OVER && is_cluster_colliding())
 ;
-	.dbg	line, "main.c", 2389
-L1A07:	lda     _state
+	.dbg	line, "main.c", 2395
+L1A22:	lda     _state
 	cmp     #$06
-	beq     L1A08
+	beq     L1A23
 	jsr     _is_cluster_colliding
 	tax
-	bne     L1250
-L1A08:	rts
+	bne     L1256
+L1A23:	rts
 ;
 ; put_cur_cluster();
 ;
-	.dbg	line, "main.c", 2393
-L1250:	jsr     _put_cur_cluster
+	.dbg	line, "main.c", 2399
+L1256:	jsr     _put_cur_cluster
 ;
 ; go_to_state(STATE_OVER);
 ;
-	.dbg	line, "main.c", 2394
+	.dbg	line, "main.c", 2400
 	lda     #$06
 	jmp     _go_to_state
 	.dbg	line
@@ -6745,11 +6783,11 @@ L1250:	jsr     _put_cur_cluster
 
 .segment	"BSS"
 
-L126F:
+L1275:
 	.res	1,$00
-L1270:
+L1276:
 	.res	1,$00
-L1271:
+L1277:
 	.res	1,$00
 
 .segment	"CODE"
@@ -6757,24 +6795,24 @@ L1271:
 ;
 ; {
 ;
-	.dbg	line, "main.c", 2423
+	.dbg	line, "main.c", 2429
 	jsr     pusha
 ;
 ; old_rot = cur_rot;
 ;
-	.dbg	line, "main.c", 2426
+	.dbg	line, "main.c", 2432
 	lda     _cur_rot
-	sta     L126F
+	sta     L1275
 ;
 ; old_is_last_rotate = is_last_rotate;
 ;
-	.dbg	line, "main.c", 2427
+	.dbg	line, "main.c", 2433
 	lda     _is_last_rotate
-	sta     L1270
+	sta     L1276
 ;
 ; cur_rot = (cur_rot + dir) & 3; // % 4
 ;
-	.dbg	line, "main.c", 2428
+	.dbg	line, "main.c", 2434
 	ldy     #$00
 	lda     (sp),y
 	clc
@@ -6784,7 +6822,7 @@ L1271:
 ;
 ; memcpy(cur_cluster.layout, cur_cluster.def[cur_rot], 4);
 ;
-	.dbg	line, "main.c", 2430
+	.dbg	line, "main.c", 2436
 	lda     #<(_cur_cluster)
 	ldx     #>(_cur_cluster)
 	jsr     pushax
@@ -6805,22 +6843,22 @@ L1271:
 ;
 ; if (is_cluster_colliding())
 ;
-	.dbg	line, "main.c", 2432
+	.dbg	line, "main.c", 2438
 	jsr     _is_cluster_colliding
 	tax
-	jeq     L1A1C
+	jeq     L1A37
 ;
 ; if (cur_cluster.id != 2) //Is not line cluster
 ;
-	.dbg	line, "main.c", 2434
+	.dbg	line, "main.c", 2440
 	lda     _cur_cluster+21
 	cmp     #$02
-	jeq     L1A14
+	jeq     L1A2F
 ;
 ; if (((old_rot == 0) & (cur_rot == 1)) || ((old_rot == 2) & (cur_rot == 1)))
 ;
-	.dbg	line, "main.c", 2436
-	lda     L126F
+	.dbg	line, "main.c", 2442
+	lda     L1275
 	jsr     booleq
 	jsr     pusha0
 	lda     _cur_rot
@@ -6828,8 +6866,8 @@ L1271:
 	jsr     booleq
 	jsr     tosanda0
 	cmp     #$00
-	bne     L1A0D
-	lda     L126F
+	bne     L1A28
+	lda     L1275
 	cmp     #$02
 	jsr     booleq
 	jsr     pusha0
@@ -6838,18 +6876,18 @@ L1271:
 	jsr     booleq
 	jsr     tosanda0
 	cmp     #$00
-	beq     L1A0E
+	beq     L1A29
 ;
 ; result = rotate_srs(0);
 ;
-	.dbg	line, "main.c", 2438
-L1A0D:	lda     #$00
+	.dbg	line, "main.c", 2444
+L1A28:	lda     #$00
 ;
 ; else if (((old_rot == 1) & (cur_rot == 0)) || ((old_rot == 1) & (cur_rot == 2)))
 ;
-	.dbg	line, "main.c", 2440
-	jmp     L1A1E
-L1A0E:	lda     L126F
+	.dbg	line, "main.c", 2446
+	jmp     L1A39
+L1A29:	lda     L1275
 	cmp     #$01
 	jsr     booleq
 	jsr     pusha0
@@ -6857,8 +6895,8 @@ L1A0E:	lda     L126F
 	jsr     booleq
 	jsr     tosanda0
 	cmp     #$00
-	bne     L1A0F
-	lda     L126F
+	bne     L1A2A
+	lda     L1275
 	cmp     #$01
 	jsr     booleq
 	jsr     pusha0
@@ -6867,18 +6905,18 @@ L1A0E:	lda     L126F
 	jsr     booleq
 	jsr     tosanda0
 	cmp     #$00
-	beq     L1A10
+	beq     L1A2B
 ;
 ; result = rotate_srs(1);
 ;
-	.dbg	line, "main.c", 2442
-L1A0F:	lda     #$01
+	.dbg	line, "main.c", 2448
+L1A2A:	lda     #$01
 ;
 ; else if (((old_rot == 2) & (cur_rot == 3)) || ((old_rot == 0) & (cur_rot == 3)))
 ;
-	.dbg	line, "main.c", 2444
-	jmp     L1A1E
-L1A10:	lda     L126F
+	.dbg	line, "main.c", 2450
+	jmp     L1A39
+L1A2B:	lda     L1275
 	cmp     #$02
 	jsr     booleq
 	jsr     pusha0
@@ -6887,8 +6925,8 @@ L1A10:	lda     L126F
 	jsr     booleq
 	jsr     tosanda0
 	cmp     #$00
-	bne     L1A11
-	lda     L126F
+	bne     L1A2C
+	lda     L1275
 	jsr     booleq
 	jsr     pusha0
 	lda     _cur_rot
@@ -6896,18 +6934,18 @@ L1A10:	lda     L126F
 	jsr     booleq
 	jsr     tosanda0
 	cmp     #$00
-	beq     L1A12
+	beq     L1A2D
 ;
 ; result = rotate_srs(2);
 ;
-	.dbg	line, "main.c", 2446
-L1A11:	lda     #$02
+	.dbg	line, "main.c", 2452
+L1A2C:	lda     #$02
 ;
 ; else if (((old_rot == 3) & (cur_rot == 2)) || ((old_rot == 3) & (cur_rot == 0)))
 ;
-	.dbg	line, "main.c", 2448
-	jmp     L1A1E
-L1A12:	lda     L126F
+	.dbg	line, "main.c", 2454
+	jmp     L1A39
+L1A2D:	lda     L1275
 	cmp     #$03
 	jsr     booleq
 	jsr     pusha0
@@ -6916,8 +6954,8 @@ L1A12:	lda     L126F
 	jsr     booleq
 	jsr     tosanda0
 	cmp     #$00
-	bne     L1A13
-	lda     L126F
+	bne     L1A2E
+	lda     L1275
 	cmp     #$03
 	jsr     booleq
 	jsr     pusha0
@@ -6925,23 +6963,23 @@ L1A12:	lda     L126F
 	jsr     booleq
 	jsr     tosanda0
 	cmp     #$00
-	jeq     L12E9
+	jeq     L12EF
 ;
 ; result = rotate_srs(3);
 ;
-	.dbg	line, "main.c", 2450
-L1A13:	lda     #$03
+	.dbg	line, "main.c", 2456
+L1A2E:	lda     #$03
 	jsr     _rotate_srs
 ;
 ; else
 ;
-	.dbg	line, "main.c", 2453
-	jmp     L1A0B
+	.dbg	line, "main.c", 2459
+	jmp     L1A26
 ;
 ; if (((old_rot == 0) & (cur_rot == 1)) ||  ((old_rot == 3) & (cur_rot == 2)))
 ;
-	.dbg	line, "main.c", 2455
-L1A14:	lda     L126F
+	.dbg	line, "main.c", 2461
+L1A2F:	lda     L1275
 	jsr     booleq
 	jsr     pusha0
 	lda     _cur_rot
@@ -6949,8 +6987,8 @@ L1A14:	lda     L126F
 	jsr     booleq
 	jsr     tosanda0
 	cmp     #$00
-	bne     L1A15
-	lda     L126F
+	bne     L1A30
+	lda     L1275
 	cmp     #$03
 	jsr     booleq
 	jsr     pusha0
@@ -6959,19 +6997,19 @@ L1A14:	lda     L126F
 	jsr     booleq
 	jsr     tosanda0
 	cmp     #$00
-	beq     L1A16
+	beq     L1A31
 ;
 ; result = rotate_srs(4);
 ;
-	.dbg	line, "main.c", 2457
-L1A15:	lda     #$04
+	.dbg	line, "main.c", 2463
+L1A30:	lda     #$04
 	jsr     _rotate_srs
 ;
 ; else if (((old_rot == 1) & (cur_rot == 0)) || ((old_rot == 2) & (cur_rot == 3)))
 ;
-	.dbg	line, "main.c", 2459
-	jmp     L1A0B
-L1A16:	lda     L126F
+	.dbg	line, "main.c", 2465
+	jmp     L1A26
+L1A31:	lda     L1275
 	cmp     #$01
 	jsr     booleq
 	jsr     pusha0
@@ -6979,8 +7017,8 @@ L1A16:	lda     L126F
 	jsr     booleq
 	jsr     tosanda0
 	cmp     #$00
-	bne     L1A17
-	lda     L126F
+	bne     L1A32
+	lda     L1275
 	cmp     #$02
 	jsr     booleq
 	jsr     pusha0
@@ -6989,19 +7027,19 @@ L1A16:	lda     L126F
 	jsr     booleq
 	jsr     tosanda0
 	cmp     #$00
-	beq     L1A18
+	beq     L1A33
 ;
 ; result = rotate_srs(5);
 ;
-	.dbg	line, "main.c", 2461
-L1A17:	lda     #$05
+	.dbg	line, "main.c", 2467
+L1A32:	lda     #$05
 	jsr     _rotate_srs
 ;
 ; else if (((old_rot == 1) & (cur_rot == 2)) || ((old_rot == 0) & (cur_rot == 3)))
 ;
-	.dbg	line, "main.c", 2463
-	jmp     L1A0B
-L1A18:	lda     L126F
+	.dbg	line, "main.c", 2469
+	jmp     L1A26
+L1A33:	lda     L1275
 	cmp     #$01
 	jsr     booleq
 	jsr     pusha0
@@ -7010,8 +7048,8 @@ L1A18:	lda     L126F
 	jsr     booleq
 	jsr     tosanda0
 	cmp     #$00
-	bne     L1A19
-	lda     L126F
+	bne     L1A34
+	lda     L1275
 	jsr     booleq
 	jsr     pusha0
 	lda     _cur_rot
@@ -7019,19 +7057,19 @@ L1A18:	lda     L126F
 	jsr     booleq
 	jsr     tosanda0
 	cmp     #$00
-	beq     L1A1A
+	beq     L1A35
 ;
 ; result = rotate_srs(6);
 ;
-	.dbg	line, "main.c", 2465
-L1A19:	lda     #$06
+	.dbg	line, "main.c", 2471
+L1A34:	lda     #$06
 	jsr     _rotate_srs
 ;
 ; else if (((old_rot == 2) & (cur_rot == 1)) || ((old_rot == 3) & (cur_rot == 0)))
 ;
-	.dbg	line, "main.c", 2467
-	jmp     L1A0B
-L1A1A:	lda     L126F
+	.dbg	line, "main.c", 2473
+	jmp     L1A26
+L1A35:	lda     L1275
 	cmp     #$02
 	jsr     booleq
 	jsr     pusha0
@@ -7040,8 +7078,8 @@ L1A1A:	lda     L126F
 	jsr     booleq
 	jsr     tosanda0
 	cmp     #$00
-	bne     L1A1B
-	lda     L126F
+	bne     L1A36
+	lda     L1275
 	cmp     #$03
 	jsr     booleq
 	jsr     pusha0
@@ -7049,46 +7087,46 @@ L1A1A:	lda     L126F
 	jsr     booleq
 	jsr     tosanda0
 	cmp     #$00
-	beq     L12E9
+	beq     L12EF
 ;
 ; result = rotate_srs(7);
 ;
-	.dbg	line, "main.c", 2469
-L1A1B:	lda     #$07
-L1A1E:	jsr     _rotate_srs
+	.dbg	line, "main.c", 2475
+L1A36:	lda     #$07
+L1A39:	jsr     _rotate_srs
 ;
 ; else
 ;
-	.dbg	line, "main.c", 2473
-	jmp     L1A0B
+	.dbg	line, "main.c", 2479
+	jmp     L1A26
 ;
 ; result = 1;
 ;
-	.dbg	line, "main.c", 2475
-L1A1C:	lda     #$01
-L1A0B:	sta     L1271
+	.dbg	line, "main.c", 2481
+L1A37:	lda     #$01
+L1A26:	sta     L1277
 ;
 ; if (result == 0)
 ;
-	.dbg	line, "main.c", 2478
-L12E9:	lda     L1271
-	bne     L1A1D
+	.dbg	line, "main.c", 2484
+L12EF:	lda     L1277
+	bne     L1A38
 ;
 ; cur_rot = old_rot;
 ;
-	.dbg	line, "main.c", 2480
-	lda     L126F
+	.dbg	line, "main.c", 2486
+	lda     L1275
 	sta     _cur_rot
 ;
 ; is_last_rotate = old_is_last_rotate;
 ;
-	.dbg	line, "main.c", 2481
-	lda     L1270
+	.dbg	line, "main.c", 2487
+	lda     L1276
 	sta     _is_last_rotate
 ;
 ; memcpy(cur_cluster.layout, cur_cluster.def[cur_rot], 4);
 ;
-	.dbg	line, "main.c", 2482
+	.dbg	line, "main.c", 2488
 	lda     #<(_cur_cluster)
 	ldx     #>(_cur_cluster)
 	jsr     pushax
@@ -7109,37 +7147,37 @@ L12E9:	lda     L1271
 ;
 ; SFX_PLAY_WRAPPER(SOUND_BLOCKED);
 ;
-	.dbg	line, "main.c", 2483
+	.dbg	line, "main.c", 2489
 	lda     _sfx_on
-	beq     L1300
+	beq     L1306
 	lda     #$06
 	jsr     pusha
 	lda     #$00
 ;
 ; else
 ;
-	.dbg	line, "main.c", 2485
-	jmp     L1A0C
+	.dbg	line, "main.c", 2491
+	jmp     L1A27
 ;
 ; is_last_rotate = 1;
 ;
-	.dbg	line, "main.c", 2487
-L1A1D:	lda     #$01
+	.dbg	line, "main.c", 2493
+L1A38:	lda     #$01
 	sta     _is_last_rotate
 ;
 ; SFX_PLAY_WRAPPER(SOUND_ROTATE);
 ;
-	.dbg	line, "main.c", 2488
+	.dbg	line, "main.c", 2494
 	lda     _sfx_on
-	beq     L1300
+	beq     L1306
 	lda     #$00
 	jsr     pusha
-L1A0C:	jsr     _sfx_play
+L1A27:	jsr     _sfx_play
 ;
 ; }
 ;
-	.dbg	line, "main.c", 2490
-L1300:	jmp     incsp1
+	.dbg	line, "main.c", 2496
+L1306:	jmp     incsp1
 	.dbg	line
 
 .endproc
@@ -7157,9 +7195,9 @@ L1300:	jmp     incsp1
 
 .segment	"BSS"
 
-L1307:
+L130D:
 	.res	1,$00
-L1308:
+L130E:
 	.res	1,$00
 
 .segment	"CODE"
@@ -7167,22 +7205,22 @@ L1308:
 ;
 ; {
 ;
-	.dbg	line, "main.c", 2493
+	.dbg	line, "main.c", 2499
 	jsr     pusha
 ;
 ; for (test = 0; test < 5; ++test)
 ;
-	.dbg	line, "main.c", 2496
+	.dbg	line, "main.c", 2502
 	lda     #$00
-	sta     L1307
+	sta     L130D
 	tax
-L1A20:	lda     L1307
+L1A3B:	lda     L130D
 	cmp     #$05
-	bcs     L1A21
+	bcs     L1A3C
 ;
 ; morton = srs_rotate_lookup[case_id][test];
 ;
-	.dbg	line, "main.c", 2498
+	.dbg	line, "main.c", 2504
 	lda     (sp,x)
 	jsr     mulax5
 	clc
@@ -7193,16 +7231,16 @@ L1A20:	lda     L1307
 	tax
 	tya
 	clc
-	adc     L1307
-	bcc     L1A1F
+	adc     L130D
+	bcc     L1A3A
 	inx
-L1A1F:	ldy     #$00
+L1A3A:	ldy     #$00
 	jsr     ldaidx
-	sta     L1308
+	sta     L130E
 ;
 ; cur_block.x += (morton_compact_one_by_one(morton >> 0) - 3);
 ;
-	.dbg	line, "main.c", 2499
+	.dbg	line, "main.c", 2505
 	jsr     _morton_compact_one_by_one
 	sec
 	sbc     #$03
@@ -7212,8 +7250,8 @@ L1A1F:	ldy     #$00
 ;
 ; cur_block.y += (morton_compact_one_by_one(morton >> 1) - 3);
 ;
-	.dbg	line, "main.c", 2500
-	lda     L1308
+	.dbg	line, "main.c", 2506
+	lda     L130E
 	cmp     #$80
 	ror     a
 	jsr     _morton_compact_one_by_one
@@ -7225,32 +7263,32 @@ L1A1F:	ldy     #$00
 ;
 ; if (!is_cluster_colliding())
 ;
-	.dbg	line, "main.c", 2501
+	.dbg	line, "main.c", 2507
 	jsr     _is_cluster_colliding
 	tax
-	bne     L130B
+	bne     L1311
 ;
 ; return 1;
 ;
-	.dbg	line, "main.c", 2503
+	.dbg	line, "main.c", 2509
 	lda     #$01
 	jmp     incsp1
 ;
 ; for (test = 0; test < 5; ++test)
 ;
-	.dbg	line, "main.c", 2496
-L130B:	ldx     #$00
-	inc     L1307
-	jmp     L1A20
+	.dbg	line, "main.c", 2502
+L1311:	ldx     #$00
+	inc     L130D
+	jmp     L1A3B
 ;
 ; return 0;
 ;
-	.dbg	line, "main.c", 2506
-L1A21:	txa
+	.dbg	line, "main.c", 2512
+L1A3C:	txa
 ;
 ; }
 ;
-	.dbg	line, "main.c", 2507
+	.dbg	line, "main.c", 2513
 	jmp     incsp1
 	.dbg	line
 
@@ -7268,13 +7306,13 @@ L1A21:	txa
 
 .segment	"BSS"
 
-L10ED:
+L10F3:
 	.res	1,$00
-L10EE:
+L10F4:
 	.res	1,$00
-L10EF:
+L10F5:
 	.res	1,$00
-L10F0:
+L10F6:
 	.res	1,$00
 
 .segment	"CODE"
@@ -7282,13 +7320,13 @@ L10F0:
 ;
 ; result = 0;
 ;
-	.dbg	line, "main.c", 2110
+	.dbg	line, "main.c", 2116
 	lda     #$00
-	sta     L10F0
+	sta     L10F6
 ;
 ; if (cur_cluster.id == 4 & is_last_rotate == 1) //Is T cluster
 ;
-	.dbg	line, "main.c", 2111
+	.dbg	line, "main.c", 2117
 	lda     _cur_cluster+21
 	cmp     #$04
 	jsr     booleq
@@ -7298,130 +7336,130 @@ L10F0:
 	jsr     booleq
 	jsr     tosanda0
 	cmp     #$00
-	jeq     L1A26
+	jeq     L1A41
 ;
 ; j = cur_cluster.layout[2];
 ;
-	.dbg	line, "main.c", 2114
+	.dbg	line, "main.c", 2120
 	lda     _cur_cluster+2
-	sta     L10EF
+	sta     L10F5
 ;
 ; local_ix = morton_compact_one_by_one(j >> 0); 
 ;
-	.dbg	line, "main.c", 2117
+	.dbg	line, "main.c", 2123
 	jsr     _morton_compact_one_by_one
 	sta     _local_ix
 ;
 ; local_iy = morton_compact_one_by_one(j >> 1); 
 ;
-	.dbg	line, "main.c", 2118
-	lda     L10EF
+	.dbg	line, "main.c", 2124
+	lda     L10F5
 	lsr     a
 	jsr     _morton_compact_one_by_one
 	sta     _local_iy
 ;
 ; x = cur_block.x + local_ix;
 ;
-	.dbg	line, "main.c", 2120
+	.dbg	line, "main.c", 2126
 	lda     _cur_block
 	clc
 	adc     _local_ix
-	sta     L10ED
+	sta     L10F3
 ;
 ; y = cur_block.y + local_iy;
 ;
-	.dbg	line, "main.c", 2121
+	.dbg	line, "main.c", 2127
 	lda     _cur_block+1
 	clc
 	adc     _local_iy
-	sta     L10EE
+	sta     L10F4
 ;
 ; result += is_block_occupied(x + 1, y - 1);
 ;
-	.dbg	line, "main.c", 2123
-	lda     L10ED
+	.dbg	line, "main.c", 2129
+	lda     L10F3
 	clc
 	adc     #$01
 	jsr     pusha
-	lda     L10EE
+	lda     L10F4
 	sec
 	sbc     #$01
 	jsr     _is_block_occupied
 	clc
-	adc     L10F0
-	sta     L10F0
+	adc     L10F6
+	sta     L10F6
 ;
 ; result += is_block_occupied(x - 1, y + 1);
 ;
-	.dbg	line, "main.c", 2124
-	lda     L10ED
+	.dbg	line, "main.c", 2130
+	lda     L10F3
 	sec
 	sbc     #$01
 	jsr     pusha
-	lda     L10EE
+	lda     L10F4
 	clc
 	adc     #$01
 	jsr     _is_block_occupied
 	clc
-	adc     L10F0
-	sta     L10F0
+	adc     L10F6
+	sta     L10F6
 ;
 ; result += is_block_occupied(x + 1, y + 1);
 ;
-	.dbg	line, "main.c", 2125
-	lda     L10ED
+	.dbg	line, "main.c", 2131
+	lda     L10F3
 	clc
 	adc     #$01
 	jsr     pusha
-	lda     L10EE
+	lda     L10F4
 	clc
 	adc     #$01
 	jsr     _is_block_occupied
 	clc
-	adc     L10F0
-	sta     L10F0
+	adc     L10F6
+	sta     L10F6
 ;
 ; result += is_block_occupied(x - 1, y - 1);
 ;
-	.dbg	line, "main.c", 2126
-	lda     L10ED
+	.dbg	line, "main.c", 2132
+	lda     L10F3
 	sec
 	sbc     #$01
 	jsr     pusha
-	lda     L10EE
+	lda     L10F4
 	sec
 	sbc     #$01
 	jsr     _is_block_occupied
 	clc
-	adc     L10F0
-	sta     L10F0
+	adc     L10F6
+	sta     L10F6
 ;
 ; if (result >= 3)
 ;
-	.dbg	line, "main.c", 2128
+	.dbg	line, "main.c", 2134
 	cmp     #$03
 	lda     #$00
-	bcc     L1A24
+	bcc     L1A3F
 ;
 ; result = 1;
 ;
-	.dbg	line, "main.c", 2130
+	.dbg	line, "main.c", 2136
 	lda     #$01
 ;
 ; result = 0;
 ;
-	.dbg	line, "main.c", 2134
-L1A24:	sta     L10F0
+	.dbg	line, "main.c", 2140
+L1A3F:	sta     L10F6
 ;
 ; return result;
 ;
-	.dbg	line, "main.c", 2138
+	.dbg	line, "main.c", 2144
 	ldx     #$00
-L1A26:	lda     L10F0
+L1A41:	lda     L10F6
 ;
 ; }
 ;
-	.dbg	line, "main.c", 2139
+	.dbg	line, "main.c", 2145
 	rts
 	.dbg	line
 
@@ -7440,11 +7478,11 @@ L1A26:	lda     L10F0
 
 .segment	"BSS"
 
-L1334:
+L133A:
 	.res	1,$00
-L1335:
+L133B:
 	.res	1,$00
-L1336:
+L133C:
 	.res	1,$00
 
 .segment	"CODE"
@@ -7452,75 +7490,75 @@ L1336:
 ;
 ; {
 ;
-	.dbg	line, "main.c", 2518
+	.dbg	line, "main.c", 2524
 	jsr     pusha
 ;
 ; fade_delay = 5;
 ;
-	.dbg	line, "main.c", 2528
+	.dbg	line, "main.c", 2534
 	lda     #$05
-	sta     L1335
+	sta     L133B
 ;
 ; prev_state = state;
 ;
-	.dbg	line, "main.c", 2529
+	.dbg	line, "main.c", 2535
 	lda     _state
-	sta     L1336
+	sta     L133C
 ;
 ; switch (state)
 ;
-	.dbg	line, "main.c", 2531
+	.dbg	line, "main.c", 2537
 	lda     _state
 ;
 ; }
 ;
-	.dbg	line, "main.c", 2627
+	.dbg	line, "main.c", 2633
 	cmp     #$01
-	beq     L133F
+	beq     L1345
 	cmp     #$03
-	beq     L1348
+	beq     L134E
 	cmp     #$04
-	beq     L1366
+	beq     L136C
 	cmp     #$05
-	beq     L1362
+	beq     L1368
 	cmp     #$07
-	jne     L133D
+	jne     L1343
 ;
 ; MUSIC_PLAY_ATTRACT_WRAPPER(MUSIC_TITLE);
 ;
-	.dbg	line, "main.c", 2536
-L133F:	lda     _music_on
-	jeq     L133D
+	.dbg	line, "main.c", 2542
+L1345:	lda     _music_on
+	jeq     L1343
 	lda     #$00
 	jsr     _music_play
 ;
 ; break;
 ;
-	.dbg	line, "main.c", 2537
-	jmp     L133D
+	.dbg	line, "main.c", 2543
+	jmp     L1343
 ;
 ; pal_bg(palette_bg);
 ;
-	.dbg	line, "main.c", 2546
-L1348:	lda     #<(_palette_bg)
+	.dbg	line, "main.c", 2552
+L134E:	lda     #<(_palette_bg)
 	ldx     #>(_palette_bg)
 	jsr     _pal_bg
 ;
 ; saved_starting_level = cur_level;
 ;
-	.dbg	line, "main.c", 2547
+	.dbg	line, "main.c", 2553
 	lda     _cur_level
 	sta     _saved_starting_level
 ;
 ; fall_rate = fall_rates_per_level[MIN(cur_level, sizeof(fall_rates_per_level))];
 ;
-	.dbg	line, "main.c", 2548
+	.dbg	line, "main.c", 2554
 	lda     _cur_level
 	cmp     #$1E
-	bcs     L1A27
-	jmp     L1357
-L1A27:	lda     #$1E
-L1357:	sta     ptr1
+	bcs     L1A42
+	jmp     L135D
+L1A42:	lda     #$1E
+L135D:	sta     ptr1
 	lda     #$00
 	clc
 	adc     #>(_fall_rates_per_level)
@@ -7531,46 +7569,46 @@ L1357:	sta     ptr1
 ;
 ; row_to_clear = -1;
 ;
-	.dbg	line, "main.c", 2549
+	.dbg	line, "main.c", 2555
 	lda     #$FF
 	sta     _row_to_clear
 ;
 ; start_delay_remaining = START_DELAY;
 ;
-	.dbg	line, "main.c", 2550
+	.dbg	line, "main.c", 2556
 	lda     #$78
 	sta     _start_delay_remaining
 ;
 ; display_level();
 ;
-	.dbg	line, "main.c", 2551
+	.dbg	line, "main.c", 2557
 	jsr     _display_level
 ;
 ; display_score();
 ;
-	.dbg	line, "main.c", 2552
+	.dbg	line, "main.c", 2558
 	jsr     _display_score
 ;
 ; break;
 ;
-	.dbg	line, "main.c", 2553
-	jmp     L133D
+	.dbg	line, "main.c", 2559
+	jmp     L1343
 ;
 ; pal_bright(4);
 ;
-	.dbg	line, "main.c", 2559
-L1362:	lda     #$04
+	.dbg	line, "main.c", 2565
+L1368:	lda     #$04
 	jsr     _pal_bright
 ;
 ; break;
 ;
-	.dbg	line, "main.c", 2560
-	jmp     L133D
+	.dbg	line, "main.c", 2566
+	jmp     L1343
 ;
 ; if (cur_score > high_scores[attack_style])
 ;
-	.dbg	line, "main.c", 2610
-L1366:	lda     _cur_score+3
+	.dbg	line, "main.c", 2616
+L136C:	lda     _cur_score+3
 	sta     sreg+1
 	lda     _cur_score+2
 	sta     sreg
@@ -7589,11 +7627,11 @@ L1366:	lda     _cur_score+3
 	tya
 	jsr     ldeaxi
 	jsr     tosugteax
-	beq     L133D
+	beq     L1343
 ;
 ; high_scores[attack_style] = cur_score;
 ;
-	.dbg	line, "main.c", 2612
+	.dbg	line, "main.c", 2618
 	ldx     #$00
 	lda     _attack_style
 	jsr     aslax2
@@ -7616,132 +7654,132 @@ L1366:	lda     _cur_score+3
 ;
 ; state = new_state;
 ;
-	.dbg	line, "main.c", 2629
-L133D:	ldy     #$00
+	.dbg	line, "main.c", 2635
+L1343:	ldy     #$00
 	lda     (sp),y
 	sta     _state
 ;
 ; ticks_in_state_large = 0;
 ;
-	.dbg	line, "main.c", 2631
+	.dbg	line, "main.c", 2637
 	tya
 	sta     _ticks_in_state_large
 	sta     _ticks_in_state_large+1
 ;
 ; switch (state)
 ;
-	.dbg	line, "main.c", 2633
+	.dbg	line, "main.c", 2639
 	lda     _state
 ;
 ; }
 ;
-	.dbg	line, "main.c", 3043
-	beq     L1376
+	.dbg	line, "main.c", 3049
+	beq     L137C
 	cmp     #$01
-	beq     L1385
+	beq     L138B
 	cmp     #$02
-	beq     L1394
+	beq     L139A
 	cmp     #$03
-	jeq     L13D3
+	jeq     L13D9
 	cmp     #$04
-	jeq     L1A2B
+	jeq     L1A46
 	cmp     #$05
-	jeq     L143F
+	jeq     L1445
 	cmp     #$06
-	jeq     L1452
+	jeq     L1458
 	cmp     #$07
-	jeq     L13ED
+	jeq     L13F3
 	jmp     incsp1
 ;
 ; pal_bg(palette_bg_options);
 ;
-	.dbg	line, "main.c", 2637
-L1376:	lda     #<(_palette_bg_options)
+	.dbg	line, "main.c", 2643
+L137C:	lda     #<(_palette_bg_options)
 	ldx     #>(_palette_bg_options)
 	jsr     _pal_bg
 ;
 ; ppu_off();
 ;
-	.dbg	line, "main.c", 2638
+	.dbg	line, "main.c", 2644
 	jsr     _ppu_off
 ;
 ; vram_adr(NTADR_A(0, 0));
 ;
-	.dbg	line, "main.c", 2639
+	.dbg	line, "main.c", 2645
 	ldx     #$20
 	lda     #$00
 	jsr     _vram_adr
 ;
 ; vram_unrle(boot_screen);
 ;
-	.dbg	line, "main.c", 2640
+	.dbg	line, "main.c", 2646
 	lda     #<(_boot_screen)
 	ldx     #>(_boot_screen)
 	jsr     _vram_unrle
 ;
 ; ppu_on_all();
 ;
-	.dbg	line, "main.c", 2641
+	.dbg	line, "main.c", 2647
 	jsr     _ppu_on_all
 ;
 ; break;
 ;
-	.dbg	line, "main.c", 2643
+	.dbg	line, "main.c", 2649
 	jmp     incsp1
 ;
 ; pal_bg(palette_bg_options);
 ;
-	.dbg	line, "main.c", 2647
-L1385:	lda     #<(_palette_bg_options)
+	.dbg	line, "main.c", 2653
+L138B:	lda     #<(_palette_bg_options)
 	ldx     #>(_palette_bg_options)
 	jsr     _pal_bg
 ;
 ; ppu_off();
 ;
-	.dbg	line, "main.c", 2648
+	.dbg	line, "main.c", 2654
 	jsr     _ppu_off
 ;
 ; vram_adr(NTADR_A(0, 0));
 ;
-	.dbg	line, "main.c", 2649
+	.dbg	line, "main.c", 2655
 	ldx     #$20
 	lda     #$00
 	jsr     _vram_adr
 ;
 ; vram_unrle(ty_screen);
 ;
-	.dbg	line, "main.c", 2650
+	.dbg	line, "main.c", 2656
 	lda     #<(_ty_screen)
 	ldx     #>(_ty_screen)
 	jsr     _vram_unrle
 ;
 ; ppu_on_all();
 ;
-	.dbg	line, "main.c", 2651
+	.dbg	line, "main.c", 2657
 	jsr     _ppu_on_all
 ;
 ; break;
 ;
-	.dbg	line, "main.c", 2653
+	.dbg	line, "main.c", 2659
 	jmp     incsp1
 ;
 ; pal_bg(palette_bg);
 ;
-	.dbg	line, "main.c", 2657
-L1394:	lda     #<(_palette_bg)
+	.dbg	line, "main.c", 2663
+L139A:	lda     #<(_palette_bg)
 	ldx     #>(_palette_bg)
 	jsr     _pal_bg
 ;
 ; pal_spr(palette_sp);
 ;
-	.dbg	line, "main.c", 2658
+	.dbg	line, "main.c", 2664
 	lda     #<(_palette_sp)
 	ldx     #>(_palette_sp)
 	jsr     _pal_spr
 ;
 ; scroll_y = 0x1df;
 ;
-	.dbg	line, "main.c", 2659
+	.dbg	line, "main.c", 2665
 	ldx     #$01
 	lda     #$DF
 	sta     _scroll_y
@@ -7749,67 +7787,67 @@ L1394:	lda     #<(_palette_bg)
 ;
 ; time_of_day = 0;
 ;
-	.dbg	line, "main.c", 2660
+	.dbg	line, "main.c", 2666
 	lda     #$00
 	sta     _time_of_day
 ;
 ; cur_konami_index = 0;
 ;
-	.dbg	line, "main.c", 2661
+	.dbg	line, "main.c", 2667
 	sta     _cur_konami_index
 ;
 ; if (prev_state == STATE_OPTIONS || prev_state == STATE_BOOT || prev_state == STATE_TY || prev_state == STATE_SOUND_TEST || prev_state == STATE_HIGH_SCORE_TABLE)
 ;
-	.dbg	line, "main.c", 2666
-	lda     L1336
+	.dbg	line, "main.c", 2672
+	lda     L133C
 	cmp     #$03
-	beq     L1A29
-	lda     L1336
-	beq     L1A29
+	beq     L1A44
+	lda     L133C
+	beq     L1A44
 	cmp     #$01
-	beq     L1A29
+	beq     L1A44
 	cmp     #$07
-	beq     L1A29
+	beq     L1A44
 	cmp     #$08
-	bne     L1A2A
+	bne     L1A45
 ;
 ; oam_clear();
 ;
-	.dbg	line, "main.c", 2668
-L1A29:	jsr     _oam_clear
+	.dbg	line, "main.c", 2674
+L1A44:	jsr     _oam_clear
 ;
 ; draw_menu_sprites();
 ;
-	.dbg	line, "main.c", 2669
+	.dbg	line, "main.c", 2675
 	jsr     _draw_menu_sprites
 ;
 ; ppu_off();
 ;
-	.dbg	line, "main.c", 2671
+	.dbg	line, "main.c", 2677
 	jsr     _ppu_off
 ;
 ; vram_adr(NTADR_A(0, 0));
 ;
-	.dbg	line, "main.c", 2672
+	.dbg	line, "main.c", 2678
 	ldx     #$20
 	lda     #$00
 	jsr     _vram_adr
 ;
 ; vram_unrle(title_screen);
 ;
-	.dbg	line, "main.c", 2673
+	.dbg	line, "main.c", 2679
 	lda     #<(_title_screen)
 	ldx     #>(_title_screen)
 	jsr     _vram_unrle
 ;
 ; ppu_on_all();
 ;
-	.dbg	line, "main.c", 2674
+	.dbg	line, "main.c", 2680
 	jsr     _ppu_on_all
 ;
 ; multi_vram_buffer_horz(clear_push_start, sizeof(clear_push_start) - 1, get_ppu_addr(0, 12 << 3, 12 << 3));
 ;
-	.dbg	line, "main.c", 2678
+	.dbg	line, "main.c", 2684
 	jsr     decsp3
 	lda     #<(_clear_push_start)
 	ldy     #$01
@@ -7832,34 +7870,34 @@ L1A29:	jsr     _oam_clear
 ;
 ; else
 ;
-	.dbg	line, "main.c", 2681
+	.dbg	line, "main.c", 2687
 	jmp     incsp1
 ;
 ; if (prev_state == STATE_OVER)
 ;
-	.dbg	line, "main.c", 2683
-L1A2A:	lda     L1336
+	.dbg	line, "main.c", 2689
+L1A45:	lda     L133C
 	cmp     #$06
-	bne     L13B8
+	bne     L13BE
 ;
 ; fade_to_black();
 ;
-	.dbg	line, "main.c", 2685
+	.dbg	line, "main.c", 2691
 	jsr     _fade_to_black
 ;
 ; reset_gameplay_area();
 ;
-	.dbg	line, "main.c", 2688
-L13B8:	jsr     _reset_gameplay_area
+	.dbg	line, "main.c", 2694
+L13BE:	jsr     _reset_gameplay_area
 ;
 ; draw_menu_sprites();
 ;
-	.dbg	line, "main.c", 2690
+	.dbg	line, "main.c", 2696
 	jsr     _draw_menu_sprites
 ;
 ; scroll_y = 0x1df;
 ;
-	.dbg	line, "main.c", 2692
+	.dbg	line, "main.c", 2698
 	ldx     #$01
 	lda     #$DF
 	sta     _scroll_y
@@ -7867,7 +7905,7 @@ L13B8:	jsr     _reset_gameplay_area
 ;
 ; scroll(0, 0x1df); // shift the bg down 1 pixel
 ;
-	.dbg	line, "main.c", 2693
+	.dbg	line, "main.c", 2699
 	jsr     push0
 	ldx     #$01
 	lda     #$DF
@@ -7875,16 +7913,16 @@ L13B8:	jsr     _reset_gameplay_area
 ;
 ; MUSIC_PLAY_ATTRACT_WRAPPER(MUSIC_TITLE);
 ;
-	.dbg	line, "main.c", 2694
+	.dbg	line, "main.c", 2700
 	lda     _music_on
-	beq     L13C2
+	beq     L13C8
 	lda     #$00
 	jsr     _music_play
 ;
 ; multi_vram_buffer_horz(clear_push_start, sizeof(clear_push_start) - 1, get_ppu_addr(0, 12 << 3, 12 << 3));
 ;
-	.dbg	line, "main.c", 2699
-L13C2:	jsr     decsp3
+	.dbg	line, "main.c", 2705
+L13C8:	jsr     decsp3
 	lda     #<(_clear_push_start)
 	ldy     #$01
 	sta     (sp),y
@@ -7906,65 +7944,65 @@ L13C2:	jsr     decsp3
 ;
 ; if (prev_state == STATE_OVER)
 ;
-	.dbg	line, "main.c", 2702
-	lda     L1336
+	.dbg	line, "main.c", 2708
+	lda     L133C
 	cmp     #$06
-	beq     L1A2E
+	beq     L1A49
 ;
 ; }
 ;
-	.dbg	line, "main.c", 3044
+	.dbg	line, "main.c", 3050
 	jmp     incsp1
 ;
 ; fade_from_black();
 ;
-	.dbg	line, "main.c", 2704
-L1A2E:	jsr     _fade_from_black
+	.dbg	line, "main.c", 2710
+L1A49:	jsr     _fade_from_black
 ;
 ; break;
 ;
-	.dbg	line, "main.c", 2708
+	.dbg	line, "main.c", 2714
 	jmp     incsp1
 ;
 ; oam_clear();
 ;
-	.dbg	line, "main.c", 2713
-L13D3:	jsr     _oam_clear
+	.dbg	line, "main.c", 2719
+L13D9:	jsr     _oam_clear
 ;
 ; clear_vram_buffer();
 ;
-	.dbg	line, "main.c", 2718
+	.dbg	line, "main.c", 2724
 	jsr     _clear_vram_buffer
 ;
 ; ppu_off();
 ;
-	.dbg	line, "main.c", 2720
+	.dbg	line, "main.c", 2726
 	jsr     _ppu_off
 ;
 ; pal_bg(palette_bg_options);
 ;
-	.dbg	line, "main.c", 2741
+	.dbg	line, "main.c", 2747
 	lda     #<(_palette_bg_options)
 	ldx     #>(_palette_bg_options)
 	jsr     _pal_bg
 ;
 ; vram_adr(NTADR_A(0, 0));
 ;
-	.dbg	line, "main.c", 2745
+	.dbg	line, "main.c", 2751
 	ldx     #$20
 	lda     #$00
 	jsr     _vram_adr
 ;
 ; vram_unrle(options_screen);
 ;
-	.dbg	line, "main.c", 2751
+	.dbg	line, "main.c", 2757
 	lda     #<(_options_screen)
 	ldx     #>(_options_screen)
 	jsr     _vram_unrle
 ;
 ; cur_level %= 10;
 ;
-	.dbg	line, "main.c", 2760
+	.dbg	line, "main.c", 2766
 	lda     _cur_level
 	jsr     pusha0
 	lda     #$0A
@@ -7973,185 +8011,185 @@ L13D3:	jsr     _oam_clear
 ;
 ; cur_option = 0;
 ;
-	.dbg	line, "main.c", 2761
+	.dbg	line, "main.c", 2767
 	lda     #$00
 	sta     _cur_option
 ;
 ; ppu_on_all();
 ;
-	.dbg	line, "main.c", 2763
+	.dbg	line, "main.c", 2769
 	jsr     _ppu_on_all
 ;
 ; display_options();
 ;
-	.dbg	line, "main.c", 2765
+	.dbg	line, "main.c", 2771
 	jsr     _display_options
 ;
 ; delay(1);
 ;
-	.dbg	line, "main.c", 2767
+	.dbg	line, "main.c", 2773
 	lda     #$01
 	jsr     _delay
 ;
 ; clear_vram_buffer();
 ;
-	.dbg	line, "main.c", 2768
+	.dbg	line, "main.c", 2774
 	jsr     _clear_vram_buffer
 ;
 ; display_highscore();
 ;
-	.dbg	line, "main.c", 2769
+	.dbg	line, "main.c", 2775
 	jsr     _display_highscore
 ;
 ; break;
 ;
-	.dbg	line, "main.c", 2772
+	.dbg	line, "main.c", 2778
 	jmp     incsp1
 ;
 ; oam_clear();
 ;
-	.dbg	line, "main.c", 2778
-L13ED:	jsr     _oam_clear
+	.dbg	line, "main.c", 2784
+L13F3:	jsr     _oam_clear
 ;
 ; ppu_off(); // screen off
 ;
-	.dbg	line, "main.c", 2779
+	.dbg	line, "main.c", 2785
 	jsr     _ppu_off
 ;
 ; pal_bg(palette_bg_options);
 ;
-	.dbg	line, "main.c", 2781
+	.dbg	line, "main.c", 2787
 	lda     #<(_palette_bg_options)
 	ldx     #>(_palette_bg_options)
 	jsr     _pal_bg
 ;
 ; vram_adr(NTADR_A(0, 0));
 ;
-	.dbg	line, "main.c", 2782
+	.dbg	line, "main.c", 2788
 	ldx     #$20
 	lda     #$00
 	jsr     _vram_adr
 ;
 ; vram_unrle(sound_screen);
 ;
-	.dbg	line, "main.c", 2783
+	.dbg	line, "main.c", 2789
 	lda     #<(_sound_screen)
 	ldx     #>(_sound_screen)
 	jsr     _vram_unrle
 ;
 ; ppu_on_all(); // turn on screen
 ;
-	.dbg	line, "main.c", 2785
+	.dbg	line, "main.c", 2791
 	jsr     _ppu_on_all
 ;
 ; test_song = test_sound = 0;
 ;
-	.dbg	line, "main.c", 2787
+	.dbg	line, "main.c", 2793
 	lda     #$00
 	sta     _test_sound
 	sta     _test_song
 ;
 ; test_song_active = 0xff;
 ;
-	.dbg	line, "main.c", 2788
+	.dbg	line, "main.c", 2794
 	lda     #$FF
 	sta     _test_song_active
 ;
 ; display_song();
 ;
-	.dbg	line, "main.c", 2790
+	.dbg	line, "main.c", 2796
 	jsr     _display_song
 ;
 ; display_sound();
 ;
-	.dbg	line, "main.c", 2791
+	.dbg	line, "main.c", 2797
 	jsr     _display_sound
 ;
 ; break;
 ;
-	.dbg	line, "main.c", 2793
+	.dbg	line, "main.c", 2799
 	jmp     incsp1
 ;
 ; if (prev_state == STATE_OVER)
 ;
-	.dbg	line, "main.c", 2800
-L1A2B:	lda     L1336
+	.dbg	line, "main.c", 2806
+L1A46:	lda     L133C
 	cmp     #$06
-	bne     L1A2C
+	bne     L1A47
 ;
 ; reset_gameplay_area();
 ;
-	.dbg	line, "main.c", 2802
+	.dbg	line, "main.c", 2808
 	jsr     _reset_gameplay_area
 ;
 ; if (prev_state != STATE_PAUSE)
 ;
-	.dbg	line, "main.c", 2805
-L1A2C:	lda     L1336
+	.dbg	line, "main.c", 2811
+L1A47:	lda     L133C
 	cmp     #$05
-	jeq     L1A2D
+	jeq     L1A48
 ;
 ; oam_clear();
 ;
-	.dbg	line, "main.c", 2807
+	.dbg	line, "main.c", 2813
 	jsr     _oam_clear
 ;
 ; if (prev_state == STATE_OPTIONS)
 ;
-	.dbg	line, "main.c", 2821
-	lda     L1336
+	.dbg	line, "main.c", 2827
+	lda     L133C
 	cmp     #$03
-	bne     L1411
+	bne     L1417
 ;
 ; scroll_y = 0;
 ;
-	.dbg	line, "main.c", 2824
+	.dbg	line, "main.c", 2830
 	lda     #$00
 	sta     _scroll_y
 	sta     _scroll_y+1
 ;
 ; while (scroll_y < 240)
 ;
-	.dbg	line, "main.c", 2826
-	jmp     L1411
+	.dbg	line, "main.c", 2832
+	jmp     L1417
 ;
 ; scroll(0, scroll_y);
 ;
-	.dbg	line, "main.c", 2828
-L140F:	jsr     push0
+	.dbg	line, "main.c", 2834
+L1415:	jsr     push0
 	lda     _scroll_y
 	ldx     _scroll_y+1
 	jsr     _scroll
 ;
 ; delay(1);
 ;
-	.dbg	line, "main.c", 2829
+	.dbg	line, "main.c", 2835
 	lda     #$01
 	jsr     _delay
 ;
 ; scroll_y += 4;
 ;
-	.dbg	line, "main.c", 2830
+	.dbg	line, "main.c", 2836
 	lda     #$04
 	clc
 	adc     _scroll_y
 	sta     _scroll_y
-	bcc     L1411
+	bcc     L1417
 	inc     _scroll_y+1
 ;
 ; while (scroll_y < 240)
 ;
-	.dbg	line, "main.c", 2826
-L1411:	lda     _scroll_y+1
+	.dbg	line, "main.c", 2832
+L1417:	lda     _scroll_y+1
 	cmp     #$00
-	bne     L1413
+	bne     L1419
 	lda     _scroll_y
 	cmp     #$F0
-L1413:	bcc     L140F
+L1419:	bcc     L1415
 ;
 ; scroll_y = 239;
 ;
-	.dbg	line, "main.c", 2833
+	.dbg	line, "main.c", 2839
 	ldx     #$00
 	lda     #$EF
 	sta     _scroll_y
@@ -8159,7 +8197,7 @@ L1413:	bcc     L140F
 ;
 ; scroll(0, scroll_y);
 ;
-	.dbg	line, "main.c", 2834
+	.dbg	line, "main.c", 2840
 	jsr     push0
 	lda     _scroll_y
 	ldx     _scroll_y+1
@@ -8167,17 +8205,17 @@ L1413:	bcc     L140F
 ;
 ; spawn_new_cluster();
 ;
-	.dbg	line, "main.c", 2837
+	.dbg	line, "main.c", 2843
 	jsr     _spawn_new_cluster
 ;
 ; spawn_new_cluster();
 ;
-	.dbg	line, "main.c", 2839
+	.dbg	line, "main.c", 2845
 	jsr     _spawn_new_cluster
 ;
 ; memfill(attack_row_status, 0, BOARD_WIDTH);
 ;
-	.dbg	line, "main.c", 2841
+	.dbg	line, "main.c", 2847
 	jsr     decsp3
 	lda     #<(_attack_row_status)
 	ldy     #$01
@@ -8194,43 +8232,43 @@ L1413:	bcc     L140F
 ;
 ; srand(tick_count_large);
 ;
-	.dbg	line, "main.c", 2844
+	.dbg	line, "main.c", 2850
 	lda     _tick_count_large
 	ldx     _tick_count_large+1
 	jsr     _srand
 ;
 ; i = rand() % BOARD_WIDTH;
 ;
-	.dbg	line, "main.c", 2847
+	.dbg	line, "main.c", 2853
 	jsr     _rand
 	jsr     pushax
 	ldx     #$00
 	lda     #$0A
 	jsr     tosmoda0
-	sta     L1334
+	sta     L133A
 ;
 ; attack_row_status[i] = 1;
 ;
-	.dbg	line, "main.c", 2848
-	ldy     L1334
+	.dbg	line, "main.c", 2854
+	ldy     L133A
 	lda     #$01
 	sta     _attack_row_status,y
 ;
 ; require_new_down_button = 1;
 ;
-	.dbg	line, "main.c", 2850
+	.dbg	line, "main.c", 2856
 	sta     _require_new_down_button
 ;
 ; if (attack_style == ATTACK_ON_TIME)
 ;
-	.dbg	line, "main.c", 2851
+	.dbg	line, "main.c", 2857
 	lda     _attack_style
 	cmp     #$01
-	bne     L1A2D
+	bne     L1A48
 ;
 ; attack_queue_ticks_remaining = attack_delay;
 ;
-	.dbg	line, "main.c", 2853
+	.dbg	line, "main.c", 2859
 	lda     _attack_delay+1
 	sta     _attack_queue_ticks_remaining+1
 	lda     _attack_delay
@@ -8238,122 +8276,122 @@ L1413:	bcc     L140F
 ;
 ; cur_gameplay_music = select_gameplay_music;
 ;
-	.dbg	line, "main.c", 2864
-L1A2D:	lda     _select_gameplay_music
+	.dbg	line, "main.c", 2870
+L1A48:	lda     _select_gameplay_music
 	sta     _cur_gameplay_music
 ;
 ; MUSIC_PLAY_WRAPPER(select_gameplay_music);
 ;
-	.dbg	line, "main.c", 2865
+	.dbg	line, "main.c", 2871
 	lda     _music_on
-	bne     L1A2F
+	bne     L1A4A
 ;
 ; }
 ;
-	.dbg	line, "main.c", 3044
+	.dbg	line, "main.c", 3050
 	jmp     incsp1
 ;
 ; MUSIC_PLAY_WRAPPER(select_gameplay_music);
 ;
-	.dbg	line, "main.c", 2865
-L1A2F:	lda     _select_gameplay_music
+	.dbg	line, "main.c", 2871
+L1A4A:	lda     _select_gameplay_music
 	jsr     _music_play
 ;
 ; break;
 ;
-	.dbg	line, "main.c", 2868
+	.dbg	line, "main.c", 2874
 	jmp     incsp1
 ;
 ; pal_bright(2);
 ;
-	.dbg	line, "main.c", 2873
-L143F:	lda     #$02
+	.dbg	line, "main.c", 2879
+L1445:	lda     #$02
 	jsr     _pal_bright
 ;
 ; if(select_gameplay_music == MUSIC_MUSICA){
 ;
-	.dbg	line, "main.c", 2874
+	.dbg	line, "main.c", 2880
 	lda     _select_gameplay_music
 	cmp     #$04
-	bne     L1442
+	bne     L1448
 ;
 ; music_stop();
 ;
-	.dbg	line, "main.c", 2875
+	.dbg	line, "main.c", 2881
 	jsr     _music_stop
 ;
 ; SFX_MUSIC_PLAY_WRAPPER(SOUND_PAUSE);
 ;
-	.dbg	line, "main.c", 2876
+	.dbg	line, "main.c", 2882
 	lda     _music_on
-	bne     L1A30
+	bne     L1A4B
 ;
 ; }
 ;
-	.dbg	line, "main.c", 3044
+	.dbg	line, "main.c", 3050
 	jmp     incsp1
 ;
 ; SFX_MUSIC_PLAY_WRAPPER(SOUND_PAUSE);
 ;
-	.dbg	line, "main.c", 2876
-L1A30:	lda     #$09
+	.dbg	line, "main.c", 2882
+L1A4B:	lda     #$09
 	jsr     pusha
 	lda     #$00
 	jsr     _sfx_play
 ;
 ; }else{
 ;
-	.dbg	line, "main.c", 2878
+	.dbg	line, "main.c", 2884
 	jmp     incsp1
 ;
 ; MUSIC_PLAY_WRAPPER(MUSIC_PAUSE);
 ;
-	.dbg	line, "main.c", 2879
-L1442:	lda     _music_on
-	bne     L1A31
+	.dbg	line, "main.c", 2885
+L1448:	lda     _music_on
+	bne     L1A4C
 ;
 ; }
 ;
-	.dbg	line, "main.c", 3044
+	.dbg	line, "main.c", 3050
 	jmp     incsp1
 ;
 ; MUSIC_PLAY_WRAPPER(MUSIC_PAUSE);
 ;
-	.dbg	line, "main.c", 2879
-L1A31:	lda     #$03
+	.dbg	line, "main.c", 2885
+L1A4C:	lda     #$03
 	jsr     _music_play
 ;
 ; break;
 ;
-	.dbg	line, "main.c", 2881
+	.dbg	line, "main.c", 2887
 	jmp     incsp1
 ;
 ; delay(1);
 ;
-	.dbg	line, "main.c", 2887
-L1452:	lda     #$01
+	.dbg	line, "main.c", 2893
+L1458:	lda     #$01
 	jsr     _delay
 ;
 ; clear_vram_buffer();
 ;
-	.dbg	line, "main.c", 2888
+	.dbg	line, "main.c", 2894
 	jsr     _clear_vram_buffer
 ;
 ; draw_gameplay_sprites();
 ;
-	.dbg	line, "main.c", 2891
+	.dbg	line, "main.c", 2897
 	jsr     _draw_gameplay_sprites
 ;
 ; music_stop();
 ;
-	.dbg	line, "main.c", 2893
+	.dbg	line, "main.c", 2899
 	jsr     _music_stop
 ;
 ; SFX_MUSIC_PLAY_WRAPPER(SOUND_GAMEOVER);
 ;
-	.dbg	line, "main.c", 2894
+	.dbg	line, "main.c", 2900
 	lda     _music_on
-	beq     L1458
+	beq     L145E
 	lda     #$04
 	jsr     pusha
 	lda     #$00
@@ -8361,21 +8399,21 @@ L1452:	lda     #$01
 ;
 ; if (music_on)
 ;
-	.dbg	line, "main.c", 2898
-L1458:	lda     _music_on
-	beq     L145E
+	.dbg	line, "main.c", 2904
+L145E:	lda     _music_on
+	beq     L1464
 ;
 ; delay(120);
 ;
-	.dbg	line, "main.c", 2900
+	.dbg	line, "main.c", 2906
 	lda     #$78
 	jsr     _delay
 ;
 ; SFX_MUSIC_PLAY_WRAPPER(SOUND_GAMEOVER_SONG);
 ;
-	.dbg	line, "main.c", 2905
-L145E:	lda     _music_on
-	beq     L1462
+	.dbg	line, "main.c", 2911
+L1464:	lda     _music_on
+	beq     L1468
 	lda     #$0C
 	jsr     pusha
 	lda     #$00
@@ -8383,55 +8421,55 @@ L145E:	lda     _music_on
 ;
 ; pal_bright(5);
 ;
-	.dbg	line, "main.c", 2911
-L1462:	lda     #$05
-	jsr     _pal_bright
-;
-; delay(fade_delay);
-;
-	.dbg	line, "main.c", 2912
-	lda     L1335
-	jsr     _delay
-;
-; pal_bright(6);
-;
-	.dbg	line, "main.c", 2913
-	lda     #$06
-	jsr     _pal_bright
-;
-; delay(fade_delay);
-;
-	.dbg	line, "main.c", 2914
-	lda     L1335
-	jsr     _delay
-;
-; pal_bright(7);
-;
-	.dbg	line, "main.c", 2915
-	lda     #$07
-	jsr     _pal_bright
-;
-; delay(fade_delay);
-;
-	.dbg	line, "main.c", 2916
-	lda     L1335
-	jsr     _delay
-;
-; pal_bright(8);
-;
 	.dbg	line, "main.c", 2917
-	lda     #$08
+L1468:	lda     #$05
 	jsr     _pal_bright
 ;
 ; delay(fade_delay);
 ;
 	.dbg	line, "main.c", 2918
-	lda     L1335
+	lda     L133B
+	jsr     _delay
+;
+; pal_bright(6);
+;
+	.dbg	line, "main.c", 2919
+	lda     #$06
+	jsr     _pal_bright
+;
+; delay(fade_delay);
+;
+	.dbg	line, "main.c", 2920
+	lda     L133B
+	jsr     _delay
+;
+; pal_bright(7);
+;
+	.dbg	line, "main.c", 2921
+	lda     #$07
+	jsr     _pal_bright
+;
+; delay(fade_delay);
+;
+	.dbg	line, "main.c", 2922
+	lda     L133B
+	jsr     _delay
+;
+; pal_bright(8);
+;
+	.dbg	line, "main.c", 2923
+	lda     #$08
+	jsr     _pal_bright
+;
+; delay(fade_delay);
+;
+	.dbg	line, "main.c", 2924
+	lda     L133B
 	jsr     _delay
 ;
 ; address = get_ppu_addr(cur_nt, 96, 14 << 3);
 ;
-	.dbg	line, "main.c", 2920
+	.dbg	line, "main.c", 2926
 	jsr     decsp2
 	lda     _cur_nt
 	ldy     #$01
@@ -8446,13 +8484,13 @@ L1462:	lda     #$05
 ;
 ; multi_vram_buffer_horz("GAME OVER!", 10, address);
 ;
-	.dbg	line, "main.c", 2921
+	.dbg	line, "main.c", 2927
 	jsr     decsp3
-	lda     #<(L147E)
+	lda     #<(L1484)
 	ldy     #$01
 	sta     (sp),y
 	iny
-	lda     #>(L147E)
+	lda     #>(L1484)
 	sta     (sp),y
 	lda     #$0A
 	ldy     #$00
@@ -8463,7 +8501,7 @@ L1462:	lda     #$05
 ;
 ; address = get_ppu_addr(cur_nt, 96, 15 << 3);
 ;
-	.dbg	line, "main.c", 2923
+	.dbg	line, "main.c", 2929
 	jsr     decsp2
 	lda     _cur_nt
 	ldy     #$01
@@ -8478,13 +8516,13 @@ L1462:	lda     #$05
 ;
 ; multi_vram_buffer_horz("A-RESTART ", 10, address);
 ;
-	.dbg	line, "main.c", 2924
+	.dbg	line, "main.c", 2930
 	jsr     decsp3
-	lda     #<(L1488)
+	lda     #<(L148E)
 	ldy     #$01
 	sta     (sp),y
 	iny
-	lda     #>(L1488)
+	lda     #>(L148E)
 	sta     (sp),y
 	lda     #$0A
 	ldy     #$00
@@ -8495,7 +8533,7 @@ L1462:	lda     #$05
 ;
 ; address = get_ppu_addr(cur_nt, 96, 16 << 3);
 ;
-	.dbg	line, "main.c", 2925
+	.dbg	line, "main.c", 2931
 	jsr     decsp2
 	lda     _cur_nt
 	ldy     #$01
@@ -8510,13 +8548,13 @@ L1462:	lda     #$05
 ;
 ; multi_vram_buffer_horz("B-QUIT    ", 10, address);
 ;
-	.dbg	line, "main.c", 2926
+	.dbg	line, "main.c", 2932
 	jsr     decsp3
-	lda     #<(L1492)
+	lda     #<(L1498)
 	ldy     #$01
 	sta     (sp),y
 	iny
-	lda     #>(L1492)
+	lda     #>(L1498)
 	sta     (sp),y
 	lda     #$0A
 	ldy     #$00
@@ -8527,55 +8565,55 @@ L1462:	lda     #$05
 ;
 ; pal_bright(7);
 ;
-	.dbg	line, "main.c", 2928
+	.dbg	line, "main.c", 2934
 	lda     #$07
 	jsr     _pal_bright
 ;
 ; delay(fade_delay);
 ;
-	.dbg	line, "main.c", 2929
-	lda     L1335
+	.dbg	line, "main.c", 2935
+	lda     L133B
 	jsr     _delay
 ;
 ; pal_bright(6);
 ;
-	.dbg	line, "main.c", 2930
+	.dbg	line, "main.c", 2936
 	lda     #$06
 	jsr     _pal_bright
 ;
 ; delay(fade_delay);
 ;
-	.dbg	line, "main.c", 2931
-	lda     L1335
+	.dbg	line, "main.c", 2937
+	lda     L133B
 	jsr     _delay
 ;
 ; pal_bright(5);
 ;
-	.dbg	line, "main.c", 2932
+	.dbg	line, "main.c", 2938
 	lda     #$05
 	jsr     _pal_bright
 ;
 ; delay(fade_delay);
 ;
-	.dbg	line, "main.c", 2933
-	lda     L1335
+	.dbg	line, "main.c", 2939
+	lda     L133B
 	jsr     _delay
 ;
 ; pal_bright(4);
 ;
-	.dbg	line, "main.c", 2934
+	.dbg	line, "main.c", 2940
 	lda     #$04
 	jsr     _pal_bright
 ;
 ; delay(fade_delay);
 ;
-	.dbg	line, "main.c", 2935
-	lda     L1335
+	.dbg	line, "main.c", 2941
+	lda     L133B
 	jsr     _delay
 ;
 ; break;
 ;
-	.dbg	line, "main.c", 2936
+	.dbg	line, "main.c", 2942
 	jmp     incsp1
 	.dbg	line
 
@@ -8593,7 +8631,7 @@ L1462:	lda     #$05
 
 .segment	"BSS"
 
-L14A8:
+L14AE:
 	.res	1,$00
 
 .segment	"CODE"
@@ -8601,62 +8639,62 @@ L14A8:
 ;
 ; ++lines_cleared_one;
 ;
-	.dbg	line, "main.c", 3049
+	.dbg	line, "main.c", 3055
 	inc     _lines_cleared_one
 ;
 ; if (lines_cleared_one == 10)
 ;
-	.dbg	line, "main.c", 3051
+	.dbg	line, "main.c", 3057
 	lda     _lines_cleared_one
 	cmp     #$0A
-	beq     L1A3A
+	beq     L1A55
 ;
 ; display_lines_cleared();
 ;
-	.dbg	line, "main.c", 3107
+	.dbg	line, "main.c", 3113
 	jmp     _display_lines_cleared
 ;
 ; lines_total = (lines_cleared_hundred * 10) + lines_cleared_ten;
 ;
-	.dbg	line, "main.c", 3054
-L1A3A:	ldx     #$00
+	.dbg	line, "main.c", 3060
+L1A55:	ldx     #$00
 	lda     _lines_cleared_hundred
 	jsr     mulax10
 	clc
 	adc     _lines_cleared_ten
-	sta     L14A8
+	sta     L14AE
 ;
 ; if (cur_level <= lines_total)
 ;
-	.dbg	line, "main.c", 3056
+	.dbg	line, "main.c", 3062
 	lda     _cur_level
 	sec
-	sbc     L14A8
+	sbc     L14AE
 	sta     tmp1
 	lda     tmp1
-	beq     L1A34
-	bcs     L1A38
+	beq     L1A4F
+	bcs     L1A53
 ;
 ; ++cur_level;
 ;
-	.dbg	line, "main.c", 3058
-L1A34:	inc     _cur_level
+	.dbg	line, "main.c", 3064
+L1A4F:	inc     _cur_level
 ;
 ; if (cur_level <= 29)
 ;
-	.dbg	line, "main.c", 3061
+	.dbg	line, "main.c", 3067
 	lda     _cur_level
 	cmp     #$1E
-	bcs     L1A36
+	bcs     L1A51
 ;
 ; fall_rate = fall_rates_per_level[MIN(cur_level, sizeof(fall_rates_per_level))];
 ;
-	.dbg	line, "main.c", 3063
+	.dbg	line, "main.c", 3069
 	cmp     #$1E
-	bcs     L1A35
-	jmp     L14BE
-L1A35:	lda     #$1E
-L14BE:	sta     ptr1
+	bcs     L1A50
+	jmp     L14C4
+L1A50:	lda     #$1E
+L14C4:	sta     ptr1
 	lda     #$00
 	clc
 	adc     #>(_fall_rates_per_level)
@@ -8667,21 +8705,21 @@ L14BE:	sta     ptr1
 ;
 ; else if (cur_level < 40) // raise the floor 10 levels.
 ;
-	.dbg	line, "main.c", 3065
-	jmp     L1A38
-L1A36:	lda     _cur_level
+	.dbg	line, "main.c", 3071
+	jmp     L1A53
+L1A51:	lda     _cur_level
 	cmp     #$28
-	bcs     L1A38
+	bcs     L1A53
 ;
 ; if (cur_level == 30)
 ;
-	.dbg	line, "main.c", 3067
+	.dbg	line, "main.c", 3073
 	cmp     #$1E
-	bne     L1A37
+	bne     L1A52
 ;
 ; one_vram_buffer(SKULL_SPRITE, get_ppu_addr(cur_nt, 4 << 3, 9 << 3)); // skull
 ;
-	.dbg	line, "main.c", 3069
+	.dbg	line, "main.c", 3075
 	lda     #$3B
 	jsr     pusha
 	jsr     decsp2
@@ -8697,32 +8735,32 @@ L1A36:	lda     _cur_level
 ;
 ; kill_row_queued = 1;
 ;
-	.dbg	line, "main.c", 3071
-L1A37:	lda     #$01
+	.dbg	line, "main.c", 3077
+L1A52:	lda     #$01
 	sta     _kill_row_queued
 ;
 ; ++time_of_day;
 ;
-	.dbg	line, "main.c", 3075
-L1A38:	inc     _time_of_day
+	.dbg	line, "main.c", 3081
+L1A53:	inc     _time_of_day
 ;
 ; if (time_of_day >= NUM_TIMES_OF_DAY)
 ;
-	.dbg	line, "main.c", 3076
+	.dbg	line, "main.c", 3082
 	lda     _time_of_day
 	cmp     #$08
 	ldx     #$00
-	bcc     L1A39
+	bcc     L1A54
 ;
 ; time_of_day = 0;
 ;
-	.dbg	line, "main.c", 3078
+	.dbg	line, "main.c", 3084
 	stx     _time_of_day
 ;
 ; pal_bg(palette_bg_list[time_of_day]);
 ;
-	.dbg	line, "main.c", 3081
-L1A39:	lda     _time_of_day
+	.dbg	line, "main.c", 3087
+L1A54:	lda     _time_of_day
 	jsr     aslax4
 	clc
 	adc     #<(_palette_bg_list)
@@ -8735,16 +8773,16 @@ L1A39:	lda     _time_of_day
 ;
 ; memcpy(temp_pal, palette_sp, sizeof(palette_sp));
 ;
-	.dbg	line, "main.c", 3084
+	.dbg	line, "main.c", 3090
 	ldy     #$0F
-L14DC:	lda     _palette_sp,y
+L14E2:	lda     _palette_sp,y
 	sta     _temp_pal,y
 	dey
-	bpl     L14DC
+	bpl     L14E2
 ;
 ; temp_pal[1] = palette_bg_list[time_of_day][1];
 ;
-	.dbg	line, "main.c", 3086
+	.dbg	line, "main.c", 3092
 	ldx     #$00
 	lda     _time_of_day
 	jsr     aslax4
@@ -8760,7 +8798,7 @@ L14DC:	lda     _palette_sp,y
 ;
 ; temp_pal[2] = palette_bg_list[time_of_day][2];
 ;
-	.dbg	line, "main.c", 3087
+	.dbg	line, "main.c", 3093
 	ldx     #$00
 	lda     _time_of_day
 	jsr     aslax4
@@ -8776,7 +8814,7 @@ L14DC:	lda     _palette_sp,y
 ;
 ; temp_pal[3] = palette_bg_list[time_of_day][3];
 ;
-	.dbg	line, "main.c", 3088
+	.dbg	line, "main.c", 3094
 	ldx     #$00
 	lda     _time_of_day
 	jsr     aslax4
@@ -8792,7 +8830,7 @@ L14DC:	lda     _palette_sp,y
 ;
 ; temp_pal[6] = palette_bg_list[time_of_day][14];
 ;
-	.dbg	line, "main.c", 3090
+	.dbg	line, "main.c", 3096
 	ldx     #$00
 	lda     _time_of_day
 	jsr     aslax4
@@ -8808,7 +8846,7 @@ L14DC:	lda     _palette_sp,y
 ;
 ; temp_pal[7] = palette_bg_list[time_of_day][15];
 ;
-	.dbg	line, "main.c", 3091
+	.dbg	line, "main.c", 3097
 	ldx     #$00
 	lda     _time_of_day
 	jsr     aslax4
@@ -8824,7 +8862,7 @@ L14DC:	lda     _palette_sp,y
 ;
 ; temp_pal[10] = palette_bg_list[time_of_day][2];
 ;
-	.dbg	line, "main.c", 3093
+	.dbg	line, "main.c", 3099
 	ldx     #$00
 	lda     _time_of_day
 	jsr     aslax4
@@ -8840,49 +8878,49 @@ L14DC:	lda     _palette_sp,y
 ;
 ; pal_spr(temp_pal);
 ;
-	.dbg	line, "main.c", 3095
+	.dbg	line, "main.c", 3101
 	lda     #<(_temp_pal)
 	ldx     #>(_temp_pal)
 	jsr     _pal_spr
 ;
 ; display_level();
 ;
-	.dbg	line, "main.c", 3097
+	.dbg	line, "main.c", 3103
 	jsr     _display_level
 ;
 ; lines_cleared_one = 0;
 ;
-	.dbg	line, "main.c", 3099
+	.dbg	line, "main.c", 3105
 	lda     #$00
 	sta     _lines_cleared_one
 ;
 ; ++lines_cleared_ten;
 ;
-	.dbg	line, "main.c", 3100
+	.dbg	line, "main.c", 3106
 	inc     _lines_cleared_ten
 ;
 ; if (lines_cleared_ten == 10)
 ;
-	.dbg	line, "main.c", 3101
+	.dbg	line, "main.c", 3107
 	lda     _lines_cleared_ten
 	cmp     #$0A
-	bne     L1501
+	bne     L1507
 ;
 ; lines_cleared_ten = 0;
 ;
-	.dbg	line, "main.c", 3103
+	.dbg	line, "main.c", 3109
 	lda     #$00
 	sta     _lines_cleared_ten
 ;
 ; ++lines_cleared_hundred;
 ;
-	.dbg	line, "main.c", 3104
+	.dbg	line, "main.c", 3110
 	inc     _lines_cleared_hundred
 ;
 ; display_lines_cleared();
 ;
-	.dbg	line, "main.c", 3107
-L1501:	jmp     _display_lines_cleared
+	.dbg	line, "main.c", 3113
+L1507:	jmp     _display_lines_cleared
 	.dbg	line
 
 .endproc
@@ -8902,7 +8940,7 @@ L1501:	jmp     _display_lines_cleared
 ;
 ; one_vram_buffer('0' + lines_cleared_hundred, get_ppu_addr(cur_nt, 4 << 3, 3 << 3));
 ;
-	.dbg	line, "main.c", 3112
+	.dbg	line, "main.c", 3118
 	lda     _lines_cleared_hundred
 	clc
 	adc     #$30
@@ -8920,7 +8958,7 @@ L1501:	jmp     _display_lines_cleared
 ;
 ; one_vram_buffer('0' + lines_cleared_ten, get_ppu_addr(cur_nt, 5 << 3, 3 << 3));
 ;
-	.dbg	line, "main.c", 3113
+	.dbg	line, "main.c", 3119
 	lda     _lines_cleared_ten
 	clc
 	adc     #$30
@@ -8938,7 +8976,7 @@ L1501:	jmp     _display_lines_cleared
 ;
 ; one_vram_buffer('0' + lines_cleared_one, get_ppu_addr(cur_nt, 6 << 3, 3 << 3));
 ;
-	.dbg	line, "main.c", 3114
+	.dbg	line, "main.c", 3120
 	lda     _lines_cleared_one
 	clc
 	adc     #$30
@@ -8969,9 +9007,9 @@ L1501:	jmp     _display_lines_cleared
 
 .segment	"BSS"
 
-L151E:
+L1524:
 	.res	4,$00
-L151F:
+L1525:
 	.res	1,$00
 
 .segment	"CODE"
@@ -8979,29 +9017,29 @@ L151F:
 ;
 ; temp_score = cur_score; //cur_score;
 ;
-	.dbg	line, "main.c", 3122
+	.dbg	line, "main.c", 3128
 	lda     _cur_score+3
 	sta     sreg+1
 	lda     _cur_score+2
 	sta     sreg
 	ldx     _cur_score+1
 	lda     _cur_score
-	sta     L151E
-	stx     L151E+1
+	sta     L1524
+	stx     L1524+1
 	ldy     sreg
-	sty     L151E+2
+	sty     L1524+2
 	ldy     sreg+1
-	sty     L151E+3
+	sty     L1524+3
 ;
 ; multi_vram_buffer_horz("      ", 6, get_ppu_addr(cur_nt, 0, 6 << 3));
 ;
-	.dbg	line, "main.c", 3125
+	.dbg	line, "main.c", 3131
 	jsr     decsp3
-	lda     #<(L1523)
+	lda     #<(L1529)
 	ldy     #$01
 	sta     (sp),y
 	iny
-	lda     #>(L1523)
+	lda     #>(L1529)
 	sta     (sp),y
 	lda     #$06
 	ldy     #$00
@@ -9019,24 +9057,24 @@ L151F:
 ;
 ; i = 0;
 ;
-	.dbg	line, "main.c", 3127
+	.dbg	line, "main.c", 3133
 	lda     #$00
-	sta     L151F
+	sta     L1525
 ;
 ; while (temp_score != 0)
 ;
-	.dbg	line, "main.c", 3128
-	jmp     L152E
+	.dbg	line, "main.c", 3134
+	jmp     L1534
 ;
 ; unsigned char digit = temp_score % 10;
 ;
-	.dbg	line, "main.c", 3130
-L152C:	lda     L151E+3
+	.dbg	line, "main.c", 3136
+L1532:	lda     L1524+3
 	sta     sreg+1
-	lda     L151E+2
+	lda     L1524+2
 	sta     sreg
-	ldx     L151E+1
-	lda     L151E
+	ldx     L1524+1
+	lda     L1524
 	jsr     pusheax
 	ldx     #$00
 	lda     #$0A
@@ -9045,7 +9083,7 @@ L152C:	lda     L151E+3
 ;
 ; one_vram_buffer('0' + digit, get_ppu_addr(cur_nt, (6 << 3) - (i << 3), 6 << 3));
 ;
-	.dbg	line, "main.c", 3131
+	.dbg	line, "main.c", 3137
 	ldy     #$00
 	lda     (sp),y
 	clc
@@ -9057,7 +9095,7 @@ L152C:	lda     L151E+3
 	sta     (sp),y
 	lda     #$30
 	jsr     pusha0
-	lda     L151F
+	lda     L1525
 	jsr     aslax3
 	jsr     tossubax
 	ldy     #$00
@@ -9068,54 +9106,54 @@ L152C:	lda     L151E+3
 ;
 ; temp_score = temp_score / 10;
 ;
-	.dbg	line, "main.c", 3133
-	lda     L151E+3
+	.dbg	line, "main.c", 3139
+	lda     L1524+3
 	sta     sreg+1
-	lda     L151E+2
+	lda     L1524+2
 	sta     sreg
-	ldx     L151E+1
-	lda     L151E
+	ldx     L1524+1
+	lda     L1524
 	jsr     pusheax
 	ldx     #$00
 	lda     #$0A
 	jsr     tosudiv0ax
-	sta     L151E
-	stx     L151E+1
+	sta     L1524
+	stx     L1524+1
 	ldy     sreg
-	sty     L151E+2
+	sty     L1524+2
 	ldy     sreg+1
-	sty     L151E+3
+	sty     L1524+3
 ;
 ; ++i;
 ;
-	.dbg	line, "main.c", 3134
-	inc     L151F
+	.dbg	line, "main.c", 3140
+	inc     L1525
 ;
 ; }
 ;
-	.dbg	line, "main.c", 3135
+	.dbg	line, "main.c", 3141
 	jsr     incsp1
 ;
 ; while (temp_score != 0)
 ;
-	.dbg	line, "main.c", 3128
-L152E:	lda     L151E+3
+	.dbg	line, "main.c", 3134
+L1534:	lda     L1524+3
 	sta     sreg+1
-	lda     L151E+2
+	lda     L1524+2
 	sta     sreg
-	ldx     L151E+1
-	lda     L151E
+	ldx     L1524+1
+	lda     L1524
 	jsr     pusheax
 	ldx     #$00
 	stx     sreg
 	stx     sreg+1
 	txa
 	jsr     tosneeax
-	jne     L152C
+	jne     L1532
 ;
 ; }
 ;
-	.dbg	line, "main.c", 3136
+	.dbg	line, "main.c", 3142
 	rts
 	.dbg	line
 
@@ -9133,9 +9171,9 @@ L152E:	lda     L151E+3
 
 .segment	"BSS"
 
-L153E:
+L1544:
 	.res	4,$00
-L153F:
+L1545:
 	.res	1,$00
 
 .segment	"CODE"
@@ -9143,7 +9181,7 @@ L153F:
 ;
 ; temp_score = high_scores[attack_style];
 ;
-	.dbg	line, "main.c", 3144
+	.dbg	line, "main.c", 3150
 	ldx     #$00
 	lda     _attack_style
 	jsr     aslax2
@@ -9155,22 +9193,22 @@ L153F:
 	tax
 	tya
 	jsr     ldeaxi
-	sta     L153E
-	stx     L153E+1
+	sta     L1544
+	stx     L1544+1
 	ldy     sreg
-	sty     L153E+2
+	sty     L1544+2
 	ldy     sreg+1
-	sty     L153E+3
+	sty     L1544+3
 ;
 ; multi_vram_buffer_horz("0000000", 7, get_ppu_addr(0, 17 << 3, 27 << 3));
 ;
-	.dbg	line, "main.c", 3147
+	.dbg	line, "main.c", 3153
 	jsr     decsp3
-	lda     #<(L1544)
+	lda     #<(L154A)
 	ldy     #$01
 	sta     (sp),y
 	iny
-	lda     #>(L1544)
+	lda     #>(L154A)
 	sta     (sp),y
 	lda     #$07
 	ldy     #$00
@@ -9188,24 +9226,24 @@ L153F:
 ;
 ; i = 0;
 ;
-	.dbg	line, "main.c", 3149
+	.dbg	line, "main.c", 3155
 	lda     #$00
-	sta     L153F
+	sta     L1545
 ;
 ; while (temp_score != 0)
 ;
-	.dbg	line, "main.c", 3150
-	jmp     L154F
+	.dbg	line, "main.c", 3156
+	jmp     L1555
 ;
 ; unsigned char digit = temp_score % 10;
 ;
-	.dbg	line, "main.c", 3152
-L154D:	lda     L153E+3
+	.dbg	line, "main.c", 3158
+L1553:	lda     L1544+3
 	sta     sreg+1
-	lda     L153E+2
+	lda     L1544+2
 	sta     sreg
-	ldx     L153E+1
-	lda     L153E
+	ldx     L1544+1
+	lda     L1544
 	jsr     pusheax
 	ldx     #$00
 	lda     #$0A
@@ -9214,7 +9252,7 @@ L154D:	lda     L153E+3
 ;
 ; one_vram_buffer('0' + digit, get_ppu_addr(0, (23 << 3) - (i << 3), 27 << 3));
 ;
-	.dbg	line, "main.c", 3153
+	.dbg	line, "main.c", 3159
 	ldy     #$00
 	lda     (sp),y
 	clc
@@ -9226,7 +9264,7 @@ L154D:	lda     L153E+3
 	sta     (sp),y
 	lda     #$B8
 	jsr     pusha0
-	lda     L153F
+	lda     L1545
 	jsr     aslax3
 	jsr     tossubax
 	ldy     #$00
@@ -9237,54 +9275,54 @@ L154D:	lda     L153E+3
 ;
 ; temp_score = temp_score / 10;
 ;
-	.dbg	line, "main.c", 3155
-	lda     L153E+3
+	.dbg	line, "main.c", 3161
+	lda     L1544+3
 	sta     sreg+1
-	lda     L153E+2
+	lda     L1544+2
 	sta     sreg
-	ldx     L153E+1
-	lda     L153E
+	ldx     L1544+1
+	lda     L1544
 	jsr     pusheax
 	ldx     #$00
 	lda     #$0A
 	jsr     tosudiv0ax
-	sta     L153E
-	stx     L153E+1
+	sta     L1544
+	stx     L1544+1
 	ldy     sreg
-	sty     L153E+2
+	sty     L1544+2
 	ldy     sreg+1
-	sty     L153E+3
+	sty     L1544+3
 ;
 ; ++i;
 ;
-	.dbg	line, "main.c", 3156
-	inc     L153F
+	.dbg	line, "main.c", 3162
+	inc     L1545
 ;
 ; }
 ;
-	.dbg	line, "main.c", 3157
+	.dbg	line, "main.c", 3163
 	jsr     incsp1
 ;
 ; while (temp_score != 0)
 ;
-	.dbg	line, "main.c", 3150
-L154F:	lda     L153E+3
+	.dbg	line, "main.c", 3156
+L1555:	lda     L1544+3
 	sta     sreg+1
-	lda     L153E+2
+	lda     L1544+2
 	sta     sreg
-	ldx     L153E+1
-	lda     L153E
+	ldx     L1544+1
+	lda     L1544
 	jsr     pusheax
 	ldx     #$00
 	stx     sreg
 	stx     sreg+1
 	txa
 	jsr     tosneeax
-	jne     L154D
+	jne     L1553
 ;
 ; }
 ;
-	.dbg	line, "main.c", 3158
+	.dbg	line, "main.c", 3164
 	rts
 	.dbg	line
 
@@ -9302,9 +9340,9 @@ L154F:	lda     L153E+3
 
 .segment	"BSS"
 
-L155F:
+L1565:
 	.res	1,$00
-L1560:
+L1566:
 	.res	1,$00
 
 .segment	"CODE"
@@ -9312,33 +9350,33 @@ L1560:
 ;
 ; temp_level = cur_level;
 ;
-	.dbg	line, "main.c", 3168
+	.dbg	line, "main.c", 3174
 	lda     _cur_level
-	sta     L155F
+	sta     L1565
 ;
 ; i = 0;
 ;
-	.dbg	line, "main.c", 3169
+	.dbg	line, "main.c", 3175
 	lda     #$00
-	sta     L1560
+	sta     L1566
 ;
 ; if (cur_level < 10)
 ;
-	.dbg	line, "main.c", 3171
+	.dbg	line, "main.c", 3177
 	tax
 	lda     _cur_level
 	cmp     #$0A
-	jcs     L1A3C
+	jcs     L1A57
 ;
 ; multi_vram_buffer_horz("00", 2, get_ppu_addr(cur_nt, 5 << 3, 9 << 3));
 ;
-	.dbg	line, "main.c", 3173
+	.dbg	line, "main.c", 3179
 	jsr     decsp3
-	lda     #<(L1568)
+	lda     #<(L156E)
 	ldy     #$01
 	sta     (sp),y
 	iny
-	lda     #>(L1568)
+	lda     #>(L156E)
 	sta     (sp),y
 	tya
 	ldy     #$00
@@ -9356,13 +9394,13 @@ L1560:
 ;
 ; while (temp_level != 0)
 ;
-	.dbg	line, "main.c", 3176
-	jmp     L1571
+	.dbg	line, "main.c", 3182
+	jmp     L1577
 ;
 ; unsigned char digit = temp_level % 10;
 ;
-	.dbg	line, "main.c", 3178
-L1A3B:	lda     L155F
+	.dbg	line, "main.c", 3184
+L1A56:	lda     L1565
 	jsr     pushax
 	lda     #$0A
 	jsr     tosumodax
@@ -9370,7 +9408,7 @@ L1A3B:	lda     L155F
 ;
 ; one_vram_buffer('0' + digit, get_ppu_addr(cur_nt, (6 << 3) - (i << 3), 9 << 3));
 ;
-	.dbg	line, "main.c", 3179
+	.dbg	line, "main.c", 3185
 	ldy     #$00
 	lda     (sp),y
 	clc
@@ -9382,7 +9420,7 @@ L1A3B:	lda     L155F
 	sta     (sp),y
 	lda     #$30
 	jsr     pusha0
-	lda     L1560
+	lda     L1566
 	jsr     aslax3
 	jsr     tossubax
 	ldy     #$00
@@ -9393,33 +9431,33 @@ L1A3B:	lda     L155F
 ;
 ; temp_level = temp_level / 10;
 ;
-	.dbg	line, "main.c", 3181
-	lda     L155F
+	.dbg	line, "main.c", 3187
+	lda     L1565
 	jsr     pusha0
 	lda     #$0A
 	jsr     tosudiva0
-	sta     L155F
+	sta     L1565
 ;
 ; ++i;
 ;
-	.dbg	line, "main.c", 3182
-	inc     L1560
+	.dbg	line, "main.c", 3188
+	inc     L1566
 ;
 ; }
 ;
-	.dbg	line, "main.c", 3183
+	.dbg	line, "main.c", 3189
 	jsr     incsp1
 ;
 ; while (temp_level != 0)
 ;
-	.dbg	line, "main.c", 3176
-L1571:	ldx     #$00
-L1A3C:	lda     L155F
-	bne     L1A3B
+	.dbg	line, "main.c", 3182
+L1577:	ldx     #$00
+L1A57:	lda     L1565
+	bne     L1A56
 ;
 ; }
 ;
-	.dbg	line, "main.c", 3184
+	.dbg	line, "main.c", 3190
 	rts
 	.dbg	line
 
@@ -9438,11 +9476,11 @@ L1A3C:	lda     L155F
 
 .segment	"BSS"
 
-L1581:
+L1587:
 	.res	1,$00
-L1582:
+L1588:
 	.res	1,$00
-L1583:
+L1589:
 	.res	1,$00
 
 .segment	"CODE"
@@ -9450,24 +9488,24 @@ L1583:
 ;
 ; {
 ;
-	.dbg	line, "main.c", 3189
+	.dbg	line, "main.c", 3195
 	jsr     pusha
 ;
 ; i = 0;
 ;
-	.dbg	line, "main.c", 3195
+	.dbg	line, "main.c", 3201
 	lda     #$00
-	sta     L1582
+	sta     L1588
 ;
 ; prev_level = cur_level;
 ;
-	.dbg	line, "main.c", 3196
+	.dbg	line, "main.c", 3202
 	lda     _cur_level
-	sta     L1583
+	sta     L1589
 ;
 ; memfill(lines_cleared_y, 0xff, 4);
 ;
-	.dbg	line, "main.c", 3199
+	.dbg	line, "main.c", 3205
 	jsr     decsp3
 	lda     #<(_lines_cleared_y)
 	ldy     #$01
@@ -9484,55 +9522,55 @@ L1583:
 ;
 ; for (local_iy = start_y; local_iy > BOARD_OOB_END; --local_iy)
 ;
-	.dbg	line, "main.c", 3202
+	.dbg	line, "main.c", 3208
 	ldy     #$00
 	lda     (sp),y
 	sta     _local_iy
-L1A42:	lda     _local_iy
+L1A5E:	lda     _local_iy
 	cmp     #$04
-	jcc     L1A4D
+	jcc     L1A69
 ;
 ; line_complete = 1;
 ;
-	.dbg	line, "main.c", 3206
+	.dbg	line, "main.c", 3212
 	lda     #$01
-	sta     L1581
+	sta     L1587
 ;
 ; for (local_ix = 0; local_ix <= BOARD_END_X_PX_BOARD; ++local_ix)
 ;
-	.dbg	line, "main.c", 3207
+	.dbg	line, "main.c", 3213
 	lda     #$00
 	sta     _local_ix
-L1A43:	lda     _local_ix
+L1A5F:	lda     _local_ix
 	cmp     #$0A
-	bcs     L1597
+	bcs     L159D
 ;
 ; if (game_board[TILE_TO_BOARD_INDEX(local_ix, local_iy)] == 0 || game_board[TILE_TO_BOARD_INDEX(local_ix, local_iy)] == 1)
 ;
-	.dbg	line, "main.c", 3210
+	.dbg	line, "main.c", 3216
 	ldy     _local_iy
 	ldx     #$00
 	lda     _board_lookup_y,y
 	clc
 	adc     _local_ix
-	bcc     L1A3D
+	bcc     L1A58
 	inx
-L1A3D:	sta     ptr1
+L1A58:	sta     ptr1
 	txa
 	clc
 	adc     #>(_game_board)
 	sta     ptr1+1
 	ldy     #<(_game_board)
 	lda     (ptr1),y
-	beq     L1A57
+	beq     L1A73
 	ldy     _local_iy
 	ldx     #$00
 	lda     _board_lookup_y,y
 	clc
 	adc     _local_ix
-	bcc     L1A3E
+	bcc     L1A59
 	inx
-L1A3E:	sta     ptr1
+L1A59:	sta     ptr1
 	txa
 	clc
 	adc     #>(_game_board)
@@ -9540,81 +9578,81 @@ L1A3E:	sta     ptr1
 	ldy     #<(_game_board)
 	lda     (ptr1),y
 	cmp     #$01
-	bne     L1A47
+	bne     L1A63
 ;
 ; line_complete = 0;
 ;
-	.dbg	line, "main.c", 3214
+	.dbg	line, "main.c", 3220
 	lda     #$00
-L1A57:	sta     L1581
+L1A73:	sta     L1587
 ;
 ; break;
 ;
-	.dbg	line, "main.c", 3215
-	jmp     L1597
+	.dbg	line, "main.c", 3221
+	jmp     L159D
 ;
 ; for (local_ix = 0; local_ix <= BOARD_END_X_PX_BOARD; ++local_ix)
 ;
-	.dbg	line, "main.c", 3207
-L1A47:	inc     _local_ix
-	jmp     L1A43
+	.dbg	line, "main.c", 3213
+L1A63:	inc     _local_ix
+	jmp     L1A5F
 ;
 ; if (line_complete)
 ;
-	.dbg	line, "main.c", 3222
-L1597:	lda     L1581
-	beq     L1A4C
+	.dbg	line, "main.c", 3228
+L159D:	lda     L1587
+	beq     L1A68
 ;
 ; for (local_ix = 0; local_ix < BOARD_WIDTH; ++local_ix)
 ;
-	.dbg	line, "main.c", 3236
+	.dbg	line, "main.c", 3242
 	lda     #$00
 	sta     _local_ix
-L1A48:	lda     _local_ix
+L1A64:	lda     _local_ix
 	cmp     #$0A
-	bcs     L15B4
+	bcs     L15BA
 ;
 ; if (attack_row_status[local_ix] > ATTACK_QUEUE_SIZE && attack_row_status[local_ix] - (ATTACK_QUEUE_SIZE + 1) >= (BOARD_END_Y_PX_BOARD - local_iy))
 ;
-	.dbg	line, "main.c", 3238
+	.dbg	line, "main.c", 3244
 	ldy     _local_ix
 	lda     _attack_row_status,y
 	cmp     #$04
-	bcc     L1A4B
+	bcc     L1A67
 	ldy     _local_ix
 	ldx     #$00
 	lda     _attack_row_status,y
 	sec
 	sbc     #$04
-	bcs     L15C4
+	bcs     L15CA
 	dex
-L15C4:	jsr     pushax
+L15CA:	jsr     pushax
 	lda     #$17
 	sec
 	sbc     _local_iy
 	jsr     tosicmp0
-	bcc     L1A4B
+	bcc     L1A67
 ;
 ; hit_reaction_remaining = 60;
 ;
-	.dbg	line, "main.c", 3240
+	.dbg	line, "main.c", 3246
 	lda     #$3C
 	sta     _hit_reaction_remaining
 ;
 ; for (local_ix = 0; local_ix < BOARD_WIDTH; ++local_ix)
 ;
-	.dbg	line, "main.c", 3236
-L1A4B:	inc     _local_ix
-	jmp     L1A48
+	.dbg	line, "main.c", 3242
+L1A67:	inc     _local_ix
+	jmp     L1A64
 ;
 ; inc_lines_cleared();
 ;
-	.dbg	line, "main.c", 3245
-L15B4:	jsr     _inc_lines_cleared
+	.dbg	line, "main.c", 3251
+L15BA:	jsr     _inc_lines_cleared
 ;
 ; memcpy(&game_board[TILE_TO_BOARD_INDEX(0, local_iy)], empty_row, 10);
 ;
-	.dbg	line, "main.c", 3248
+	.dbg	line, "main.c", 3254
 	ldy     _local_iy
 	lda     _board_lookup_y,y
 	clc
@@ -9634,38 +9672,72 @@ L15B4:	jsr     _inc_lines_cleared
 ;
 ; lines_cleared_y[i] = local_iy;
 ;
-	.dbg	line, "main.c", 3252
-	ldy     L1582
+	.dbg	line, "main.c", 3258
+	ldy     L1588
 	lda     _local_iy
 	sta     _lines_cleared_y,y
 ;
 ; ++i;
 ;
-	.dbg	line, "main.c", 3255
-	inc     L1582
+	.dbg	line, "main.c", 3261
+	inc     L1588
 ;
 ; for (local_iy = start_y; local_iy > BOARD_OOB_END; --local_iy)
 ;
-	.dbg	line, "main.c", 3202
-L1A4C:	dec     _local_iy
-	jmp     L1A42
+	.dbg	line, "main.c", 3208
+L1A68:	dec     _local_iy
+	jmp     L1A5E
 ;
-; if (i == 0 & is_tspin != 0)
+; if (i == 0 )
 ;
-	.dbg	line, "main.c", 3260
-L1A4D:	lda     L1582
-	jsr     booleq
+	.dbg	line, "main.c", 3266
+L1A69:	lda     L1588
+	bne     L1A6A
+;
+; last_lines = 0;
+;
+	.dbg	line, "main.c", 3268
+	sta     _last_lines
+;
+; cur_score += 20 * combo_count * cur_level;
+;
+	.dbg	line, "main.c", 3270
+	lda     _combo_count
 	jsr     pusha0
+	lda     #$14
+	jsr     tosumula0
+	jsr     pushax
+	lda     _cur_level
+	jsr     tosumula0
+	ldy     #$00
+	sty     sreg
+	sty     sreg+1
+	ldy     #<(_cur_score)
+	sty     ptr1
+	ldy     #>(_cur_score)
+	jsr     laddeq
+;
+; combo_count = 0;
+;
+	.dbg	line, "main.c", 3271
+	lda     #$00
+	sta     _combo_count
+;
+; if(is_tspin != 0){
+;
+	.dbg	line, "main.c", 3272
 	lda     _is_tspin
-	jsr     boolne
-	jsr     tosanda0
-	cmp     #$00
-	beq     L1A4E
+	bne     L1A75
+;
+; }
+;
+	.dbg	line, "main.c", 3347
+	jmp     incsp1
 ;
 ; cur_score += (40 * is_tspin * (cur_level + 1));
 ;
-	.dbg	line, "main.c", 3262
-	lda     _is_tspin
+	.dbg	line, "main.c", 3273
+L1A75:	lda     _is_tspin
 	jsr     pusha0
 	lda     #$28
 	jsr     tosumula0
@@ -9674,9 +9746,9 @@ L1A4D:	lda     L1582
 	lda     _cur_level
 	clc
 	adc     #$01
-	bcc     L15E0
+	bcc     L15EE
 	inx
-L15E0:	jsr     tosumulax
+L15EE:	jsr     tosumulax
 	ldy     #$00
 	sty     sreg
 	sty     sreg+1
@@ -9687,34 +9759,34 @@ L15E0:	jsr     tosumulax
 ;
 ; display_score();
 ;
-	.dbg	line, "main.c", 3263
+	.dbg	line, "main.c", 3274
 	jsr     _display_score
 ;
 ; else if (i > 0)
 ;
-	.dbg	line, "main.c", 3265
+	.dbg	line, "main.c", 3277
 	jmp     incsp1
-L1A4E:	lda     L1582
-	bne     L1A59
+L1A6A:	lda     L1588
+	bne     L1A76
 ;
 ; }
 ;
-	.dbg	line, "main.c", 3331
+	.dbg	line, "main.c", 3347
 	jmp     incsp1
 ;
 ; if (prev_level != cur_level)
 ;
-	.dbg	line, "main.c", 3267
-L1A59:	lda     _cur_level
-	cmp     L1583
-	beq     L1A50
+	.dbg	line, "main.c", 3279
+L1A76:	lda     _cur_level
+	cmp     L1589
+	beq     L1A6C
 ;
 ; if (i == 4|| (i == 3 & is_tspin != 0))
 ;
-	.dbg	line, "main.c", 3269
-	lda     L1582
+	.dbg	line, "main.c", 3281
+	lda     L1588
 	cmp     #$04
-	beq     L1A4F
+	beq     L1A6B
 	cmp     #$03
 	jsr     booleq
 	jsr     pusha0
@@ -9722,139 +9794,167 @@ L1A59:	lda     _cur_level
 	jsr     boolne
 	jsr     tosanda0
 	cmp     #$00
-	beq     L15E7
-;
-; screen_shake_remaining = 5;
-;
-	.dbg	line, "main.c", 3271
-L1A4F:	lda     #$05
-	sta     _screen_shake_remaining
-;
-; SFX_PLAY_WRAPPER(SOUND_LEVELUP_MULTI);
-;
-	.dbg	line, "main.c", 3272
-	lda     _sfx_on
-	beq     L1A52
-	lda     #$08
-;
-; else
-;
-	.dbg	line, "main.c", 3274
-	jmp     L1A58
-;
-; SFX_PLAY_WRAPPER(SOUND_LEVELUP);
-;
-	.dbg	line, "main.c", 3276
-L15E7:	lda     _sfx_on
-	beq     L1A52
-	lda     #$07
-;
-; else if (i == 4 || (i == 3 & is_tspin != 0))
-;
-	.dbg	line, "main.c", 3279
-	jmp     L1A58
-L1A50:	lda     L1582
-	cmp     #$04
-	beq     L1A51
-	cmp     #$03
-	jsr     booleq
-	jsr     pusha0
-	lda     _is_tspin
-	jsr     boolne
-	jsr     tosanda0
-	cmp     #$00
-	beq     L15FB
+	beq     L15F5
 ;
 ; screen_shake_remaining = 5;
 ;
 	.dbg	line, "main.c", 3283
-L1A51:	lda     #$05
+L1A6B:	lda     #$05
 	sta     _screen_shake_remaining
 ;
-; SFX_PLAY_WRAPPER(SOUND_MULTIROW);
+; SFX_PLAY_WRAPPER(SOUND_LEVELUP_MULTI);
 ;
 	.dbg	line, "main.c", 3284
 	lda     _sfx_on
-	beq     L1A52
-	lda     #$03
+	beq     L1616
+	lda     #$08
 ;
 ; else
 ;
 	.dbg	line, "main.c", 3286
-	jmp     L1A58
+	jmp     L1A74
+;
+; SFX_PLAY_WRAPPER(SOUND_LEVELUP);
+;
+	.dbg	line, "main.c", 3288
+L15F5:	lda     _sfx_on
+	beq     L1A6E
+	lda     #$07
+;
+; else if (i == 4 || (i == 3 & is_tspin != 0))
+;
+	.dbg	line, "main.c", 3291
+	jmp     L1A74
+L1A6C:	lda     L1588
+	cmp     #$04
+	beq     L1A6D
+	cmp     #$03
+	jsr     booleq
+	jsr     pusha0
+	lda     _is_tspin
+	jsr     boolne
+	jsr     tosanda0
+	cmp     #$00
+	beq     L1609
+;
+; screen_shake_remaining = 5;
+;
+	.dbg	line, "main.c", 3295
+L1A6D:	ldx     #$00
+	lda     #$05
+	sta     _screen_shake_remaining
+;
+; SFX_PLAY_WRAPPER(SOUND_MULTIROW);
+;
+	.dbg	line, "main.c", 3296
+	lda     _sfx_on
+	beq     L1A6E
+	lda     #$03
+;
+; else
+;
+	.dbg	line, "main.c", 3298
+	jmp     L1A74
 ;
 ; SFX_PLAY_WRAPPER(SOUND_ROW);
 ;
-	.dbg	line, "main.c", 3289
-L15FB:	lda     _sfx_on
-	beq     L1A52
+	.dbg	line, "main.c", 3301
+L1609:	lda     _sfx_on
+	beq     L1A6E
 	lda     #$02
-L1A58:	jsr     pusha
+L1A74:	jsr     pusha
 	lda     #$00
 	jsr     _sfx_play
 ;
 ; switch (i)
 ;
-	.dbg	line, "main.c", 3293
-	ldx     #$00
-L1A52:	lda     L1582
+	.dbg	line, "main.c", 3305
+L1616:	ldx     #$00
+L1A6E:	lda     L1588
 ;
 ; }
 ;
-	.dbg	line, "main.c", 3319
+	.dbg	line, "main.c", 3331
 	cmp     #$01
-	beq     L1A53
+	beq     L1A6F
 	cmp     #$02
-	beq     L1A54
+	beq     L1A70
 	cmp     #$03
-	beq     L161A
+	beq     L1628
 	cmp     #$04
-	beq     L161E
-	jmp     L161E
+	beq     L162C
+	jmp     L162C
 ;
 ; line_score_mod = 40;
 ;
-	.dbg	line, "main.c", 3297
-L1A53:	lda     #$28
-;
-; break;
-;
-	.dbg	line, "main.c", 3298
-	jmp     L1A56
-;
-; line_score_mod = 100;
-;
-	.dbg	line, "main.c", 3303
-L1A54:	lda     #$64
-;
-; break;
-;
-	.dbg	line, "main.c", 3304
-	jmp     L1A56
-;
-; line_score_mod = 300;
-;
 	.dbg	line, "main.c", 3309
-L161A:	ldx     #$01
-	lda     #$2C
+L1A6F:	lda     #$28
 ;
 ; break;
 ;
 	.dbg	line, "main.c", 3310
-	jmp     L1A56
+	jmp     L1A72
+;
+; line_score_mod = 100;
+;
+	.dbg	line, "main.c", 3315
+L1A70:	lda     #$64
+;
+; break;
+;
+	.dbg	line, "main.c", 3316
+	jmp     L1A72
+;
+; line_score_mod = 300;
+;
+	.dbg	line, "main.c", 3321
+L1628:	ldx     #$01
+	lda     #$2C
+;
+; break;
+;
+	.dbg	line, "main.c", 3322
+	jmp     L1A72
 ;
 ; line_score_mod = 1200;
 ;
-	.dbg	line, "main.c", 3316
-L161E:	ldx     #$04
+	.dbg	line, "main.c", 3328
+L162C:	ldx     #$04
 	lda     #$B0
-L1A56:	sta     _line_score_mod
+L1A72:	sta     _line_score_mod
 	stx     _line_score_mod+1
 ;
-; cur_score += (line_score_mod * (4*is_tspin + 1) * (cur_level + 1));
+; if(last_lines == i & i == 4) //Back to Back Tetris x 1.5
 ;
-	.dbg	line, "main.c", 3320
+	.dbg	line, "main.c", 3332
+	lda     L1588
+	cmp     _last_lines
+	jsr     booleq
+	jsr     pusha0
+	lda     L1588
+	cmp     #$04
+	jsr     booleq
+	jsr     tosanda0
+	cmp     #$00
+	beq     L1630
+;
+; line_score_mod = line_score_mod + (line_score_mod / 2);
+;
+	.dbg	line, "main.c", 3333
 	lda     _line_score_mod
+	ldx     _line_score_mod+1
+	jsr     shrax1
+	clc
+	adc     _line_score_mod
+	sta     _line_score_mod
+	txa
+	adc     _line_score_mod+1
+	sta     _line_score_mod+1
+;
+; cur_score += (line_score_mod * (4*is_tspin + 1) * (cur_level + 1)); 
+;
+	.dbg	line, "main.c", 3334
+L1630:	lda     _line_score_mod
 	ldx     _line_score_mod+1
 	jsr     pushax
 	ldx     #$00
@@ -9862,17 +9962,17 @@ L1A56:	sta     _line_score_mod
 	jsr     shlax2
 	clc
 	adc     #$01
-	bcc     L1626
+	bcc     L1639
 	inx
-L1626:	jsr     tosumulax
+L1639:	jsr     tosumulax
 	jsr     pushax
 	ldx     #$00
 	lda     _cur_level
 	clc
 	adc     #$01
-	bcc     L1628
+	bcc     L163B
 	inx
-L1628:	jsr     tosumulax
+L163B:	jsr     tosumulax
 	ldy     #$00
 	sty     sreg
 	sty     sreg+1
@@ -9883,28 +9983,39 @@ L1628:	jsr     tosumulax
 ;
 ; display_score();
 ;
-	.dbg	line, "main.c", 3321
+	.dbg	line, "main.c", 3335
 	jsr     _display_score
+;
+; last_lines = i;
+;
+	.dbg	line, "main.c", 3336
+	lda     L1588
+	sta     _last_lines
+;
+; combo_count += 1;
+;
+	.dbg	line, "main.c", 3337
+	inc     _combo_count
 ;
 ; if (hit_reaction_remaining > 0)
 ;
-	.dbg	line, "main.c", 3324
+	.dbg	line, "main.c", 3340
 	lda     _hit_reaction_remaining
-	beq     L162A
+	beq     L1641
 ;
 ; draw_gameplay_sprites();
 ;
-	.dbg	line, "main.c", 3326
+	.dbg	line, "main.c", 3342
 	jsr     _draw_gameplay_sprites
 ;
 ; reveal_empty_rows_to_nt();
 ;
-	.dbg	line, "main.c", 3328
-L162A:	jsr     _reveal_empty_rows_to_nt
+	.dbg	line, "main.c", 3344
+L1641:	jsr     _reveal_empty_rows_to_nt
 ;
 ; }
 ;
-	.dbg	line, "main.c", 3331
+	.dbg	line, "main.c", 3347
 	jmp     incsp1
 	.dbg	line
 
@@ -9922,9 +10033,9 @@ L162A:	jsr     _reveal_empty_rows_to_nt
 
 .segment	"BSS"
 
-L162F:
+L1646:
 	.res	1,$00
-L1630:
+L1647:
 	.res	1,$00
 
 .segment	"CODE"
@@ -9932,59 +10043,59 @@ L1630:
 ;
 ; delay(1);
 ;
-	.dbg	line, "main.c", 3344
+	.dbg	line, "main.c", 3360
 	lda     #$01
 	jsr     _delay
 ;
 ; clear_vram_buffer();
 ;
-	.dbg	line, "main.c", 3345
+	.dbg	line, "main.c", 3361
 	jsr     _clear_vram_buffer
 ;
 ; for (ix = 4; ix >= 0; --ix)
 ;
-	.dbg	line, "main.c", 3348
+	.dbg	line, "main.c", 3364
 	lda     #$04
-	sta     L162F
-L1A5D:	ldx     L162F
-	bpl     L1A60
+	sta     L1646
+L1A7A:	ldx     L1646
+	bpl     L1A7D
 ;
 ; try_collapse_empty_row_data();
 ;
-	.dbg	line, "main.c", 3387
+	.dbg	line, "main.c", 3403
 	jmp     _try_collapse_empty_row_data
 ;
 ; for (iy = 0; iy < BOARD_HEIGHT; ++iy)
 ;
-	.dbg	line, "main.c", 3353
-L1A60:	lda     #$00
-	sta     L1630
-L1A5E:	lda     L1630
+	.dbg	line, "main.c", 3369
+L1A7D:	lda     #$00
+	sta     L1647
+L1A7B:	lda     L1647
 	cmp     #$14
-	bcs     L163F
+	bcs     L1656
 ;
 ; copy_board_data[iy] = game_board[TILE_TO_BOARD_INDEX(ix, iy + BOARD_OOB_END + 1)];
 ;
-	.dbg	line, "main.c", 3355
+	.dbg	line, "main.c", 3371
 	lda     #<(_copy_board_data)
 	ldx     #>(_copy_board_data)
 	clc
-	adc     L1630
-	bcc     L1649
+	adc     L1647
+	bcc     L1660
 	inx
-L1649:	sta     sreg
+L1660:	sta     sreg
 	stx     sreg+1
 	ldx     #$00
-	lda     L1630
+	lda     L1647
 	clc
 	adc     #$03
-	bcc     L1A5B
+	bcc     L1A78
 	inx
 	clc
-L1A5B:	adc     #$01
-	bcc     L1651
+L1A78:	adc     #$01
+	bcc     L1668
 	inx
-L1651:	sta     ptr1
+L1668:	sta     ptr1
 	txa
 	clc
 	adc     #>(_board_lookup_y)
@@ -9993,14 +10104,14 @@ L1651:	sta     ptr1
 	lda     (ptr1),y
 	sta     ptr1
 	ldx     #$00
-	lda     L162F
-	bpl     L1653
+	lda     L1646
+	bpl     L166A
 	dex
-L1653:	clc
+L166A:	clc
 	adc     ptr1
-	bcc     L1A5A
+	bcc     L1A77
 	inx
-L1A5A:	sta     ptr1
+L1A77:	sta     ptr1
 	txa
 	clc
 	adc     #>(_game_board)
@@ -10012,14 +10123,14 @@ L1A5A:	sta     ptr1
 ;
 ; for (iy = 0; iy < BOARD_HEIGHT; ++iy)
 ;
-	.dbg	line, "main.c", 3353
-	inc     L1630
-	jmp     L1A5E
+	.dbg	line, "main.c", 3369
+	inc     L1647
+	jmp     L1A7B
 ;
 ; copy_board_data,
 ;
-	.dbg	line, "main.c", 3359
-L163F:	jsr     decsp3
+	.dbg	line, "main.c", 3375
+L1656:	jsr     decsp3
 	lda     #<(_copy_board_data)
 	ldy     #$01
 	sta     (sp),y
@@ -10029,14 +10140,14 @@ L163F:	jsr     decsp3
 ;
 ; BOARD_HEIGHT,
 ;
-	.dbg	line, "main.c", 3360
+	.dbg	line, "main.c", 3376
 	lda     #$14
 	ldy     #$00
 	sta     (sp),y
 ;
 ; cur_nt,
 ;
-	.dbg	line, "main.c", 3362
+	.dbg	line, "main.c", 3378
 	jsr     decsp2
 	lda     _cur_nt
 	iny
@@ -10044,8 +10155,8 @@ L163F:	jsr     decsp3
 ;
 ; BOARD_START_X_PX + (ix << 3),
 ;
-	.dbg	line, "main.c", 3363
-	lda     L162F
+	.dbg	line, "main.c", 3379
+	lda     L1646
 	asl     a
 	asl     a
 	asl     a
@@ -10056,41 +10167,41 @@ L163F:	jsr     decsp3
 ;
 ; BOARD_START_Y_PX + ((BOARD_OOB_END + 1) << 3)));
 ;
-	.dbg	line, "main.c", 3364
+	.dbg	line, "main.c", 3380
 	lda     #$30
 	jsr     _get_ppu_addr
 	jsr     _multi_vram_buffer_vert
 ;
 ; for (iy = 0; iy < BOARD_HEIGHT; ++iy)
 ;
-	.dbg	line, "main.c", 3368
+	.dbg	line, "main.c", 3384
 	lda     #$00
-	sta     L1630
-L1A5F:	lda     L1630
+	sta     L1647
+L1A7C:	lda     L1647
 	cmp     #$14
-	bcs     L1662
+	bcs     L1679
 ;
 ; copy_board_data[iy] = game_board[TILE_TO_BOARD_INDEX(BOARD_END_X_PX_BOARD - ix, iy + BOARD_OOB_END + 1)];
 ;
-	.dbg	line, "main.c", 3370
+	.dbg	line, "main.c", 3386
 	lda     #<(_copy_board_data)
 	ldx     #>(_copy_board_data)
 	clc
-	adc     L1630
-	bcc     L166C
+	adc     L1647
+	bcc     L1683
 	inx
-L166C:	jsr     pushax
+L1683:	jsr     pushax
 	ldx     #$00
-	lda     L1630
+	lda     L1647
 	clc
 	adc     #$03
-	bcc     L1A5C
+	bcc     L1A79
 	inx
 	clc
-L1A5C:	adc     #$01
-	bcc     L1674
+L1A79:	adc     #$01
+	bcc     L168B
 	inx
-L1674:	sta     ptr1
+L168B:	sta     ptr1
 	txa
 	clc
 	adc     #>(_board_lookup_y)
@@ -10100,10 +10211,10 @@ L1674:	sta     ptr1
 	jsr     pusha0
 	lda     #$09
 	jsr     pusha0
-	lda     L162F
-	bpl     L1676
+	lda     L1646
+	bpl     L168D
 	ldx     #$FF
-L1676:	jsr     tossubax
+L168D:	jsr     tossubax
 	jsr     tosaddax
 	sta     ptr1
 	txa
@@ -10117,14 +10228,14 @@ L1676:	jsr     tossubax
 ;
 ; for (iy = 0; iy < BOARD_HEIGHT; ++iy)
 ;
-	.dbg	line, "main.c", 3368
-	inc     L1630
-	jmp     L1A5F
+	.dbg	line, "main.c", 3384
+	inc     L1647
+	jmp     L1A7C
 ;
 ; copy_board_data,
 ;
-	.dbg	line, "main.c", 3374
-L1662:	jsr     decsp3
+	.dbg	line, "main.c", 3390
+L1679:	jsr     decsp3
 	lda     #<(_copy_board_data)
 	ldy     #$01
 	sta     (sp),y
@@ -10134,14 +10245,14 @@ L1662:	jsr     decsp3
 ;
 ; BOARD_HEIGHT,
 ;
-	.dbg	line, "main.c", 3375
+	.dbg	line, "main.c", 3391
 	lda     #$14
 	ldy     #$00
 	sta     (sp),y
 ;
 ; cur_nt,
 ;
-	.dbg	line, "main.c", 3377
+	.dbg	line, "main.c", 3393
 	jsr     decsp2
 	lda     _cur_nt
 	iny
@@ -10149,13 +10260,13 @@ L1662:	jsr     decsp3
 ;
 ; BOARD_START_X_PX + ((BOARD_END_X_PX_BOARD - ix) << 3),
 ;
-	.dbg	line, "main.c", 3378
+	.dbg	line, "main.c", 3394
 	lda     #$09
 	jsr     pusha0
-	lda     L162F
-	bpl     L1680
+	lda     L1646
+	bpl     L1697
 	ldx     #$FF
-L1680:	jsr     tossubax
+L1697:	jsr     tossubax
 	asl     a
 	asl     a
 	asl     a
@@ -10166,28 +10277,28 @@ L1680:	jsr     tossubax
 ;
 ; BOARD_START_Y_PX + ((BOARD_OOB_END + 1) << 3)));
 ;
-	.dbg	line, "main.c", 3379
+	.dbg	line, "main.c", 3395
 	lda     #$30
 	jsr     _get_ppu_addr
 	jsr     _multi_vram_buffer_vert
 ;
 ; delay(5);
 ;
-	.dbg	line, "main.c", 3382
+	.dbg	line, "main.c", 3398
 	lda     #$05
 	jsr     _delay
 ;
 ; clear_vram_buffer();
 ;
-	.dbg	line, "main.c", 3383
+	.dbg	line, "main.c", 3399
 	jsr     _clear_vram_buffer
 ;
 ; for (ix = 4; ix >= 0; --ix)
 ;
-	.dbg	line, "main.c", 3348
-	dec     L162F
-	jpl     L1A5D
-	jmp     L1A5D
+	.dbg	line, "main.c", 3364
+	dec     L1646
+	jpl     L1A7A
+	jmp     L1A7A
 	.dbg	line
 
 .endproc
@@ -10204,11 +10315,11 @@ L1680:	jsr     tossubax
 
 .segment	"BSS"
 
-L168A:
+L16A1:
 	.res	1,$00
-L168B:
+L16A2:
 	.res	1,$00
-L168C:
+L16A3:
 	.res	1,$00
 
 .segment	"CODE"
@@ -10216,51 +10327,51 @@ L168C:
 ;
 ; iy = BOARD_END_Y_PX_BOARD - lines_cleared_y[0];
 ;
-	.dbg	line, "main.c", 3400
+	.dbg	line, "main.c", 3416
 	lda     #$17
 	sec
 	sbc     _lines_cleared_y
-	sta     L168B
+	sta     L16A2
 ;
 ; for (ix = 0; ix < BOARD_WIDTH; ++ix)
 ;
-	.dbg	line, "main.c", 3404
+	.dbg	line, "main.c", 3420
 	lda     #$00
-	sta     L168A
-L1A61:	lda     L168A
+	sta     L16A1
+L1A7E:	lda     L16A1
 	cmp     #$0A
-	bcs     L1A66
+	bcs     L1A83
 ;
 ; if (attack_row_status[ix] > ATTACK_QUEUE_SIZE && attack_row_status[ix] - (ATTACK_QUEUE_SIZE + 1) >= (iy))
 ;
-	.dbg	line, "main.c", 3406
-	ldy     L168A
+	.dbg	line, "main.c", 3422
+	ldy     L16A1
 	lda     _attack_row_status,y
 	cmp     #$04
-	bcc     L1A65
-	ldy     L168A
+	bcc     L1A82
+	ldy     L16A1
 	ldx     #$00
 	lda     _attack_row_status,y
 	sec
 	sbc     #$04
-	bcs     L16A1
+	bcs     L16B8
 	dex
-L16A1:	cmp     L168B
+L16B8:	cmp     L16A2
 	txa
 	sbc     #$00
-	bcs     L16A6
-	jmp     L1A65
+	bcs     L16BD
+	jmp     L1A82
 ;
 ; --attack_row_status[ix];
 ;
-	.dbg	line, "main.c", 3411
-L16A4:	lda     #<(_attack_row_status)
+	.dbg	line, "main.c", 3427
+L16BB:	lda     #<(_attack_row_status)
 	ldx     #>(_attack_row_status)
 	clc
-	adc     L168A
-	bcc     L16AC
+	adc     L16A1
+	bcc     L16C3
 	inx
-L16AC:	sta     ptr1
+L16C3:	sta     ptr1
 	stx     ptr1+1
 	ldy     #$00
 	lda     (ptr1),y
@@ -10270,67 +10381,67 @@ L16AC:	sta     ptr1
 ;
 ; delay(1);
 ;
-	.dbg	line, "main.c", 3412
+	.dbg	line, "main.c", 3428
 	lda     #$01
 	jsr     _delay
 ;
 ; draw_gameplay_sprites();
 ;
-	.dbg	line, "main.c", 3413
+	.dbg	line, "main.c", 3429
 	jsr     _draw_gameplay_sprites
 ;
 ; clear_vram_buffer();
 ;
-	.dbg	line, "main.c", 3414
+	.dbg	line, "main.c", 3430
 	jsr     _clear_vram_buffer
 ;
 ; while (attack_row_status[ix] > 0)
 ;
-	.dbg	line, "main.c", 3408
-L16A6:	ldy     L168A
+	.dbg	line, "main.c", 3424
+L16BD:	ldy     L16A1
 	lda     _attack_row_status,y
-	bne     L16A4
+	bne     L16BB
 ;
 ; for (ix = 0; ix < BOARD_WIDTH; ++ix)
 ;
-	.dbg	line, "main.c", 3404
-L1A65:	inc     L168A
-	jmp     L1A61
+	.dbg	line, "main.c", 3420
+L1A82:	inc     L16A1
+	jmp     L1A7E
 ;
 ; for (i = 3; i >= 0; --i)
 ;
-	.dbg	line, "main.c", 3420
-L1A66:	lda     #$03
-	sta     L168C
-L1A67:	ldx     L168C
-	bmi     L16B2
+	.dbg	line, "main.c", 3436
+L1A83:	lda     #$03
+	sta     L16A3
+L1A84:	ldx     L16A3
+	bmi     L16C9
 ;
 ; iy = lines_cleared_y[i];
 ;
-	.dbg	line, "main.c", 3425
-	ldy     L168C
+	.dbg	line, "main.c", 3441
+	ldy     L16A3
 	lda     _lines_cleared_y,y
-	sta     L168B
+	sta     L16A2
 ;
 ; if (iy != 0xff)
 ;
-	.dbg	line, "main.c", 3427
+	.dbg	line, "main.c", 3443
 	cmp     #$FF
-	beq     L1A68
+	beq     L1A85
 ;
 ; memcpy(game_board_temp, game_board, sizeof(game_board));
 ;
-	.dbg	line, "main.c", 3431
+	.dbg	line, "main.c", 3447
 	ldy     #$00
-L16C7:	lda     _game_board,y
+L16DE:	lda     _game_board,y
 	sta     _game_board_temp,y
 	iny
 	cpy     #$F0
-	bne     L16C7
+	bne     L16DE
 ;
 ; memcpy(&game_board[10], game_board_temp, iy * 10);
 ;
-	.dbg	line, "main.c", 3433
+	.dbg	line, "main.c", 3449
 	lda     #<(_game_board+10)
 	ldx     #>(_game_board+10)
 	jsr     pushax
@@ -10338,21 +10449,21 @@ L16C7:	lda     _game_board,y
 	ldx     #>(_game_board_temp)
 	jsr     pushax
 	ldx     #$00
-	lda     L168B
+	lda     L16A2
 	jsr     mulax10
 	jsr     _memcpy
 ;
 ; for (i = 3; i >= 0; --i)
 ;
-	.dbg	line, "main.c", 3420
-L1A68:	dec     L168C
-	bpl     L1A67
-	jmp     L1A67
+	.dbg	line, "main.c", 3436
+L1A85:	dec     L16A3
+	bpl     L1A84
+	jmp     L1A84
 ;
 ; copy_board_to_nt();
 ;
-	.dbg	line, "main.c", 3438
-L16B2:	jmp     _copy_board_to_nt
+	.dbg	line, "main.c", 3454
+L16C9:	jmp     _copy_board_to_nt
 	.dbg	line
 
 .endproc
@@ -10372,61 +10483,61 @@ L16B2:	jmp     _copy_board_to_nt
 ;
 ; if (state == STATE_GAME)
 ;
-	.dbg	line, "main.c", 3447
+	.dbg	line, "main.c", 3463
 	lda     _state
 	cmp     #$04
-	bne     L1A6B
+	bne     L1A88
 ;
 ; draw_gameplay_sprites();
 ;
-	.dbg	line, "main.c", 3449
+	.dbg	line, "main.c", 3465
 	jsr     _draw_gameplay_sprites
 ;
 ; for (local_ix = 0; local_ix <= BOARD_END_X_PX_BOARD; ++local_ix)
 ;
-	.dbg	line, "main.c", 3455
-L1A6B:	lda     #$00
+	.dbg	line, "main.c", 3471
+L1A88:	lda     #$00
 	sta     _local_ix
-L1A6C:	lda     _local_ix
+L1A89:	lda     _local_ix
 	cmp     #$0A
-	bcc     L1A6E
+	bcc     L1A8B
 ;
 ; }
 ;
-	.dbg	line, "main.c", 3499
+	.dbg	line, "main.c", 3515
 	rts
 ;
 ; for (local_iy = 0; local_iy < BOARD_HEIGHT; ++local_iy)
 ;
-	.dbg	line, "main.c", 3458
-L1A6E:	lda     #$00
+	.dbg	line, "main.c", 3474
+L1A8B:	lda     #$00
 	sta     _local_iy
-L1A6D:	lda     _local_iy
+L1A8A:	lda     _local_iy
 	cmp     #$14
-	bcs     L16DB
+	bcs     L16F2
 ;
 ; copy_board_data[local_iy] = game_board[TILE_TO_BOARD_INDEX(local_ix, local_iy + BOARD_OOB_END + 1)];
 ;
-	.dbg	line, "main.c", 3460
+	.dbg	line, "main.c", 3476
 	lda     #<(_copy_board_data)
 	ldx     #>(_copy_board_data)
 	clc
 	adc     _local_iy
-	bcc     L16E5
+	bcc     L16FC
 	inx
-L16E5:	sta     sreg
+L16FC:	sta     sreg
 	stx     sreg+1
 	ldx     #$00
 	lda     _local_iy
 	clc
 	adc     #$03
-	bcc     L1A6A
+	bcc     L1A87
 	inx
 	clc
-L1A6A:	adc     #$01
-	bcc     L16ED
+L1A87:	adc     #$01
+	bcc     L1704
 	inx
-L16ED:	sta     ptr1
+L1704:	sta     ptr1
 	txa
 	clc
 	adc     #>(_board_lookup_y)
@@ -10436,9 +10547,9 @@ L16ED:	sta     ptr1
 	lda     (ptr1),y
 	clc
 	adc     _local_ix
-	bcc     L1A69
+	bcc     L1A86
 	inx
-L1A69:	sta     ptr1
+L1A86:	sta     ptr1
 	txa
 	clc
 	adc     #>(_game_board)
@@ -10450,14 +10561,14 @@ L1A69:	sta     ptr1
 ;
 ; for (local_iy = 0; local_iy < BOARD_HEIGHT; ++local_iy)
 ;
-	.dbg	line, "main.c", 3458
+	.dbg	line, "main.c", 3474
 	inc     _local_iy
-	jmp     L1A6D
+	jmp     L1A8A
 ;
 ; copy_board_data,
 ;
-	.dbg	line, "main.c", 3469
-L16DB:	jsr     decsp3
+	.dbg	line, "main.c", 3485
+L16F2:	jsr     decsp3
 	lda     #<(_copy_board_data)
 	ldy     #$01
 	sta     (sp),y
@@ -10467,14 +10578,14 @@ L16DB:	jsr     decsp3
 ;
 ; BOARD_HEIGHT,
 ;
-	.dbg	line, "main.c", 3470
+	.dbg	line, "main.c", 3486
 	lda     #$14
 	ldy     #$00
 	sta     (sp),y
 ;
 ; cur_nt,
 ;
-	.dbg	line, "main.c", 3472
+	.dbg	line, "main.c", 3488
 	jsr     decsp2
 	lda     _cur_nt
 	iny
@@ -10482,7 +10593,7 @@ L16DB:	jsr     decsp3
 ;
 ; BOARD_START_X_PX + (local_ix << 3),
 ;
-	.dbg	line, "main.c", 3473
+	.dbg	line, "main.c", 3489
 	lda     _local_ix
 	asl     a
 	asl     a
@@ -10494,39 +10605,39 @@ L16DB:	jsr     decsp3
 ;
 ; BOARD_START_Y_PX + ((BOARD_OOB_END + 1) << 3)));
 ;
-	.dbg	line, "main.c", 3474
+	.dbg	line, "main.c", 3490
 	lda     #$30
 	jsr     _get_ppu_addr
 	jsr     _multi_vram_buffer_vert
 ;
 ; if (local_ix % 3 == 0)
 ;
-	.dbg	line, "main.c", 3477
+	.dbg	line, "main.c", 3493
 	lda     _local_ix
 	jsr     pusha0
 	lda     #$03
 	jsr     tosumoda0
 	cpx     #$00
-	bne     L16D4
+	bne     L16EB
 	cmp     #$00
-	bne     L16D4
+	bne     L16EB
 ;
 ; delay(1);
 ;
-	.dbg	line, "main.c", 3483
+	.dbg	line, "main.c", 3499
 	lda     #$01
 	jsr     _delay
 ;
 ; clear_vram_buffer();
 ;
-	.dbg	line, "main.c", 3484
+	.dbg	line, "main.c", 3500
 	jsr     _clear_vram_buffer
 ;
 ; for (local_ix = 0; local_ix <= BOARD_END_X_PX_BOARD; ++local_ix)
 ;
-	.dbg	line, "main.c", 3455
-L16D4:	inc     _local_ix
-	jmp     L1A6C
+	.dbg	line, "main.c", 3471
+L16EB:	inc     _local_ix
+	jmp     L1A89
 	.dbg	line
 
 .endproc
@@ -10543,11 +10654,11 @@ L16D4:	inc     _local_ix
 
 .segment	"BSS"
 
-L1702:
+L1719:
 	.res	1,$00
-L1703:
+L171A:
 	.res	1,$00
-L1704:
+L171B:
 	.res	1,$00
 
 .segment	"CODE"
@@ -10555,62 +10666,62 @@ L1704:
 ;
 ; attacks = 0;
 ;
-	.dbg	line, "main.c", 3508
+	.dbg	line, "main.c", 3524
 	lda     #$00
-	sta     L1704
+	sta     L171B
 ;
 ; for (ix = 0; ix < BOARD_WIDTH; ++ix)
 ;
-	.dbg	line, "main.c", 3515
-	sta     L1702
-L1A75:	lda     L1702
+	.dbg	line, "main.c", 3531
+	sta     L1719
+L1A92:	lda     L1719
 	sec
 	sbc     #$0A
-	bvc     L1710
+	bvc     L1727
 	eor     #$80
-L1710:	jpl     L1A7D
+L1727:	jpl     L1A9A
 ;
 ; if (attack_row_status[ix] > 0)
 ;
-	.dbg	line, "main.c", 3517
-	ldy     L1702
+	.dbg	line, "main.c", 3533
+	ldy     L1719
 	lda     _attack_row_status,y
-	jeq     L1A7C
+	jeq     L1A99
 ;
 ; if (attack_row_status[ix] >= ATTACK_MAX)
 ;
-	.dbg	line, "main.c", 3519
-	ldy     L1702
+	.dbg	line, "main.c", 3535
+	ldy     L1719
 	lda     _attack_row_status,y
 	cmp     #$0A
-	bcc     L1A76
+	bcc     L1A93
 ;
 ; row_to_clear = ix;
 ;
-	.dbg	line, "main.c", 3531
-	lda     L1702
+	.dbg	line, "main.c", 3547
+	lda     L1719
 	sta     _row_to_clear
 ;
 ; break;
 ;
-	.dbg	line, "main.c", 3538
-	jmp     L1A7D
+	.dbg	line, "main.c", 3554
+	jmp     L1A9A
 ;
 ; ++attacks;
 ;
-	.dbg	line, "main.c", 3540
-L1A76:	inc     L1704
+	.dbg	line, "main.c", 3556
+L1A93:	inc     L171B
 ;
 ; ++attack_row_status[ix];
 ;
-	.dbg	line, "main.c", 3541
+	.dbg	line, "main.c", 3557
 	lda     #<(_attack_row_status)
 	ldx     #>(_attack_row_status)
 	clc
-	adc     L1702
-	bcc     L1724
+	adc     L1719
+	bcc     L173B
 	inx
-L1724:	sta     ptr1
+L173B:	sta     ptr1
 	stx     ptr1+1
 	ldy     #$00
 	lda     #$01
@@ -10620,78 +10731,78 @@ L1724:	sta     ptr1
 ;
 ; if (attack_row_status[ix] > ATTACK_QUEUE_SIZE)
 ;
-	.dbg	line, "main.c", 3543
-	ldy     L1702
+	.dbg	line, "main.c", 3559
+	ldy     L1719
 	lda     _attack_row_status,y
 	cmp     #$04
-	jcc     L1A7C
+	jcc     L1A99
 ;
 ; for (iy = BOARD_END_Y_PX_BOARD; iy > BOARD_OOB_END; --iy)
 ;
-	.dbg	line, "main.c", 3545
+	.dbg	line, "main.c", 3561
 	lda     #$17
-	sta     L1703
-L1A77:	lda     L1703
+	sta     L171A
+L1A94:	lda     L171A
 	cmp     #$04
 	ldx     #$00
-	jcc     L1A7B
+	jcc     L1A98
 ;
 ; if (game_board[TILE_TO_BOARD_INDEX(ix, iy)] == 0)
 ;
-	.dbg	line, "main.c", 3548
-	ldy     L1703
+	.dbg	line, "main.c", 3564
+	ldy     L171A
 	lda     _board_lookup_y,y
 	sta     ptr1
-	lda     L1702
-	bpl     L173B
+	lda     L1719
+	bpl     L1752
 	dex
-L173B:	clc
+L1752:	clc
 	adc     ptr1
-	bcc     L1A6F
+	bcc     L1A8C
 	inx
-L1A6F:	sta     ptr1
+L1A8C:	sta     ptr1
 	txa
 	clc
 	adc     #>(_game_board)
 	sta     ptr1+1
 	ldy     #<(_game_board)
 	lda     (ptr1),y
-	bne     L1A79
+	bne     L1A96
 ;
 ; for (; iy <= BOARD_END_Y_PX_BOARD; ++iy)
 ;
-	.dbg	line, "main.c", 3551
+	.dbg	line, "main.c", 3567
 	tax
-L1A78:	lda     L1703
+L1A95:	lda     L171A
 	cmp     #$18
-	bcs     L1A7B
+	bcs     L1A98
 ;
 ; game_board[TILE_TO_BOARD_INDEX(ix, iy)] = game_board[TILE_TO_BOARD_INDEX(ix, iy + 1)];
 ;
-	.dbg	line, "main.c", 3553
-	ldy     L1703
+	.dbg	line, "main.c", 3569
+	ldy     L171A
 	lda     _board_lookup_y,y
 	sta     ptr1
-	lda     L1702
-	bpl     L174A
+	lda     L1719
+	bpl     L1761
 	dex
-L174A:	clc
+L1761:	clc
 	adc     ptr1
-	bcc     L1A73
+	bcc     L1A90
 	inx
 	clc
-L1A73:	adc     #<(_game_board)
+L1A90:	adc     #<(_game_board)
 	sta     sreg
 	txa
 	adc     #>(_game_board)
 	sta     sreg+1
 	ldx     #$00
-	lda     L1703
+	lda     L171A
 	clc
 	adc     #$01
-	bcc     L1751
+	bcc     L1768
 	inx
-L1751:	sta     ptr1
+L1768:	sta     ptr1
 	txa
 	clc
 	adc     #>(_board_lookup_y)
@@ -10700,14 +10811,14 @@ L1751:	sta     ptr1
 	lda     (ptr1),y
 	sta     ptr1
 	ldx     #$00
-	lda     L1702
-	bpl     L1753
+	lda     L1719
+	bpl     L176A
 	dex
-L1753:	clc
+L176A:	clc
 	adc     ptr1
-	bcc     L1A71
+	bcc     L1A8E
 	inx
-L1A71:	sta     ptr1
+L1A8E:	sta     ptr1
 	txa
 	clc
 	adc     #>(_game_board)
@@ -10719,29 +10830,29 @@ L1A71:	sta     ptr1
 ;
 ; for (; iy <= BOARD_END_Y_PX_BOARD; ++iy)
 ;
-	.dbg	line, "main.c", 3551
+	.dbg	line, "main.c", 3567
 	ldx     #$00
-	inc     L1703
-	jmp     L1A78
+	inc     L171A
+	jmp     L1A95
 ;
 ; for (iy = BOARD_END_Y_PX_BOARD; iy > BOARD_OOB_END; --iy)
 ;
-	.dbg	line, "main.c", 3545
-L1A79:	dec     L1703
-	jmp     L1A77
+	.dbg	line, "main.c", 3561
+L1A96:	dec     L171A
+	jmp     L1A94
 ;
 ; game_board[TILE_TO_BOARD_INDEX(ix, BOARD_END_Y_PX_BOARD)] = garbage_types[cur_garbage_type]; //     0x60; //0xf7; //(attack_row_status[ix] == (ATTACK_QUEUE_SIZE + 1)) ? 0xf9 : 0xf8;
 ;
-	.dbg	line, "main.c", 3560
-L1A7B:	lda     L1702
-	bpl     L175B
+	.dbg	line, "main.c", 3576
+L1A98:	lda     L1719
+	bpl     L1772
 	dex
-L175B:	clc
+L1772:	clc
 	adc     _board_lookup_y+23
-	bcc     L1A74
+	bcc     L1A91
 	inx
 	clc
-L1A74:	adc     #<(_game_board)
+L1A91:	adc     #<(_game_board)
 	sta     ptr1
 	txa
 	adc     #>(_game_board)
@@ -10753,37 +10864,37 @@ L1A74:	adc     #<(_game_board)
 ;
 ; ++cur_garbage_type;
 ;
-	.dbg	line, "main.c", 3561
+	.dbg	line, "main.c", 3577
 	inc     _cur_garbage_type
 ;
 ; if (cur_garbage_type >= NUM_GARBAGE_TYPES)
 ;
-	.dbg	line, "main.c", 3562
+	.dbg	line, "main.c", 3578
 	lda     _cur_garbage_type
 	cmp     #$03
-	bcc     L1A7C
+	bcc     L1A99
 ;
 ; cur_garbage_type = 0;
 ;
-	.dbg	line, "main.c", 3564
+	.dbg	line, "main.c", 3580
 	sty     _cur_garbage_type
 ;
 ; for (ix = 0; ix < BOARD_WIDTH; ++ix)
 ;
-	.dbg	line, "main.c", 3515
-L1A7C:	inc     L1702
-	jpl     L1A75
-	jmp     L1A75
+	.dbg	line, "main.c", 3531
+L1A99:	inc     L1719
+	jpl     L1A92
+	jmp     L1A92
 ;
 ; if (attacks == 0)
 ;
-	.dbg	line, "main.c", 3573
-L1A7D:	lda     L1704
-	bne     L1764
+	.dbg	line, "main.c", 3589
+L1A9A:	lda     L171B
+	bne     L177B
 ;
 ; attack_row_status[rand() % BOARD_WIDTH] = 1;
 ;
-	.dbg	line, "main.c", 3576
+	.dbg	line, "main.c", 3592
 	jsr     _rand
 	jsr     pushax
 	ldx     #$00
@@ -10801,8 +10912,8 @@ L1A7D:	lda     L1704
 ;
 ; copy_board_to_nt();
 ;
-	.dbg	line, "main.c", 3580
-L1764:	jmp     _copy_board_to_nt
+	.dbg	line, "main.c", 3596
+L177B:	jmp     _copy_board_to_nt
 	.dbg	line
 
 .endproc
@@ -10822,7 +10933,7 @@ L1764:	jmp     _copy_board_to_nt
 ;
 ; memfill(&game_board[TILE_TO_BOARD_INDEX(0, BOARD_END_Y_PX_BOARD - kill_row_cur)], 1, BOARD_WIDTH);
 ;
-	.dbg	line, "main.c", 3585
+	.dbg	line, "main.c", 3601
 	jsr     decsp3
 	lda     #$17
 	sec
@@ -10855,12 +10966,12 @@ L1764:	jmp     _copy_board_to_nt
 ;
 ; ++kill_row_cur;
 ;
-	.dbg	line, "main.c", 3586
+	.dbg	line, "main.c", 3602
 	inc     _kill_row_cur
 ;
 ; copy_board_to_nt();
 ;
-	.dbg	line, "main.c", 3587
+	.dbg	line, "main.c", 3603
 	jmp     _copy_board_to_nt
 	.dbg	line
 
@@ -10881,7 +10992,7 @@ L1764:	jmp     _copy_board_to_nt
 ;
 ; memfill(game_board, 0, BOARD_SIZE);
 ;
-	.dbg	line, "main.c", 3592
+	.dbg	line, "main.c", 3608
 	jsr     decsp3
 	lda     #<(_game_board)
 	ldy     #$01
@@ -10898,7 +11009,7 @@ L1764:	jmp     _copy_board_to_nt
 ;
 ; lines_cleared_one = lines_cleared_ten = lines_cleared_hundred = cur_score = 0;
 ;
-	.dbg	line, "main.c", 3595
+	.dbg	line, "main.c", 3611
 	ldx     #$00
 	txa
 	sta     _cur_score
@@ -10911,25 +11022,25 @@ L1764:	jmp     _copy_board_to_nt
 ;
 ; held_cluster_id = 255; // Doesn't exist
 ;
-	.dbg	line, "main.c", 3596
+	.dbg	line, "main.c", 3612
 	lda     #$FF
 	sta     _held_cluster_id
 ;
 ; cur_level = saved_starting_level;
 ;
-	.dbg	line, "main.c", 3597
+	.dbg	line, "main.c", 3613
 	lda     _saved_starting_level
 	sta     _cur_level
 ;
 ; fall_rate = fall_rates_per_level[MIN(cur_level, sizeof(fall_rates_per_level))];
 ;
-	.dbg	line, "main.c", 3598
+	.dbg	line, "main.c", 3614
 	cmp     #$1E
-	bcs     L1A7E
+	bcs     L1A9B
 	lda     _cur_level
-	jmp     L1791
-L1A7E:	lda     #$1E
-L1791:	sta     ptr1
+	jmp     L17A8
+L1A9B:	lda     #$1E
+L17A8:	sta     ptr1
 	txa
 	clc
 	adc     #>(_fall_rates_per_level)
@@ -10940,35 +11051,46 @@ L1791:	sta     ptr1
 ;
 ; row_to_clear = -1;
 ;
-	.dbg	line, "main.c", 3599
+	.dbg	line, "main.c", 3615
 	lda     #$FF
 	sta     _row_to_clear
 ;
 ; delay_lock_remaining = -1;
 ;
-	.dbg	line, "main.c", 3600
+	.dbg	line, "main.c", 3616
 	sta     _delay_lock_remaining
 ;
 ; kill_row_cur = 0;
 ;
-	.dbg	line, "main.c", 3601
-	stx     _kill_row_cur
+	.dbg	line, "main.c", 3617
+	txa
+	sta     _kill_row_cur
+;
+; last_lines = 0;
+;
+	.dbg	line, "main.c", 3618
+	sta     _last_lines
+;
+; combo_count = 0;
+;
+	.dbg	line, "main.c", 3619
+	sta     _combo_count
 ;
 ; start_delay_remaining = START_DELAY;
 ;
-	.dbg	line, "main.c", 3602
+	.dbg	line, "main.c", 3620
 	lda     #$78
 	sta     _start_delay_remaining
 ;
 ; time_of_day = 0;
 ;
-	.dbg	line, "main.c", 3605
+	.dbg	line, "main.c", 3623
 	txa
 	sta     _time_of_day
 ;
 ; pal_bg(palette_bg_list[time_of_day]);
 ;
-	.dbg	line, "main.c", 3606
+	.dbg	line, "main.c", 3624
 	jsr     aslax4
 	clc
 	adc     #<(_palette_bg_list)
@@ -10981,14 +11103,14 @@ L1791:	sta     ptr1
 ;
 ; pal_spr(palette_sp);
 ;
-	.dbg	line, "main.c", 3607
+	.dbg	line, "main.c", 3625
 	lda     #<(_palette_sp)
 	ldx     #>(_palette_sp)
 	jsr     _pal_spr
 ;
 ; one_vram_buffer(0x8, get_ppu_addr(2, 4 << 3, 9 << 3));
 ;
-	.dbg	line, "main.c", 3610
+	.dbg	line, "main.c", 3628
 	lda     #$08
 	jsr     pusha
 	jsr     decsp2
@@ -11004,27 +11126,27 @@ L1791:	sta     ptr1
 ;
 ; display_lines_cleared();
 ;
-	.dbg	line, "main.c", 3612
+	.dbg	line, "main.c", 3630
 	jsr     _display_lines_cleared
 ;
 ; display_score();
 ;
-	.dbg	line, "main.c", 3613
+	.dbg	line, "main.c", 3631
 	jsr     _display_score
 ;
 ; display_level();
 ;
-	.dbg	line, "main.c", 3614
+	.dbg	line, "main.c", 3632
 	jsr     _display_level
 ;
 ; oam_clear();
 ;
-	.dbg	line, "main.c", 3616
+	.dbg	line, "main.c", 3634
 	jsr     _oam_clear
 ;
 ; multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 120, 16));
 ;
-	.dbg	line, "main.c", 3619
+	.dbg	line, "main.c", 3637
 	jsr     decsp3
 	lda     #<(_empty_row)
 	ldy     #$01
@@ -11048,7 +11170,7 @@ L1791:	sta     ptr1
 ;
 ; multi_vram_buffer_horz(empty_row, 4, get_ppu_addr(cur_nt, 120, 24));
 ;
-	.dbg	line, "main.c", 3620
+	.dbg	line, "main.c", 3638
 	jsr     decsp3
 	lda     #<(_empty_row)
 	ldy     #$01
@@ -11072,7 +11194,7 @@ L1791:	sta     ptr1
 ;
 ; multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 32));
 ;
-	.dbg	line, "main.c", 3627
+	.dbg	line, "main.c", 3645
 	jsr     decsp3
 	lda     #<(_empty_row_hold)
 	ldy     #$01
@@ -11096,7 +11218,7 @@ L1791:	sta     ptr1
 ;
 ; multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 40));
 ;
-	.dbg	line, "main.c", 3628
+	.dbg	line, "main.c", 3646
 	jsr     decsp3
 	lda     #<(_empty_row_hold)
 	ldy     #$01
@@ -11120,18 +11242,18 @@ L1791:	sta     ptr1
 ;
 ; delay(1);
 ;
-	.dbg	line, "main.c", 3630
+	.dbg	line, "main.c", 3648
 	lda     #$01
 	jsr     _delay
 ;
 ; clear_vram_buffer();
 ;
-	.dbg	line, "main.c", 3631
+	.dbg	line, "main.c", 3649
 	jsr     _clear_vram_buffer
 ;
 ; multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 48));
 ;
-	.dbg	line, "main.c", 3633
+	.dbg	line, "main.c", 3651
 	jsr     decsp3
 	lda     #<(_empty_row_hold)
 	ldy     #$01
@@ -11155,7 +11277,7 @@ L1791:	sta     ptr1
 ;
 ; multi_vram_buffer_horz(empty_row_hold_sky, 4, get_ppu_addr(cur_nt, 220, 56));
 ;
-	.dbg	line, "main.c", 3634
+	.dbg	line, "main.c", 3652
 	jsr     decsp3
 	lda     #<(_empty_row_hold_sky)
 	ldy     #$01
@@ -11179,7 +11301,7 @@ L1791:	sta     ptr1
 ;
 ; copy_board_to_nt();
 ;
-	.dbg	line, "main.c", 3637
+	.dbg	line, "main.c", 3655
 	jmp     _copy_board_to_nt
 	.dbg	line
 
@@ -11197,9 +11319,9 @@ L1791:	sta     ptr1
 
 .segment	"BSS"
 
-L17DD:
+L17F8:
 	.res	1,$00
-L17DE:
+L17F9:
 	.res	1,$00
 
 .segment	"CODE"
@@ -11207,33 +11329,33 @@ L17DE:
 ;
 ; temp = test_song;
 ;
-	.dbg	line, "main.c", 3646
+	.dbg	line, "main.c", 3664
 	lda     _test_song
-	sta     L17DD
+	sta     L17F8
 ;
 ; i = 0;
 ;
-	.dbg	line, "main.c", 3647
+	.dbg	line, "main.c", 3665
 	lda     #$00
-	sta     L17DE
+	sta     L17F9
 ;
 ; if (test_song < 100)
 ;
-	.dbg	line, "main.c", 3649
+	.dbg	line, "main.c", 3667
 	tax
 	lda     _test_song
 	cmp     #$64
-	bcs     L1A80
+	bcs     L1A9D
 ;
 ; multi_vram_buffer_horz("000", 3, get_ppu_addr(0, (4 << 3), (14 << 3)));
 ;
-	.dbg	line, "main.c", 3651
+	.dbg	line, "main.c", 3669
 	jsr     decsp3
-	lda     #<(L17E6)
+	lda     #<(L1801)
 	ldy     #$01
 	sta     (sp),y
 	iny
-	lda     #>(L17E6)
+	lda     #>(L1801)
 	sta     (sp),y
 	lda     #$03
 	ldy     #$00
@@ -11251,13 +11373,13 @@ L17DE:
 ;
 ; while (temp != 0)
 ;
-	.dbg	line, "main.c", 3654
-	jmp     L17F1
+	.dbg	line, "main.c", 3672
+	jmp     L180C
 ;
 ; unsigned char digit = temp % 10;
 ;
-	.dbg	line, "main.c", 3656
-L1A7F:	lda     L17DD
+	.dbg	line, "main.c", 3674
+L1A9C:	lda     L17F8
 	jsr     pushax
 	lda     #$0A
 	jsr     tosumodax
@@ -11265,7 +11387,7 @@ L1A7F:	lda     L17DD
 ;
 ; one_vram_buffer('0' + digit, get_ppu_addr(0, (6 << 3) - (i << 3), (14 << 3)));
 ;
-	.dbg	line, "main.c", 3657
+	.dbg	line, "main.c", 3675
 	ldy     #$00
 	lda     (sp),y
 	clc
@@ -11277,7 +11399,7 @@ L1A7F:	lda     L17DD
 	sta     (sp),y
 	lda     #$30
 	jsr     pusha0
-	lda     L17DE
+	lda     L17F9
 	jsr     aslax3
 	jsr     tossubax
 	ldy     #$00
@@ -11288,33 +11410,33 @@ L1A7F:	lda     L17DD
 ;
 ; temp = temp / 10;
 ;
-	.dbg	line, "main.c", 3659
-	lda     L17DD
+	.dbg	line, "main.c", 3677
+	lda     L17F8
 	jsr     pusha0
 	lda     #$0A
 	jsr     tosudiva0
-	sta     L17DD
+	sta     L17F8
 ;
 ; ++i;
 ;
-	.dbg	line, "main.c", 3660
-	inc     L17DE
+	.dbg	line, "main.c", 3678
+	inc     L17F9
 ;
 ; }
 ;
-	.dbg	line, "main.c", 3661
+	.dbg	line, "main.c", 3679
 	jsr     incsp1
 ;
 ; while (temp != 0)
 ;
-	.dbg	line, "main.c", 3654
-L17F1:	ldx     #$00
-L1A80:	lda     L17DD
-	bne     L1A7F
+	.dbg	line, "main.c", 3672
+L180C:	ldx     #$00
+L1A9D:	lda     L17F8
+	bne     L1A9C
 ;
 ; }
 ;
-	.dbg	line, "main.c", 3662
+	.dbg	line, "main.c", 3680
 	rts
 	.dbg	line
 
@@ -11332,9 +11454,9 @@ L1A80:	lda     L17DD
 
 .segment	"BSS"
 
-L1802:
+L181D:
 	.res	1,$00
-L1803:
+L181E:
 	.res	1,$00
 
 .segment	"CODE"
@@ -11342,33 +11464,33 @@ L1803:
 ;
 ; temp = test_sound;
 ;
-	.dbg	line, "main.c", 3670
+	.dbg	line, "main.c", 3688
 	lda     _test_sound
-	sta     L1802
+	sta     L181D
 ;
 ; i = 0;
 ;
-	.dbg	line, "main.c", 3671
+	.dbg	line, "main.c", 3689
 	lda     #$00
-	sta     L1803
+	sta     L181E
 ;
 ; if (test_song < 100)
 ;
-	.dbg	line, "main.c", 3673
+	.dbg	line, "main.c", 3691
 	tax
 	lda     _test_song
 	cmp     #$64
-	bcs     L1A82
+	bcs     L1A9F
 ;
 ; multi_vram_buffer_horz("000", 3, get_ppu_addr(0, (25 << 3), (14 << 3)));
 ;
-	.dbg	line, "main.c", 3675
+	.dbg	line, "main.c", 3693
 	jsr     decsp3
-	lda     #<(L180B)
+	lda     #<(L1826)
 	ldy     #$01
 	sta     (sp),y
 	iny
-	lda     #>(L180B)
+	lda     #>(L1826)
 	sta     (sp),y
 	lda     #$03
 	ldy     #$00
@@ -11386,13 +11508,13 @@ L1803:
 ;
 ; while (temp != 0)
 ;
-	.dbg	line, "main.c", 3678
-	jmp     L1816
+	.dbg	line, "main.c", 3696
+	jmp     L1831
 ;
 ; unsigned char digit = temp % 10;
 ;
-	.dbg	line, "main.c", 3680
-L1A81:	lda     L1802
+	.dbg	line, "main.c", 3698
+L1A9E:	lda     L181D
 	jsr     pushax
 	lda     #$0A
 	jsr     tosumodax
@@ -11400,7 +11522,7 @@ L1A81:	lda     L1802
 ;
 ; one_vram_buffer('0' + digit, get_ppu_addr(0, (27 << 3) - (i << 3), (14 << 3)));
 ;
-	.dbg	line, "main.c", 3681
+	.dbg	line, "main.c", 3699
 	ldy     #$00
 	lda     (sp),y
 	clc
@@ -11412,7 +11534,7 @@ L1A81:	lda     L1802
 	sta     (sp),y
 	lda     #$D8
 	jsr     pusha0
-	lda     L1803
+	lda     L181E
 	jsr     aslax3
 	jsr     tossubax
 	ldy     #$00
@@ -11423,33 +11545,33 @@ L1A81:	lda     L1802
 ;
 ; temp = temp / 10;
 ;
-	.dbg	line, "main.c", 3683
-	lda     L1802
+	.dbg	line, "main.c", 3701
+	lda     L181D
 	jsr     pusha0
 	lda     #$0A
 	jsr     tosudiva0
-	sta     L1802
+	sta     L181D
 ;
 ; ++i;
 ;
-	.dbg	line, "main.c", 3684
-	inc     L1803
+	.dbg	line, "main.c", 3702
+	inc     L181E
 ;
 ; }
 ;
-	.dbg	line, "main.c", 3685
+	.dbg	line, "main.c", 3703
 	jsr     incsp1
 ;
 ; while (temp != 0)
 ;
-	.dbg	line, "main.c", 3678
-L1816:	ldx     #$00
-L1A82:	lda     L1802
-	bne     L1A81
+	.dbg	line, "main.c", 3696
+L1831:	ldx     #$00
+L1A9F:	lda     L181D
+	bne     L1A9E
 ;
 ; }
 ;
-	.dbg	line, "main.c", 3686
+	.dbg	line, "main.c", 3704
 	rts
 	.dbg	line
 
@@ -11467,7 +11589,7 @@ L1A82:	lda     L1802
 
 .segment	"DATA"
 
-L1827:
+L1842:
 	.byte	$10
 
 .segment	"CODE"
@@ -11475,26 +11597,26 @@ L1827:
 ;
 ; delay(1);
 ;
-	.dbg	line, "main.c", 3695
+	.dbg	line, "main.c", 3713
 	lda     #$01
 	jsr     _delay
 ;
 ; clear_vram_buffer();
 ;
-	.dbg	line, "main.c", 3696
+	.dbg	line, "main.c", 3714
 	jsr     _clear_vram_buffer
 ;
 ; multi_vram_buffer_horz(&starting_levels[cur_level], 1, get_ppu_addr(0, 17 << 3, start_y << 3));
 ;
-	.dbg	line, "main.c", 3698
+	.dbg	line, "main.c", 3716
 	jsr     decsp3
 	lda     #<(_starting_levels)
 	ldx     #>(_starting_levels)
 	clc
 	adc     _cur_level
-	bcc     L182F
+	bcc     L184A
 	inx
-L182F:	ldy     #$01
+L184A:	ldy     #$01
 	sta     (sp),y
 	iny
 	txa
@@ -11509,7 +11631,7 @@ L182F:	ldy     #$01
 	lda     #$88
 	dey
 	sta     (sp),y
-	lda     L1827
+	lda     L1842
 	asl     a
 	asl     a
 	asl     a
@@ -11518,7 +11640,7 @@ L182F:	ldy     #$01
 ;
 ; multi_vram_buffer_horz(attack_style_strings[attack_style], ATTACK_STRING_LEN, get_ppu_addr(0, 17 << 3, (start_y + 2) << 3));
 ;
-	.dbg	line, "main.c", 3699
+	.dbg	line, "main.c", 3717
 	jsr     decsp3
 	ldx     #$00
 	lda     _attack_style
@@ -11545,7 +11667,7 @@ L182F:	ldy     #$01
 	lda     #$88
 	dey
 	sta     (sp),y
-	lda     L1827
+	lda     L1842
 	clc
 	adc     #$02
 	asl     a
@@ -11556,7 +11678,7 @@ L182F:	ldy     #$01
 ;
 ; multi_vram_buffer_horz(off_on_string[music_on], OFF_ON_STRING_LEN, get_ppu_addr(0, 17 << 3, (start_y + 4) << 3));
 ;
-	.dbg	line, "main.c", 3700
+	.dbg	line, "main.c", 3718
 	jsr     decsp3
 	ldx     #$00
 	lda     _music_on
@@ -11583,7 +11705,7 @@ L182F:	ldy     #$01
 	lda     #$88
 	dey
 	sta     (sp),y
-	lda     L1827
+	lda     L1842
 	clc
 	adc     #$04
 	asl     a
@@ -11594,7 +11716,7 @@ L182F:	ldy     #$01
 ;
 ; multi_vram_buffer_horz(off_on_string[sfx_on], OFF_ON_STRING_LEN, get_ppu_addr(0, 17 << 3, (start_y + 6) << 3));
 ;
-	.dbg	line, "main.c", 3701
+	.dbg	line, "main.c", 3719
 	jsr     decsp3
 	ldx     #$00
 	lda     _sfx_on
@@ -11621,7 +11743,7 @@ L182F:	ldy     #$01
 	lda     #$88
 	dey
 	sta     (sp),y
-	lda     L1827
+	lda     L1842
 	clc
 	adc     #$06
 	asl     a
@@ -11632,7 +11754,7 @@ L182F:	ldy     #$01
 ;
 ; multi_vram_buffer_horz(hard_drop_types[hard_drops_on], HARD_DROP_STRING_LEN, get_ppu_addr(0, 17 << 3, (start_y + 8) << 3));
 ;
-	.dbg	line, "main.c", 3702
+	.dbg	line, "main.c", 3720
 	jsr     decsp3
 	ldx     #$00
 	lda     _hard_drops_on
@@ -11659,7 +11781,7 @@ L182F:	ldy     #$01
 	lda     #$88
 	dey
 	sta     (sp),y
-	lda     L1827
+	lda     L1842
 	clc
 	adc     #$08
 	asl     a
@@ -11670,7 +11792,7 @@ L182F:	ldy     #$01
 ;
 ; multi_vram_buffer_horz(option_empty, 2, get_ppu_addr(0, 7 << 3, (start_y) << 3));
 ;
-	.dbg	line, "main.c", 3705
+	.dbg	line, "main.c", 3723
 	jsr     decsp3
 	lda     #<(_option_empty)
 	ldy     #$01
@@ -11688,7 +11810,7 @@ L182F:	ldy     #$01
 	lda     #$38
 	dey
 	sta     (sp),y
-	lda     L1827
+	lda     L1842
 	asl     a
 	asl     a
 	asl     a
@@ -11697,7 +11819,7 @@ L182F:	ldy     #$01
 ;
 ; multi_vram_buffer_horz(option_empty, 2, get_ppu_addr(0, 7 << 3, (start_y + 2) << 3));
 ;
-	.dbg	line, "main.c", 3706
+	.dbg	line, "main.c", 3724
 	jsr     decsp3
 	lda     #<(_option_empty)
 	ldy     #$01
@@ -11715,7 +11837,7 @@ L182F:	ldy     #$01
 	lda     #$38
 	dey
 	sta     (sp),y
-	lda     L1827
+	lda     L1842
 	clc
 	adc     #$02
 	asl     a
@@ -11726,7 +11848,7 @@ L182F:	ldy     #$01
 ;
 ; multi_vram_buffer_horz(option_empty, 2, get_ppu_addr(0, 7 << 3, (start_y + 4) << 3));
 ;
-	.dbg	line, "main.c", 3707
+	.dbg	line, "main.c", 3725
 	jsr     decsp3
 	lda     #<(_option_empty)
 	ldy     #$01
@@ -11744,7 +11866,7 @@ L182F:	ldy     #$01
 	lda     #$38
 	dey
 	sta     (sp),y
-	lda     L1827
+	lda     L1842
 	clc
 	adc     #$04
 	asl     a
@@ -11755,7 +11877,7 @@ L182F:	ldy     #$01
 ;
 ; multi_vram_buffer_horz(option_empty, 2, get_ppu_addr(0, 7 << 3, (start_y + 6) << 3));
 ;
-	.dbg	line, "main.c", 3708
+	.dbg	line, "main.c", 3726
 	jsr     decsp3
 	lda     #<(_option_empty)
 	ldy     #$01
@@ -11773,7 +11895,7 @@ L182F:	ldy     #$01
 	lda     #$38
 	dey
 	sta     (sp),y
-	lda     L1827
+	lda     L1842
 	clc
 	adc     #$06
 	asl     a
@@ -11784,7 +11906,7 @@ L182F:	ldy     #$01
 ;
 ; multi_vram_buffer_horz(option_empty, 2, get_ppu_addr(0, 7 << 3, (start_y + 8) << 3));
 ;
-	.dbg	line, "main.c", 3709
+	.dbg	line, "main.c", 3727
 	jsr     decsp3
 	lda     #<(_option_empty)
 	ldy     #$01
@@ -11802,7 +11924,7 @@ L182F:	ldy     #$01
 	lda     #$38
 	dey
 	sta     (sp),y
-	lda     L1827
+	lda     L1842
 	clc
 	adc     #$08
 	asl     a
@@ -11813,7 +11935,7 @@ L182F:	ldy     #$01
 ;
 ; multi_vram_buffer_horz(option_icon, 2, get_ppu_addr(0, 7 << 3, (start_y + (cur_option << 1) << 3)));
 ;
-	.dbg	line, "main.c", 3711
+	.dbg	line, "main.c", 3729
 	jsr     decsp3
 	lda     #<(_option_icon)
 	ldy     #$01
@@ -11833,9 +11955,9 @@ L182F:	ldy     #$01
 	sta     (sp),y
 	lda     _cur_option
 	asl     a
-	bcc     L1A85
+	bcc     L1AA2
 	clc
-L1A85:	adc     L1827
+L1AA2:	adc     L1842
 	asl     a
 	asl     a
 	asl     a
@@ -11844,13 +11966,13 @@ L1A85:	adc     L1827
 ;
 ; delay(1);
 ;
-	.dbg	line, "main.c", 3714
+	.dbg	line, "main.c", 3732
 	lda     #$01
 	jsr     _delay
 ;
 ; clear_vram_buffer();
 ;
-	.dbg	line, "main.c", 3715
+	.dbg	line, "main.c", 3733
 	jmp     _clear_vram_buffer
 	.dbg	line
 
@@ -11871,49 +11993,49 @@ L1A85:	adc     L1827
 ;
 ; pal_bright(3);
 ;
-	.dbg	line, "main.c", 3721
+	.dbg	line, "main.c", 3739
 	lda     #$03
 	jsr     _pal_bright
 ;
 ; delay(2);
 ;
-	.dbg	line, "main.c", 3722
+	.dbg	line, "main.c", 3740
 	lda     #$02
 	jsr     _delay
 ;
 ; pal_bright(2);
 ;
-	.dbg	line, "main.c", 3723
+	.dbg	line, "main.c", 3741
 	lda     #$02
 	jsr     _pal_bright
 ;
 ; delay(2);
 ;
-	.dbg	line, "main.c", 3724
+	.dbg	line, "main.c", 3742
 	lda     #$02
 	jsr     _delay
 ;
 ; pal_bright(1);
 ;
-	.dbg	line, "main.c", 3725
+	.dbg	line, "main.c", 3743
 	lda     #$01
 	jsr     _pal_bright
 ;
 ; delay(2);
 ;
-	.dbg	line, "main.c", 3726
+	.dbg	line, "main.c", 3744
 	lda     #$02
 	jsr     _delay
 ;
 ; pal_bright(0);
 ;
-	.dbg	line, "main.c", 3727
+	.dbg	line, "main.c", 3745
 	lda     #$00
 	jsr     _pal_bright
 ;
 ; delay(2);
 ;
-	.dbg	line, "main.c", 3728
+	.dbg	line, "main.c", 3746
 	lda     #$02
 	jmp     _delay
 	.dbg	line
@@ -11935,49 +12057,49 @@ L1A85:	adc     L1827
 ;
 ; pal_bright(1);
 ;
-	.dbg	line, "main.c", 3733
+	.dbg	line, "main.c", 3751
 	lda     #$01
 	jsr     _pal_bright
 ;
 ; delay(2);
 ;
-	.dbg	line, "main.c", 3734
+	.dbg	line, "main.c", 3752
 	lda     #$02
 	jsr     _delay
 ;
 ; pal_bright(2);
 ;
-	.dbg	line, "main.c", 3735
+	.dbg	line, "main.c", 3753
 	lda     #$02
 	jsr     _pal_bright
 ;
 ; delay(2);
 ;
-	.dbg	line, "main.c", 3736
+	.dbg	line, "main.c", 3754
 	lda     #$02
 	jsr     _delay
 ;
 ; pal_bright(3);
 ;
-	.dbg	line, "main.c", 3737
+	.dbg	line, "main.c", 3755
 	lda     #$03
 	jsr     _pal_bright
 ;
 ; delay(2);
 ;
-	.dbg	line, "main.c", 3738
+	.dbg	line, "main.c", 3756
 	lda     #$02
 	jsr     _delay
 ;
 ; pal_bright(4);
 ;
-	.dbg	line, "main.c", 3739
+	.dbg	line, "main.c", 3757
 	lda     #$04
 	jsr     _pal_bright
 ;
 ; delay(2);
 ;
-	.dbg	line, "main.c", 3740
+	.dbg	line, "main.c", 3758
 	lda     #$02
 	jmp     _delay
 	.dbg	line
@@ -12000,84 +12122,84 @@ L1A85:	adc     L1827
 ;
 ; {
 ;
-	.dbg	line, "main.c", 3744
+	.dbg	line, "main.c", 3762
 	jsr     pusha
 ;
 ; switch (dif)
 ;
-	.dbg	line, "main.c", 3745
+	.dbg	line, "main.c", 3763
 	ldy     #$00
 	lda     (sp),y
 ;
 ; }
 ;
-	.dbg	line, "main.c", 3763
-	beq     L1A87
+	.dbg	line, "main.c", 3781
+	beq     L1AA4
 	cmp     #$01
-	beq     L1A88
+	beq     L1AA5
 	cmp     #$02
-	beq     L1A89
+	beq     L1AA6
 	cmp     #$03
-	beq     L1A8A
+	beq     L1AA7
 	jmp     incsp1
 ;
 ; in_x = 4;
 ;
-	.dbg	line, "main.c", 3748
-L1A87:	lda     #$04
+	.dbg	line, "main.c", 3766
+L1AA4:	lda     #$04
 	sta     _in_x
 ;
 ; in_y = 12;
 ;
-	.dbg	line, "main.c", 3749
+	.dbg	line, "main.c", 3767
 	lda     #$0C
 ;
 ; break;
 ;
-	.dbg	line, "main.c", 3750
-	jmp     L1A86
+	.dbg	line, "main.c", 3768
+	jmp     L1AA3
 ;
 ; in_x = 18;
 ;
-	.dbg	line, "main.c", 3752
-L1A88:	lda     #$12
+	.dbg	line, "main.c", 3770
+L1AA5:	lda     #$12
 	sta     _in_x
 ;
 ; in_y = 12;
 ;
-	.dbg	line, "main.c", 3753
+	.dbg	line, "main.c", 3771
 	lda     #$0C
 ;
 ; break;
 ;
-	.dbg	line, "main.c", 3754
-	jmp     L1A86
+	.dbg	line, "main.c", 3772
+	jmp     L1AA3
 ;
 ; in_x = 4;
 ;
-	.dbg	line, "main.c", 3756
-L1A89:	lda     #$04
+	.dbg	line, "main.c", 3774
+L1AA6:	lda     #$04
 ;
 ; break;
 ;
-	.dbg	line, "main.c", 3758
-	jmp     L1A8C
+	.dbg	line, "main.c", 3776
+	jmp     L1AA9
 ;
 ; in_x = 18;
 ;
-	.dbg	line, "main.c", 3760
-L1A8A:	lda     #$12
-L1A8C:	sta     _in_x
+	.dbg	line, "main.c", 3778
+L1AA7:	lda     #$12
+L1AA9:	sta     _in_x
 ;
 ; in_y = 22;
 ;
-	.dbg	line, "main.c", 3761
+	.dbg	line, "main.c", 3779
 	lda     #$16
-L1A86:	sta     _in_y
+L1AA3:	sta     _in_y
 ;
 ; }
 ;
-	.dbg	line, "main.c", 3764
+	.dbg	line, "main.c", 3782
 	jmp     incsp1
 	.dbg	line
 
@@ -12308,23 +12430,23 @@ L0D08:	lda     #$00
 	.dbg	line, "main.c", 578
 	lda     _state
 	cmp     #$02
-	beq     L1A99
+	beq     L1AB6
 ;
 ; if (pad_all & PAD_A && pad_all & PAD_B && pad_all & PAD_SELECT && pad_all & PAD_START)
 ;
 	.dbg	line, "main.c", 580
 	lda     _pad_all
 	and     #$80
-	beq     L1A99
+	beq     L1AB6
 	lda     _pad_all
 	and     #$40
-	beq     L1A99
+	beq     L1AB6
 	lda     _pad_all
 	and     #$20
-	beq     L1A99
+	beq     L1AB6
 	lda     _pad_all
 	and     #$10
-	beq     L1A99
+	beq     L1AB6
 ;
 ; go_to_state(STATE_MENU);
 ;
@@ -12335,42 +12457,42 @@ L0D08:	lda     #$00
 ; switch (state)
 ;
 	.dbg	line, "main.c", 587
-L1A99:	lda     _state
+L1AB6:	lda     _state
 ;
 ; }
 ;
 	.dbg	line, "main.c", 1538
-	beq     L1A9A
+	beq     L1AB7
 	cmp     #$01
-	beq     L1A9C
+	beq     L1AB9
 	cmp     #$02
 	beq     L0D3A
 	cmp     #$03
-	jeq     L1AA3
+	jeq     L1AC0
 	cmp     #$04
-	jeq     L1ABD
+	jeq     L1ADA
 	cmp     #$05
 	jeq     L0EAE
 	cmp     #$06
-	jeq     L1AD4
+	jeq     L1AF1
 	cmp     #$07
-	jeq     L1AD6
-	jmp     L1AEB
+	jeq     L1AF3
+	jmp     L1B08
 ;
 ; if (tick_count == 120 || pad_all_new & PAD_ALL_BUTTONS)
 ;
 	.dbg	line, "main.c", 591
-L1A9A:	lda     _tick_count
+L1AB7:	lda     _tick_count
 	cmp     #$78
-	beq     L1A9B
+	beq     L1AB8
 	lda     _pad_all_new
 	and     #$F0
-	jeq     L1AEB
+	jeq     L1B08
 ;
 ; fade_to_black();
 ;
 	.dbg	line, "main.c", 593
-L1A9B:	jsr     _fade_to_black
+L1AB8:	jsr     _fade_to_black
 ;
 ; go_to_state(STATE_TY);
 ;
@@ -12386,22 +12508,22 @@ L1A9B:	jsr     _fade_to_black
 ; break;
 ;
 	.dbg	line, "main.c", 597
-	jmp     L1AEB
+	jmp     L1B08
 ;
 ; if (tick_count == 104 || pad_all_new & PAD_ALL_BUTTONS)
 ;
 	.dbg	line, "main.c", 602
-L1A9C:	lda     _tick_count
+L1AB9:	lda     _tick_count
 	cmp     #$68
-	beq     L1A9D
+	beq     L1ABA
 	lda     _pad_all_new
 	and     #$F0
-	jeq     L1AEB
+	jeq     L1B08
 ;
 ; fade_to_black();
 ;
 	.dbg	line, "main.c", 604
-L1A9D:	jsr     _fade_to_black
+L1ABA:	jsr     _fade_to_black
 ;
 ; go_to_state(STATE_MENU);
 ;
@@ -12417,7 +12539,7 @@ L1A9D:	jsr     _fade_to_black
 ; break;
 ;
 	.dbg	line, "main.c", 608
-	jmp     L1AEB
+	jmp     L1B08
 ;
 ; draw_menu_sprites();
 ;
@@ -12429,7 +12551,7 @@ L0D3A:	jsr     _draw_menu_sprites
 	.dbg	line, "main.c", 614
 	lda     _tick_count
 	and     #$7F
-	bne     L1A9E
+	bne     L1ABB
 ;
 ; multi_vram_buffer_horz(text_push_start, sizeof(text_push_start) - 1, get_ppu_addr(0, 12 << 3, 12 << 3));
 ;
@@ -12444,11 +12566,11 @@ L0D3A:	jsr     _draw_menu_sprites
 ; else if (tick_count % 128 == 96)
 ;
 	.dbg	line, "main.c", 640
-	jmp     L1B05
-L1A9E:	lda     _tick_count
+	jmp     L1B22
+L1ABB:	lda     _tick_count
 	and     #$7F
 	cmp     #$60
-	bne     L1A9F
+	bne     L1ABC
 ;
 ; multi_vram_buffer_horz(clear_push_start, sizeof(clear_push_start) - 1, get_ppu_addr(0, 12 << 3, 12 << 3));
 ;
@@ -12459,7 +12581,7 @@ L1A9E:	lda     _tick_count
 	sta     (sp),y
 	iny
 	lda     #>(_clear_push_start)
-L1B05:	sta     (sp),y
+L1B22:	sta     (sp),y
 	lda     #$0A
 	ldy     #$00
 	sta     (sp),y
@@ -12476,8 +12598,8 @@ L1B05:	sta     (sp),y
 ; if (pad_all_new != 0)
 ;
 	.dbg	line, "main.c", 650
-L1A9F:	lda     _pad_all_new
-	beq     L1AA2
+L1ABC:	lda     _pad_all_new
+	beq     L1ABF
 ;
 ; if (pad_all_new & konami_code[cur_konami_index])
 ;
@@ -12487,7 +12609,7 @@ L1A9F:	lda     _pad_all_new
 	and     _pad_all_new
 	pha
 	pla
-	beq     L1AA1
+	beq     L1ABE
 ;
 ; ++cur_konami_index;
 ;
@@ -12497,19 +12619,19 @@ L1A9F:	lda     _pad_all_new
 ; else
 ;
 	.dbg	line, "main.c", 656
-	jmp     L1AA2
+	jmp     L1ABF
 ;
 ; cur_konami_index = 0;
 ;
 	.dbg	line, "main.c", 658
-L1AA1:	sta     _cur_konami_index
+L1ABE:	sta     _cur_konami_index
 ;
 ; if (pad_all_new & PAD_START)
 ;
 	.dbg	line, "main.c", 674
-L1AA2:	lda     _pad_all_new
+L1ABF:	lda     _pad_all_new
 	and     #$10
-	jeq     L1AEB
+	jeq     L1B08
 ;
 ; srand(tick_count_large);
 ;
@@ -12548,7 +12670,7 @@ L0D63:	jsr     _music_stop
 ; else
 ;
 	.dbg	line, "main.c", 686
-	jmp     L1A90
+	jmp     L1AAD
 ;
 ; fade_to_black();
 ;
@@ -12569,14 +12691,14 @@ L0D61:	jsr     _fade_to_black
 ; break;
 ;
 	.dbg	line, "main.c", 706
-	jmp     L1AEB
+	jmp     L1B08
 ;
 ; if (tick_count % 128 == 0)
 ;
 	.dbg	line, "main.c", 899
-L1AA3:	lda     _tick_count
+L1AC0:	lda     _tick_count
 	and     #$7F
-	bne     L1AA4
+	bne     L1AC1
 ;
 ; multi_vram_buffer_horz(text_push_start, sizeof(text_push_start) - 1, get_ppu_addr(0, 12 << 3, 12 << 3));
 ;
@@ -12591,11 +12713,11 @@ L1AA3:	lda     _tick_count
 ; else if (tick_count % 128 == 96)
 ;
 	.dbg	line, "main.c", 903
-	jmp     L1B06
-L1AA4:	lda     _tick_count
+	jmp     L1B23
+L1AC1:	lda     _tick_count
 	and     #$7F
 	cmp     #$60
-	bne     L1AA5
+	bne     L1AC2
 ;
 ; multi_vram_buffer_horz(clear_push_start, sizeof(clear_push_start) - 1, get_ppu_addr(0, 12 << 3, 12 << 3));
 ;
@@ -12606,7 +12728,7 @@ L1AA4:	lda     _tick_count
 	sta     (sp),y
 	iny
 	lda     #>(_clear_push_start)
-L1B06:	sta     (sp),y
+L1B23:	sta     (sp),y
 	lda     #$0A
 	ldy     #$00
 	sta     (sp),y
@@ -12623,9 +12745,9 @@ L1B06:	sta     (sp),y
 ; if (pad_all_new & PAD_START)
 ;
 	.dbg	line, "main.c", 908
-L1AA5:	lda     _pad_all_new
+L1AC2:	lda     _pad_all_new
 	and     #$10
-	beq     L1AAA
+	beq     L1AC7
 ;
 ; music_stop();
 ;
@@ -12681,7 +12803,7 @@ L0D8D:	jsr     _fade_to_black
 	.dbg	line, "main.c", 919
 	lda     _pad_all
 	and     #$20
-	beq     L1AA6
+	beq     L1AC3
 ;
 ; select_gameplay_music = MUSIC_MUSICA;
 ;
@@ -12691,23 +12813,23 @@ L0D8D:	jsr     _fade_to_black
 ; }else
 ;
 	.dbg	line, "main.c", 922
-	jmp     L1A92
+	jmp     L1AAF
 ;
 ; select_gameplay_music = MUSIC_GAMEPLAY;
 ;
 	.dbg	line, "main.c", 924
-L1AA6:	lda     #$01
-L1A92:	sta     _select_gameplay_music
+L1AC3:	lda     #$01
+L1AAF:	sta     _select_gameplay_music
 ;
 ; if (cur_level == 9 && pad_all & PAD_SELECT)
 ;
 	.dbg	line, "main.c", 927
 	lda     _cur_level
 	cmp     #$09
-	bne     L1AA9
+	bne     L1AC6
 	lda     _pad_all
 	and     #$20
-	beq     L1AA9
+	beq     L1AC6
 ;
 ; cur_level = 29;
 ;
@@ -12717,8 +12839,8 @@ L1A92:	sta     _select_gameplay_music
 ; else if (pad_all & PAD_A)
 ;
 	.dbg	line, "main.c", 931
-	jmp     L1A93
-L1AA9:	lda     _pad_all
+	jmp     L1AB0
+L1AC6:	lda     _pad_all
 	and     #$80
 	beq     L0DAE
 ;
@@ -12728,7 +12850,7 @@ L1AA9:	lda     _pad_all
 	lda     #$0A
 	clc
 	adc     _cur_level
-L1A93:	sta     _cur_level
+L1AB0:	sta     _cur_level
 ;
 ; go_to_state(STATE_GAME);
 ;
@@ -12739,9 +12861,9 @@ L0DAE:	lda     #$04
 ; if (pad_all_new & PAD_B)
 ;
 	.dbg	line, "main.c", 938
-L1AAA:	lda     _pad_all_new
+L1AC7:	lda     _pad_all_new
 	and     #$40
-	beq     L1AAB
+	beq     L1AC8
 ;
 ; fade_to_black();
 ;
@@ -12762,10 +12884,10 @@ L1AAA:	lda     _pad_all_new
 ; else if (pad_all_new & PAD_RIGHT)
 ;
 	.dbg	line, "main.c", 944
-	jmp     L1AEB
-L1AAB:	lda     _pad_all_new
+	jmp     L1B08
+L1AC8:	lda     _pad_all_new
 	and     #$01
-	jeq     L1AB3
+	jeq     L1AD0
 ;
 ; switch (cur_option)
 ;
@@ -12775,23 +12897,23 @@ L1AAB:	lda     _pad_all_new
 ; }
 ;
 	.dbg	line, "main.c", 1012
-	beq     L1AAC
+	beq     L1AC9
 	cmp     #$01
-	beq     L1AAE
+	beq     L1ACB
 	cmp     #$02
-	beq     L1AAF
+	beq     L1ACC
 	cmp     #$03
-	beq     L1AB1
+	beq     L1ACE
 	cmp     #$04
-	beq     L1AB2
+	beq     L1ACF
 	jmp     L0DBF
 ;
 ; if (cur_level < 9)
 ;
 	.dbg	line, "main.c", 951
-L1AAC:	lda     _cur_level
+L1AC9:	lda     _cur_level
 	cmp     #$09
-	bcs     L1AAD
+	bcs     L1ACA
 ;
 ; ++cur_level;
 ;
@@ -12806,7 +12928,7 @@ L1AAC:	lda     _cur_level
 ; cur_level = 0;
 ;
 	.dbg	line, "main.c", 957
-L1AAD:	lda     #$00
+L1ACA:	lda     #$00
 	sta     _cur_level
 ;
 ; break;
@@ -12817,7 +12939,7 @@ L1AAD:	lda     #$00
 ; if (attack_style < ATTACK_NUM - 1)
 ;
 	.dbg	line, "main.c", 965
-L1AAE:	lda     _attack_style
+L1ACB:	lda     _attack_style
 	cmp     #$02
 	bcs     L0DBF
 ;
@@ -12839,7 +12961,7 @@ L1AAE:	lda     _attack_style
 ; if (music_on == 0)
 ;
 	.dbg	line, "main.c", 976
-L1AAF:	lda     _music_on
+L1ACC:	lda     _music_on
 	bne     L0DBF
 ;
 ; music_on = 1;
@@ -12852,7 +12974,7 @@ L1AAF:	lda     _music_on
 ;
 	.dbg	line, "main.c", 979
 	lda     _music_on
-	beq     L1AB0
+	beq     L1ACD
 	lda     #$00
 	jsr     _music_play
 ;
@@ -12860,7 +12982,7 @@ L1AAF:	lda     _music_on
 ;
 	.dbg	line, "main.c", 980
 	lda     #$00
-L1AB0:	jsr     _music_pause
+L1ACD:	jsr     _music_pause
 ;
 ; break;
 ;
@@ -12870,7 +12992,7 @@ L1AB0:	jsr     _music_pause
 ; if (sfx_on == 0)
 ;
 	.dbg	line, "main.c", 995
-L1AB1:	lda     _sfx_on
+L1ACE:	lda     _sfx_on
 	bne     L0DBF
 ;
 ; sfx_on = 1;
@@ -12887,7 +13009,7 @@ L1AB1:	lda     _sfx_on
 ; if (hard_drops_on < NUM_HARD_DROP_SETTINGS - 1)
 ;
 	.dbg	line, "main.c", 1004
-L1AB2:	lda     _hard_drops_on
+L1ACF:	lda     _hard_drops_on
 	cmp     #$02
 	bcs     L0DBF
 ;
@@ -12914,10 +13036,10 @@ L0DE7:	jsr     _display_options
 ; else if (pad_all_new & PAD_LEFT)
 ;
 	.dbg	line, "main.c", 1017
-	jmp     L1AEB
-L1AB3:	lda     _pad_all_new
+	jmp     L1B08
+L1AD0:	lda     _pad_all_new
 	and     #$02
-	beq     L1ABA
+	beq     L1AD7
 ;
 ; switch (cur_option)
 ;
@@ -12927,22 +13049,22 @@ L1AB3:	lda     _pad_all_new
 ; }
 ;
 	.dbg	line, "main.c", 1093
-	beq     L1AB4
+	beq     L1AD1
 	cmp     #$01
-	beq     L1AB6
+	beq     L1AD3
 	cmp     #$02
-	beq     L1AB7
+	beq     L1AD4
 	cmp     #$03
-	beq     L1AB8
+	beq     L1AD5
 	cmp     #$04
-	beq     L1AB9
+	beq     L1AD6
 	jmp     L0DF3
 ;
 ; if (cur_level != 0)
 ;
 	.dbg	line, "main.c", 1024
-L1AB4:	lda     _cur_level
-	beq     L1AB5
+L1AD1:	lda     _cur_level
+	beq     L1AD2
 ;
 ; --cur_level;
 ;
@@ -12957,7 +13079,7 @@ L1AB4:	lda     _cur_level
 ; cur_level = 9;
 ;
 	.dbg	line, "main.c", 1030
-L1AB5:	lda     #$09
+L1AD2:	lda     #$09
 	sta     _cur_level
 ;
 ; break;
@@ -12968,7 +13090,7 @@ L1AB5:	lda     #$09
 ; if (attack_style != 0)
 ;
 	.dbg	line, "main.c", 1041
-L1AB6:	lda     _attack_style
+L1AD3:	lda     _attack_style
 	beq     L0DF3
 ;
 ; --attack_style;
@@ -12989,7 +13111,7 @@ L1AB6:	lda     _attack_style
 ; if (music_on != 0)
 ;
 	.dbg	line, "main.c", 1056
-L1AB7:	lda     _music_on
+L1AD4:	lda     _music_on
 	beq     L0DF3
 ;
 ; music_on = 0;
@@ -13017,7 +13139,7 @@ L1AB7:	lda     _music_on
 ; if (sfx_on != 0)
 ;
 	.dbg	line, "main.c", 1076
-L1AB8:	lda     _sfx_on
+L1AD5:	lda     _sfx_on
 	beq     L0DF3
 ;
 ; sfx_on = 0;
@@ -13034,7 +13156,7 @@ L1AB8:	lda     _sfx_on
 ; if (hard_drops_on != 0)
 ;
 	.dbg	line, "main.c", 1084
-L1AB9:	lda     _hard_drops_on
+L1AD6:	lda     _hard_drops_on
 	beq     L0DF3
 ;
 ; --hard_drops_on;
@@ -13060,10 +13182,10 @@ L0E17:	jsr     _display_options
 ; else if (pad_all_new & PAD_DOWN)
 ;
 	.dbg	line, "main.c", 1098
-	jmp     L1AEB
-L1ABA:	lda     _pad_all_new
+	jmp     L1B08
+L1AD7:	lda     _pad_all_new
 	and     #$04
-	beq     L1ABB
+	beq     L1AD8
 ;
 ; cur_option = (cur_option + 1) % NUM_OPTIONS;
 ;
@@ -13097,17 +13219,17 @@ L0E25:	jsr     _display_options
 ; else if (pad_all_new & PAD_UP)
 ;
 	.dbg	line, "main.c", 1104
-	jmp     L1AEB
-L1ABB:	lda     _pad_all_new
+	jmp     L1B08
+L1AD8:	lda     _pad_all_new
 	ldx     #$00
 	and     #$08
-	jeq     L1AEB
+	jeq     L1B08
 ;
 ; if (cur_option == 0)
 ;
 	.dbg	line, "main.c", 1106
 	lda     _cur_option
-	bne     L1ABC
+	bne     L1AD9
 ;
 ; cur_option = NUM_OPTIONS;
 ;
@@ -13118,7 +13240,7 @@ L1ABB:	lda     _pad_all_new
 ; cur_option = (cur_option - 1) % NUM_OPTIONS;
 ;
 	.dbg	line, "main.c", 1110
-L1ABC:	lda     _cur_option
+L1AD9:	lda     _cur_option
 	sec
 	sbc     #$01
 	bcs     L0E36
@@ -13146,13 +13268,13 @@ L0E37:	jsr     _display_options
 ; break;
 ;
 	.dbg	line, "main.c", 1115
-	jmp     L1AEB
+	jmp     L1B08
 ;
 ; if (hit_reaction_remaining > 0)
 ;
 	.dbg	line, "main.c", 1120
-L1ABD:	lda     _hit_reaction_remaining
-	beq     L1ABE
+L1ADA:	lda     _hit_reaction_remaining
+	beq     L1ADB
 ;
 ; --hit_reaction_remaining;
 ;
@@ -13162,8 +13284,8 @@ L1ABD:	lda     _hit_reaction_remaining
 ; if (row_to_clear >= 0)
 ;
 	.dbg	line, "main.c", 1125
-L1ABE:	ldx     _row_to_clear
-	bmi     L1ABF
+L1ADB:	ldx     _row_to_clear
+	bmi     L1ADC
 ;
 ; --attack_row_status[row_to_clear];
 ;
@@ -13187,7 +13309,7 @@ L0E49:	sta     ptr1
 	.dbg	line, "main.c", 1129
 	ldy     _row_to_clear
 	lda     _attack_row_status,y
-	bne     L1ABF
+	bne     L1ADC
 ;
 ; row_to_clear = -1;
 ;
@@ -13198,7 +13320,7 @@ L0E49:	sta     ptr1
 ; if (attack_style != ATTACK_NEVER && attack_queued)
 ;
 	.dbg	line, "main.c", 1136
-L1ABF:	lda     _attack_style
+L1ADC:	lda     _attack_style
 	cmp     #$02
 	beq     L0E51
 	lda     _attack_queued
@@ -13233,7 +13355,7 @@ L1ABF:	lda     _attack_style
 ;
 	.dbg	line, "main.c", 1147
 L0E51:	lda     _kill_row_queued
-	beq     L1AC2
+	beq     L1ADF
 ;
 ; add_row_at_bottom();
 ;
@@ -13249,7 +13371,7 @@ L0E51:	lda     _kill_row_queued
 ; if (delay_spawn_remaining != -1)
 ;
 	.dbg	line, "main.c", 1155
-L1AC2:	lda     _delay_spawn_remaining
+L1ADF:	lda     _delay_spawn_remaining
 	cmp     #$FF
 	beq     L0E61
 ;
@@ -13257,7 +13379,7 @@ L1AC2:	lda     _delay_spawn_remaining
 ;
 	.dbg	line, "main.c", 1159
 	lda     _horz_button_delay
-	beq     L1AC3
+	beq     L1AE0
 ;
 ; --horz_button_delay;
 ;
@@ -13267,7 +13389,7 @@ L1AC2:	lda     _delay_spawn_remaining
 ; --delay_spawn_remaining;
 ;
 	.dbg	line, "main.c", 1163
-L1AC3:	dec     _delay_spawn_remaining
+L1AE0:	dec     _delay_spawn_remaining
 ;
 ; if (delay_spawn_remaining == 0)
 ;
@@ -13308,7 +13430,7 @@ L0E6F:	jsr     _draw_gameplay_sprites
 	bne     L0E79
 	lda     _attack_queue_ticks_remaining
 	ora     _attack_queue_ticks_remaining+1
-	beq     L1AF0
+	beq     L1B0D
 ;
 ; --attack_queue_ticks_remaining;
 ;
@@ -13345,14 +13467,14 @@ L0E78:	lda     _attack_queue_ticks_remaining
 ;
 	.dbg	line, "main.c", 1198
 L0E79:	lda     #$00
-L1AF0:	sta     _local_t
+L1B0D:	sta     _local_t
 	sta     _local_t+1
 ;
 ; for (local_iy = 0; local_iy < STRESS_MUSIC_LEVEL * 10; ++local_iy)
 ;
 	.dbg	line, "main.c", 1199
 	sta     _local_iy
-L1AC9:	lda     _local_iy
+L1AE6:	lda     _local_iy
 	cmp     #$46
 	bcs     L0E83
 ;
@@ -13372,7 +13494,7 @@ L0E8F:	sta     ptr1
 	sta     ptr1+1
 	ldy     #<(_game_board)
 	lda     (ptr1),y
-	beq     L1ACE
+	beq     L1AEB
 ;
 ; local_t = 1;
 ;
@@ -13387,9 +13509,9 @@ L0E8F:	sta     ptr1
 	.dbg	line, "main.c", 1206
 	lda     _select_gameplay_music
 	cmp     _cur_gameplay_music
-	bne     L1ACE
+	bne     L1AEB
 	cmp     #$01
-	bne     L1ACE
+	bne     L1AEB
 ;
 ; cur_gameplay_music = MUSIC_STRESS;
 ;
@@ -13413,21 +13535,21 @@ L0E8F:	sta     ptr1
 ; for (local_iy = 0; local_iy < STRESS_MUSIC_LEVEL * 10; ++local_iy)
 ;
 	.dbg	line, "main.c", 1199
-L1ACE:	inc     _local_iy
-	jmp     L1AC9
+L1AEB:	inc     _local_iy
+	jmp     L1AE6
 ;
 ; if (local_t == 0 && cur_gameplay_music == MUSIC_STRESS && select_gameplay_music == MUSIC_GAMEPLAY)
 ;
 	.dbg	line, "main.c", 1215
 L0E83:	lda     _local_t
 	ora     _local_t+1
-	bne     L1AD3
+	bne     L1AF0
 	lda     _cur_gameplay_music
 	cmp     #$02
-	bne     L1AD3
+	bne     L1AF0
 	lda     _select_gameplay_music
 	cmp     #$01
-	bne     L1AD3
+	bne     L1AF0
 ;
 ; cur_gameplay_music = select_gameplay_music;
 ;
@@ -13438,16 +13560,16 @@ L0E83:	lda     _local_t
 ;
 	.dbg	line, "main.c", 1218
 	lda     _music_on
-	beq     L1AD3
+	beq     L1AF0
 	lda     _select_gameplay_music
 	jsr     _music_play
 ;
 ; if (pad_all_new & PAD_START)
 ;
 	.dbg	line, "main.c", 1224
-L1AD3:	lda     _pad_all_new
+L1AF0:	lda     _pad_all_new
 	and     #$10
-	jeq     L1AEB
+	jeq     L1B08
 ;
 ; go_to_state(STATE_PAUSE);
 ;
@@ -13457,7 +13579,7 @@ L1AD3:	lda     _pad_all_new
 ; break;
 ;
 	.dbg	line, "main.c", 1247
-	jmp     L1A90
+	jmp     L1AAD
 ;
 ; oam_clear();
 ;
@@ -13469,7 +13591,7 @@ L0EAE:	jsr     _oam_clear
 	.dbg	line, "main.c", 1264
 	lda     _pad_all_new
 	and     #$10
-	jeq     L1AEB
+	jeq     L1B08
 ;
 ; go_to_state(STATE_GAME);
 ;
@@ -13479,14 +13601,14 @@ L0EAE:	jsr     _oam_clear
 ; break;
 ;
 	.dbg	line, "main.c", 1268
-	jmp     L1A90
+	jmp     L1AAD
 ;
 ; if (pad_all_new & PAD_B)
 ;
 	.dbg	line, "main.c", 1283
-L1AD4:	lda     _pad_all_new
+L1AF1:	lda     _pad_all_new
 	and     #$40
-	beq     L1AD5
+	beq     L1AF2
 ;
 ; go_to_state(STATE_MENU);
 ;
@@ -13497,9 +13619,9 @@ L1AD4:	lda     _pad_all_new
 ; if (pad_all_new & PAD_A)
 ;
 	.dbg	line, "main.c", 1288
-L1AD5:	lda     _pad_all_new
+L1AF2:	lda     _pad_all_new
 	and     #$80
-	jeq     L1AEB
+	jeq     L1B08
 ;
 ; go_to_state(STATE_GAME);
 ;
@@ -13509,17 +13631,17 @@ L1AD5:	lda     _pad_all_new
 ; break;
 ;
 	.dbg	line, "main.c", 1295
-	jmp     L1A90
+	jmp     L1AAD
 ;
 ; if (pad_all_new & PAD_DOWN && test_song < 15)
 ;
 	.dbg	line, "main.c", 1304
-L1AD6:	lda     _pad_all_new
+L1AF3:	lda     _pad_all_new
 	and     #$04
-	beq     L1ADA
+	beq     L1AF7
 	lda     _test_song
 	cmp     #$0F
-	bcs     L1ADA
+	bcs     L1AF7
 ;
 ; ++test_song;
 ;
@@ -13529,12 +13651,12 @@ L1AD6:	lda     _pad_all_new
 ; else if (pad_all_new & PAD_UP && test_song > 0)
 ;
 	.dbg	line, "main.c", 1309
-	jmp     L1A94
-L1ADA:	lda     _pad_all_new
+	jmp     L1AB1
+L1AF7:	lda     _pad_all_new
 	and     #$08
-	beq     L1ADE
+	beq     L1AFB
 	lda     _test_song
-	beq     L1ADE
+	beq     L1AFB
 ;
 ; --test_song;
 ;
@@ -13544,21 +13666,21 @@ L1ADA:	lda     _pad_all_new
 ; display_song();
 ;
 	.dbg	line, "main.c", 1312
-L1A94:	jsr     _display_song
+L1AB1:	jsr     _display_song
 ;
 ; if (pad_all_new & PAD_B)
 ;
 	.dbg	line, "main.c", 1315
-L1ADE:	lda     _pad_all_new
+L1AFB:	lda     _pad_all_new
 	and     #$40
-	beq     L1AE0
+	beq     L1AFD
 ;
 ; if (test_song == test_song_active)
 ;
 	.dbg	line, "main.c", 1317
 	lda     _test_song_active
 	cmp     _test_song
-	bne     L1ADF
+	bne     L1AFC
 ;
 ; test_song_active = 0xff;
 ;
@@ -13574,12 +13696,12 @@ L1ADE:	lda     _pad_all_new
 ; else
 ;
 	.dbg	line, "main.c", 1322
-	jmp     L1AE0
+	jmp     L1AFD
 ;
 ; test_song_active = test_song;
 ;
 	.dbg	line, "main.c", 1324
-L1ADF:	lda     _test_song
+L1AFC:	lda     _test_song
 	sta     _test_song_active
 ;
 ; music_play(test_song);
@@ -13591,12 +13713,12 @@ L1ADF:	lda     _test_song
 ; if (pad_all_new & PAD_RIGHT && test_sound < 31)
 ;
 	.dbg	line, "main.c", 1333
-L1AE0:	lda     _pad_all_new
+L1AFD:	lda     _pad_all_new
 	and     #$01
-	beq     L1AE4
+	beq     L1B01
 	lda     _test_sound
 	cmp     #$1F
-	bcs     L1AE4
+	bcs     L1B01
 ;
 ; ++test_sound;
 ;
@@ -13606,12 +13728,12 @@ L1AE0:	lda     _pad_all_new
 ; else if (pad_all_new & PAD_LEFT && test_sound > 0)
 ;
 	.dbg	line, "main.c", 1338
-	jmp     L1A95
-L1AE4:	lda     _pad_all_new
+	jmp     L1AB2
+L1B01:	lda     _pad_all_new
 	and     #$02
-	beq     L1AE8
+	beq     L1B05
 	lda     _test_sound
-	beq     L1AE8
+	beq     L1B05
 ;
 ; --test_sound;
 ;
@@ -13621,14 +13743,14 @@ L1AE4:	lda     _pad_all_new
 ; display_sound();
 ;
 	.dbg	line, "main.c", 1341
-L1A95:	jsr     _display_sound
+L1AB2:	jsr     _display_sound
 ;
 ; if (pad_all_new & PAD_A)
 ;
 	.dbg	line, "main.c", 1344
-L1AE8:	lda     _pad_all_new
+L1B05:	lda     _pad_all_new
 	and     #$80
-	beq     L1AE9
+	beq     L1B06
 ;
 ; sfx_play(test_sound, 0);
 ;
@@ -13641,24 +13763,24 @@ L1AE8:	lda     _pad_all_new
 ; if (pad_all_new & PAD_SELECT || pad_all_new & PAD_START)
 ;
 	.dbg	line, "main.c", 1353
-L1AE9:	lda     _pad_all_new
+L1B06:	lda     _pad_all_new
 	and     #$20
-	bne     L1AEA
+	bne     L1B07
 	lda     _pad_all_new
 	and     #$10
-	beq     L1AEB
+	beq     L1B08
 ;
 ; go_to_state(STATE_MENU);
 ;
 	.dbg	line, "main.c", 1355
-L1AEA:	lda     #$02
-L1A90:	jsr     _go_to_state
+L1B07:	lda     #$02
+L1AAD:	jsr     _go_to_state
 ;
 ; if (screen_shake_remaining > 0)
 ;
 	.dbg	line, "main.c", 1542
-L1AEB:	lda     _screen_shake_remaining
-	beq     L1AED
+L1B08:	lda     _screen_shake_remaining
+	beq     L1B0A
 ;
 ; --screen_shake_remaining;
 ;
@@ -13693,7 +13815,7 @@ L1AEB:	lda     _screen_shake_remaining
 ; scroll(0, scroll_y); // shift the bg down 1 pixel
 ;
 	.dbg	line, "main.c", 1549
-L1AED:	jsr     push0
+L1B0A:	jsr     push0
 	lda     _scroll_y
 	ldx     _scroll_y+1
 	jsr     _scroll
