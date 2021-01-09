@@ -2347,11 +2347,11 @@ void spawn_new_cluster()
 		randomize_bag(bag, NUM_CLUSTERS);
 	}
 	id = bag[bag_index];
-	if (id == cur_cluster.id) //Avoid duplicates reshuffle bag
-	{
-		randomize_bag(bag, NUM_CLUSTERS);
-		id = bag[bag_index];
-	}
+	//if (id == cur_cluster.id) //Avoid duplicates reshuffle bag
+	//{
+	//	randomize_bag(bag, NUM_CLUSTERS);
+	//	id = bag[bag_index];
+	//}
 	bag_index = (bag_index + 1 == NUM_CLUSTERS ? 0 : bag_index + 1);
 #endif
 	next_cluster.id = id;
