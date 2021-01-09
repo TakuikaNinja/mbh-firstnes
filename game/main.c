@@ -3268,7 +3268,7 @@ void clear_rows_in_data(unsigned char start_y)
 		last_lines = 0;
 		//combo calculate
 		if(combo_count > 1){
-			cur_score += 20 * (combo_count - 1) * cur_level;
+			cur_score += 20 * (combo_count - 1) * (cur_level + 1);
 		}
 		combo_count = 0;
 		if(is_tspin != 0){
