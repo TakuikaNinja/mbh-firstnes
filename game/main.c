@@ -3283,11 +3283,11 @@ void clear_rows_in_data(unsigned char start_y)
 		last_lines = 0;
 		//combo calculate
 		if(combo_count > 1){
-			cur_score += 20 * (combo_count - 1) * (cur_level + 1);
+			cur_score += 50 * (combo_count - 1) * (cur_level + 1);
 		}
 		combo_count = 0;
 		if(is_tspin != 0){
-			cur_score += (40 * is_tspin * (cur_level + 1));
+			cur_score += (100 * is_tspin * (cur_level + 1));
 			display_score();
 		}
 	}
@@ -3323,26 +3323,26 @@ void clear_rows_in_data(unsigned char start_y)
 		{
 		case 1:
 		{
-			line_score_mod = 40;
+			line_score_mod = 100;
 			break;
 		}
 
 		case 2:
 		{
-			line_score_mod = 100;
+			line_score_mod = 300;
 			break;
 		}
 
 		case 3:
 		{
-			line_score_mod = 300;
+			line_score_mod = 500;
 			break;
 		}
 
 		case 4:
 		default:
 		{
-			line_score_mod = 1200;
+			line_score_mod = 800;
 			break;
 		}
 		}
@@ -3367,13 +3367,13 @@ void clear_rows_in_data(unsigned char start_y)
 			{
 				case 1:
 				{
-					line_score_mod = 1200;
+					line_score_mod = 800;
 					break;
 				}
 
 				case 2:
 				{
-					line_score_mod = 1500;
+					line_score_mod = 1200;
 					break;
 				}
 
@@ -3390,9 +3390,9 @@ void clear_rows_in_data(unsigned char start_y)
 					break;
 				}
 			}
-			if(last_lines == i & i == 4) //Back to Back Tetris x 1.5
+			if(last_lines == i & i == 4) //Back to Back Tetris
 			{
-				line_score_mod = line_score_mod + (line_score_mod / 2);
+				line_score_mod = 3200;
 			}
 			cur_score += (line_score_mod * (cur_level + 1));	
 		}
