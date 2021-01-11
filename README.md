@@ -12,8 +12,12 @@ Differences from the original:
 - No line: 40 points (same as 1 line)
 - 1, 2, and 3 Lines: 5x score
 3. T-Spin triple plays Tetris sound with the shake 
-4. Can hold a piece using SELECT button (you lose the force Kraken attack function though 😢)
-5. A secret song can be played
+4. Soft Drop adds 1 per line to score, and Hard Drop add 2 points per line to score.
+5. Combo score is calculated, 20 x combo count * level
+6. Back to Back Tetris is calculated - Tetris Score x 1.5
+7. Perfect score is calculated
+8. Can hold a piece using SELECT button (you lose the ability to taunt the Kraken though 😢)
+9. A secret song can be played
 
 # COMPILING
 

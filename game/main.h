@@ -419,7 +419,7 @@ const unsigned char **cluster_defs_classic[NUM_CLUSTERS] =
 #if !VS_SYS_ENABLED
 
 unsigned char bag[NUM_CLUSTERS] = {0,1,2,3,4,5,6};
-unsigned char bag_index = 0;
+unsigned char bag_index;
 void randomize_bag ( unsigned char arr[], unsigned char n ); 
 void swap (unsigned char *a, unsigned char *b);
 
@@ -867,6 +867,9 @@ unsigned char get_block(unsigned char x, unsigned char y);
 
 // x, y in map space.
 unsigned char is_block_occupied(unsigned char x, unsigned char y);
+
+// are last four rows empty after clear (perfect clear)
+unsigned char is_perfect_clear();
 
 // Checks if the entire cluster is currently hitting any other blocks.
 unsigned char is_cluster_colliding();

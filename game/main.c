@@ -2274,6 +2274,21 @@ unsigned char is_block_occupied(unsigned char x, unsigned char y)
 	return (y > BOARD_END_Y_PX_BOARD || x > BOARD_END_X_PX_BOARD || game_board[TILE_TO_BOARD_INDEX(x, y)]);
 }
 
+unsigned char is_perfect_clear(){
+	
+	for (local_ix = 0; local_ix <= BOARD_END_X_PX_BOARD; ++local_ix)
+	{
+		for (local_iy = 0; local_iy < BOARD_END_Y_PX_BOARD; ++local_iy)
+		{	
+			if (game_board[TILE_TO_BOARD_INDEX(local_ix, local_iy)] != 0)
+			{
+				return 0;
+			}
+		}
+	}
+	return 1;
+
+}
 unsigned char is_cluster_colliding()
 {
 	static unsigned char x;
@@ -2348,7 +2363,7 @@ void spawn_new_cluster()
 	}
 #else
 	//Use 7-bag for NES as it complies closer to Guidelines
-	if (bag_index == 0)
+	if (bag_index == (NUM_CLUSTERS-1))
 	{
 		randomize_bag(bag, NUM_CLUSTERS);
 	}
@@ -3335,7 +3350,7 @@ void clear_rows_in_data(unsigned char start_y)
 			line_score_mod = line_score_mod + (line_score_mod / 2);
 		cur_score += (line_score_mod * (4*is_tspin + 1) * (cur_level + 1));	
 		display_score();
-		last_lines = i;
+		
 		combo_count += 1;
 
 		// potential hit reaction.
@@ -3343,7 +3358,45 @@ void clear_rows_in_data(unsigned char start_y)
 		{
 			draw_gameplay_sprites();
 		}
+		
 		reveal_empty_rows_to_nt();
+
+		if(is_perfect_clear())
+		{
+			switch (i)
+			{
+				case 1:
+				{
+					line_score_mod = 1200;
+					break;
+				}
+
+				case 2:
+				{
+					line_score_mod = 1500;
+					break;
+				}
+
+				case 3:
+				{
+					line_score_mod = 1800;
+					break;
+				}
+
+				case 4:
+				default:
+				{
+					line_score_mod = 2000;
+					break;
+				}
+			}
+			if(last_lines == i & i == 4) //Back to Back Tetris x 1.5
+			{
+				line_score_mod = line_score_mod + (line_score_mod / 2);
+			}
+			cur_score += (line_score_mod * (cur_level + 1));	
+		}
+		last_lines = i; //Set last line equal to lines cleared
 	}
 	//PROFILE_POKE(0x1e); //none
 }
@@ -3514,6 +3567,9 @@ void copy_board_to_nt()
 	// 	cur_gameplay_music = select_gameplay_music;
 	// 	music_play(select_gameplay_music);
 	// }
+
+
+
 }
 
 void add_block_at_bottom()
@@ -3611,7 +3667,10 @@ void reset_gameplay_area()
 
 	// Reset stats.
 	lines_cleared_one = lines_cleared_ten = lines_cleared_hundred = cur_score = 0;
-	held_cluster_id = 255; // Doesn't exist
+	#if HOLD_PIECE_ENABLED
+		held_cluster_id = 255; // Doesn't exist
+		held_cluster_rot = 0;
+	#endif
 	cur_level = saved_starting_level;
 	fall_rate = fall_rates_per_level[MIN(cur_level, sizeof(fall_rates_per_level))];
 	row_to_clear = -1;
@@ -3620,6 +3679,11 @@ void reset_gameplay_area()
 	last_lines = 0;
 	combo_count = 0;
 	start_delay_remaining = START_DELAY;
+	
+	#if !VS_SYS_ENABLED
+		bag_index = rand() % NUM_CLUSTERS;
+    	randomize_bag(bag, NUM_CLUSTERS);
+	#endif
 
 	// load the palettes
 	time_of_day = 0;
@@ -3885,7 +3949,7 @@ void hold_cluster()
 		held_cluster_id = cur_cluster.id;
 		held_cluster_rot = cur_rot;
 		memcpy(held_cluster_def, cluster_defs_classic[held_cluster_id], (4 * 4));
-		
+
 		// Deploy next instead
 		spawn_new_cluster();
 		can_hold_cluster = 1;
