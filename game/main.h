@@ -483,7 +483,7 @@ unsigned char fall_frame_counter;
 unsigned char lines_cleared_one;
 unsigned char lines_cleared_ten;
 unsigned char lines_cleared_hundred;
-unsigned int cur_score; // NOTE: int is enough since max_value is 4,294,967,295
+unsigned long cur_score; // NOTE: long - int overflows
 unsigned char last_lines;
 unsigned char combo_count;
 unsigned char cur_nt;

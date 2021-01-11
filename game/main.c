@@ -3137,7 +3137,7 @@ void display_lines_cleared()
 
 void display_score()
 {
-	static unsigned int temp_score;
+	static unsigned long temp_score;
 	static unsigned char i;
 
 	temp_score = cur_score; //cur_score;
