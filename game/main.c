@@ -2363,11 +2363,11 @@ void spawn_new_cluster()
 	}
 #else
 	//Use 7-bag for NES as it complies closer to Guidelines
+	id = bag[bag_index];
 	if (bag_index == (NUM_CLUSTERS-1))
 	{
 		randomize_bag(bag, NUM_CLUSTERS);
 	}
-	id = bag[bag_index];
 	//if (id == cur_cluster.id) //Avoid duplicates reshuffle bag
 	//{
 	//	randomize_bag(bag, NUM_CLUSTERS);
