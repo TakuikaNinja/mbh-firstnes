@@ -10,7 +10,7 @@
 	.importzp	sp, sreg, regsave, regbank
 	.importzp	tmp1, tmp2, tmp3, tmp4, ptr1, ptr2, ptr3, ptr4
 	.macpack	longbranch
-	.dbg		file, "main.c", 103876, 1610361082
+	.dbg		file, "main.c", 103878, 1610362440
 	.dbg		file, "LIB/neslib.h", 9361, 1608948989
 	.dbg		file, "LIB/nesdoug.h", 6862, 1608948989
 	.dbg		file, "BG/game_area.h", 4059, 1609910372
@@ -5493,6 +5493,18 @@ L1AAE:	inc     _cur_block+1
 	lda     #$02
 	jsr     laddeqa
 ;
+; old_is_last_rotate = is_last_rotate;
+;
+	.dbg	line, "main.c", 1988
+	lda     _is_last_rotate
+	sta     L1014
+;
+; is_last_rotate = 0;
+;
+	.dbg	line, "main.c", 1989
+	lda     #$00
+	sta     _is_last_rotate
+;
 ; while (!is_cluster_colliding())
 ;
 	.dbg	line, "main.c", 1984
@@ -5502,20 +5514,8 @@ L1085:	jsr     _is_cluster_colliding
 ;
 ; display_score();
 ;
-	.dbg	line, "main.c", 1989
-	jsr     _display_score
-;
-; old_is_last_rotate = is_last_rotate;
-;
-	.dbg	line, "main.c", 1990
-	lda     _is_last_rotate
-	sta     L1014
-;
-; is_last_rotate = 0;
-;
 	.dbg	line, "main.c", 1991
-	lda     #$00
-	sta     _is_last_rotate
+	jsr     _display_score
 ;
 ; delay_lock_skip = 1;
 ;

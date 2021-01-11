@@ -1985,10 +1985,10 @@ void movement(void)
 				{
 					++cur_block.y;
 					cur_score += 2;	
+					old_is_last_rotate = is_last_rotate;
+					is_last_rotate = 0;
 				}
 				display_score();
-				old_is_last_rotate = is_last_rotate;
-				is_last_rotate = 0;
 				// No delay lock on hard drops.
 				delay_lock_skip = 1;
 
