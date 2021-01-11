@@ -3300,6 +3300,7 @@ void clear_rows_in_data(unsigned char start_y)
 	}
 
 	// If any lines we cleared, time to move to the next phase...
+
 	if (i == 0 )
 	{
 		last_lines = 0;
@@ -3314,7 +3315,8 @@ void clear_rows_in_data(unsigned char start_y)
 			display_score();
 			// clear out any old score.
 			multi_vram_buffer_horz("TSPIN", 5, get_ppu_addr(cur_nt, (27 << 3) , (9 << 3) ));
-		}else{
+		}
+		else{
 			multi_vram_buffer_horz("     ", 5, get_ppu_addr(cur_nt, (27 << 3) , (9 << 3) ));
 		}
 	}
@@ -3380,6 +3382,9 @@ void clear_rows_in_data(unsigned char start_y)
 		}
 		else if(is_tspin != 0){
 			multi_vram_buffer_horz("TSPIN", 5, get_ppu_addr(cur_nt, (27 << 3) , (9 << 3) ));
+		}
+		else{
+			multi_vram_buffer_horz("     ", 5, get_ppu_addr(cur_nt, (27 << 3) , (9 << 3) ));
 		}
 		cur_score += (line_score_mod * (4*is_tspin + 1) * (cur_level + 1));	
 		display_score();
