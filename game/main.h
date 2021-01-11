@@ -907,7 +907,7 @@ void display_level();
 // CLEAR PHASES
 
 // First clear all the rows in CPU memory.
-void clear_rows_in_data(unsigned char start_y);
+void clear_rows_in_data(unsigned char start_y, unsigned char is_attack);
 
 // Then show the empty rows, 2 columns at a time...
 void reveal_empty_rows_to_nt();

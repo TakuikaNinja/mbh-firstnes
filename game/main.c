@@ -1139,7 +1139,7 @@ void main(void)
 				// TODO: Perf - Very expensive.
 				add_block_at_bottom();
 				//PROFILE_POKE(PROF_W);
-				clear_rows_in_data(BOARD_END_Y_PX_BOARD);
+				clear_rows_in_data(BOARD_END_Y_PX_BOARD, 1);
 				attack_queued = 0;
 				attack_queue_ticks_remaining = attack_delay;
 			}
@@ -2264,7 +2264,7 @@ void put_cur_cluster()
 		// 	music_play(MUSIC_STRESS);
 		// }
 
-		clear_rows_in_data(max_y);
+		clear_rows_in_data(max_y, 0);
 	}
 	//PROFILE_POKE(0x3f); //green
 }
@@ -3228,7 +3228,7 @@ void display_level()
 
 // START OF ROW CLEAR SEQUENCE!
 
-void clear_rows_in_data(unsigned char start_y)
+void clear_rows_in_data(unsigned char start_y, unsigned char is_attack)
 {
 	static unsigned char line_complete;
 	static unsigned char i;
@@ -3305,11 +3305,13 @@ void clear_rows_in_data(unsigned char start_y)
 	{
 		last_lines = 0;
 		//combo calculate
-		if(combo_count > 1){
-			cur_score += 50 * (combo_count - 1) * (cur_level + 1);
+		if(is_attack == 0){
+			if(combo_count > 1){
+				cur_score += 50 * (combo_count - 1) * (cur_level + 1);
+			}
+			combo_count = 0;
+			display_combo();
 		}
-		combo_count = 0;
-		display_combo();
 		if(is_tspin != 0){
 			cur_score += (100 * is_tspin * (cur_level + 1));
 			display_score();
@@ -3388,10 +3390,10 @@ void clear_rows_in_data(unsigned char start_y)
 		}
 		cur_score += (line_score_mod * (4*is_tspin + 1) * (cur_level + 1));	
 		display_score();
-		
-		combo_count += 1;
-		display_combo();
-
+		if(is_attack == 0){
+			combo_count += 1;
+			display_combo();
+		}
 		// potential hit reaction.
 		if (hit_reaction_remaining > 0)
 		{
