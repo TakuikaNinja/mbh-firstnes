@@ -8,16 +8,11 @@ For the NES version containing the changes below, see [main.nes](game/main.nes)
 
 Differences from the original:
 1. The use of SRS rotation system (https://tetris.fandom.com/wiki/SRS) instead of Nintendo Rotation System - Right Handed version (https://harddrop.com/wiki/Nintendo_Rotation_System) used in Tetris (NES) with the added Wall Kick. So you are now able to do T-Spins with Twists.
-2. T-Spin score is calculated
-- No line: 40 points (same as 1 line)
-- 1, 2, and 3 Lines: 5x score
-3. T-Spin triple plays Tetris sound with the shake 
-4. Soft Drop adds 1 per line to score, and Hard Drop add 2 points per line to score.
-5. Combo score is calculated, 20 x combo count * level
-6. Back to Back Tetris is calculated - Tetris Score x 1.5
-7. Perfect score is calculated
-8. Can hold a piece using SELECT button (you lose the ability to taunt the Kraken though 😢)
-9. A secret song can be played
+2. T-Spin, Combo, Back to Back Tetris, Perfect Clear: score is calculated
+3. Soft Drop adds 1 per line to score, and Hard Drop add 2 points per line to score.
+4. T-Spin triple plays Tetris sound with the shake 
+5. Can hold a piece using SELECT button (you lose the ability to taunt the Kraken though 😢)
+6. A secret song can be played
 
 # COMPILING
 
