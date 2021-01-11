@@ -94,14 +94,14 @@ file	id=4,name="MUSIC/famitone2.s",size=28839,mtime=0x5FE69CFD,mod=0
 file	id=5,name="MUSIC/songs.s",size=60700,mtime=0x5FF90A26,mod=0
 file	id=6,name="MUSIC/sounds.s",size=12813,mtime=0x5FEC16B5,mod=0
 file	id=7,name="chrrom.chr",size=8192,mtime=0x5FE69CFE,mod=0
-file	id=8,name="main.s",size=231389,mtime=0x5FFBD365,mod=1
+file	id=8,name="main.s",size=231389,mtime=0x5FFBD427,mod=1
 file	id=9,name="..\asminc/longbranch.mac",size=2720,mtime=0x5FE69CFB,mod=1
 file	id=10,name="main.c",size=102600,mtime=0x5FFBD364,mod=1
 file	id=11,name="LIB/neslib.h",size=9361,mtime=0x5FE69CFD,mod=1
 file	id=12,name="LIB/nesdoug.h",size=6862,mtime=0x5FE69CFD,mod=1
 file	id=13,name="BG/game_area.h",size=4059,mtime=0x5FF54864,mod=1
 file	id=14,name="BG/title_screen.h",size=2757,mtime=0x5FF561F7,mod=1
-file	id=15,name="BG/boot_screen.h",size=1422,mtime=0x5FF54E73,mod=1
+file	id=15,name="BG/boot_screen.h",size=1422,mtime=0x5FFBD41F,mod=1
 file	id=16,name="BG/options_screen.h",size=2359,mtime=0x5FE69CFD,mod=1
 file	id=17,name="BG/sound_screen.h",size=1418,mtime=0x5FE69CFD,mod=1
 file	id=18,name="BG/ty_screen.h",size=1872,mtime=0x5FE69CFD,mod=1

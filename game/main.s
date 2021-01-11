@@ -15,7 +15,7 @@
 	.dbg		file, "LIB/nesdoug.h", 6862, 1608948989
 	.dbg		file, "BG/game_area.h", 4059, 1609910372
 	.dbg		file, "BG/title_screen.h", 2757, 1609916919
-	.dbg		file, "BG/boot_screen.h", 1422, 1609911923
+	.dbg		file, "BG/boot_screen.h", 1422, 1610339359
 	.dbg		file, "BG/options_screen.h", 2359, 1608948989
 	.dbg		file, "BG/sound_screen.h", 1418, 1608948989
 	.dbg		file, "BG/ty_screen.h", 1872, 1608948989
@@ -1829,8 +1829,8 @@ _boot_screen:
 	.byte	$30
 	.byte	$31
 	.byte	$2E
-	.byte	$30
-	.byte	$36
+	.byte	$31
+	.byte	$31
 	.byte	$00
 	.byte	$01
 	.byte	$4D
