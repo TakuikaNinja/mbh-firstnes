@@ -2037,6 +2037,8 @@ void movement(void)
 			// fall every other frame.
 			fall_frame_counter = MIN(fall_frame_counter, 1);
 			cur_score += 1;	
+			old_is_last_rotate = is_last_rotate;
+			is_last_rotate = 0;
 			//display_score();
 		}
 
