@@ -448,11 +448,11 @@ struct cluster next_cluster;
 
 #if HOLD_PIECE_ENABLED
 
-unsigned char held_cluster_id; 
-unsigned char held_cluster_rot;
+unsigned char held_cluster_id = 255; 
+unsigned char held_cluster_rot = 0;
 unsigned char held_cluster_def[4][4];
-unsigned char staging_cluster_id; //Need staging cluster to temp store held cluster when swapping with current cluster
-unsigned char staging_cluster_rot;
+unsigned char staging_cluster_id = 255; //Need staging cluster to temp store held cluster when swapping with current cluster
+unsigned char staging_cluster_rot = 0;
 const char empty_row_hold[4] = {0x08,0x08,0x08,0x08};
 const char empty_row_hold_sky[4] = {0x08,0x08,0x08,0x06};
 unsigned char can_hold_cluster; //Cannot hold repeatly - only until next cluster is loaded
