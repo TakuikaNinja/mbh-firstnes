@@ -483,7 +483,7 @@ unsigned char fall_frame_counter;
 unsigned char lines_cleared_one;
 unsigned char lines_cleared_ten;
 unsigned char lines_cleared_hundred;
-unsigned long cur_score; // NOTE: long!
+unsigned int cur_score; // NOTE: int is enough since max_value is 4,294,967,295
 unsigned char last_lines;
 unsigned char combo_count;
 unsigned char cur_nt;
@@ -900,6 +900,7 @@ void go_to_state(unsigned char new_state);
 void inc_lines_cleared();
 void display_lines_cleared();
 void display_score();
+void display_combo();
 void display_highscore();
 void display_level();
 

@@ -2278,7 +2278,7 @@ unsigned char is_perfect_clear(){
 	
 	for (local_ix = 0; local_ix <= BOARD_END_X_PX_BOARD; ++local_ix)
 	{
-		for (local_iy = 0; local_iy < BOARD_END_Y_PX_BOARD; ++local_iy)
+		for (local_iy = 0; local_iy <= BOARD_END_Y_PX_BOARD; ++local_iy)
 		{	
 			if (game_board[TILE_TO_BOARD_INDEX(local_ix, local_iy)] != 0)
 			{
@@ -3137,7 +3137,7 @@ void display_lines_cleared()
 
 void display_score()
 {
-	static unsigned long temp_score;
+	static unsigned int temp_score;
 	static unsigned char i;
 
 	temp_score = cur_score; //cur_score;
@@ -3152,6 +3152,28 @@ void display_score()
 		one_vram_buffer('0' + digit, get_ppu_addr(cur_nt, (6 << 3) - (i << 3), 6 << 3));
 
 		temp_score = temp_score / 10;
+		++i;
+	}
+}
+
+
+void display_combo()
+{
+	static unsigned long temp_combo;
+	static unsigned char i;
+
+	temp_combo = combo_count; //cur_score;
+
+	// clear out any old score.
+	multi_vram_buffer_horz("   ", 3, get_ppu_addr(cur_nt, (26 << 3) , (8 << 3) ));
+
+	i = 0;
+	while (temp_combo != 0)
+	{
+		unsigned char digit = temp_combo % 10;
+		one_vram_buffer('0' + digit, get_ppu_addr(cur_nt, (28 << 3) - (i << 3), (8 << 3)));
+
+		temp_combo = temp_combo / 10;
 		++i;
 	}
 }
@@ -3286,9 +3308,14 @@ void clear_rows_in_data(unsigned char start_y)
 			cur_score += 50 * (combo_count - 1) * (cur_level + 1);
 		}
 		combo_count = 0;
+		display_combo();
 		if(is_tspin != 0){
 			cur_score += (100 * is_tspin * (cur_level + 1));
 			display_score();
+			// clear out any old score.
+			multi_vram_buffer_horz("TSPIN", 5, get_ppu_addr(cur_nt, (26 << 3) , (9 << 3) ));
+		}else{
+			multi_vram_buffer_horz("     ", 5, get_ppu_addr(cur_nt, (26 << 3) , (9 << 3) ));
 		}
 	}
 	else if (i > 0)
@@ -3347,11 +3374,18 @@ void clear_rows_in_data(unsigned char start_y)
 		}
 		}
 		if(last_lines == i & i == 4) //Back to Back Tetris x 1.5
+		{
 			line_score_mod = line_score_mod + (line_score_mod / 2);
+			multi_vram_buffer_horz("BTB-T", 5, get_ppu_addr(cur_nt, (26 << 3) , (9 << 3) ));
+		}
+		if(is_tspin){
+			multi_vram_buffer_horz("TSPIN", 5, get_ppu_addr(cur_nt, (26 << 3) , (9 << 3) ));
+		}
 		cur_score += (line_score_mod * (4*is_tspin + 1) * (cur_level + 1));	
 		display_score();
 		
 		combo_count += 1;
+		display_combo();
 
 		// potential hit reaction.
 		if (hit_reaction_remaining > 0)
@@ -3394,7 +3428,9 @@ void clear_rows_in_data(unsigned char start_y)
 			{
 				line_score_mod = 3200;
 			}
-			cur_score += (line_score_mod * (cur_level + 1));	
+			cur_score += (line_score_mod * (cur_level + 1));
+			multi_vram_buffer_horz("CLEAR", 5, get_ppu_addr(cur_nt, (26 << 3) , (9 << 3) ));
+	
 		}
 		last_lines = i; //Set last line equal to lines cleared
 	}
