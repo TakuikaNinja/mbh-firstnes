@@ -2105,6 +2105,7 @@ void movement(void)
 		//spawn_new_cluster();
 		delay_spawn_remaining = DELAY_SPAWN_LEN;
 		display_score();
+		display_combo();
 	}
 	//PROFILE_POKE(0x1e); //none
 }
@@ -3312,7 +3313,6 @@ void clear_rows_in_data(unsigned char start_y, unsigned char is_attack)
 				cur_score += 50 * (combo_count - 1) * (cur_level + 1);
 			}
 			combo_count = 0;
-			display_combo();
 		}
 		if(is_tspin != 0){
 			cur_score += (100 * is_tspin * (cur_level + 1));
@@ -3394,7 +3394,6 @@ void clear_rows_in_data(unsigned char start_y, unsigned char is_attack)
 		display_score();
 		if(is_attack == 0){
 			combo_count += 1;
-			display_combo();
 		}
 		// potential hit reaction.
 		if (hit_reaction_remaining > 0)
