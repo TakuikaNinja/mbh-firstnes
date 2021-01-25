@@ -3306,7 +3306,7 @@ void clear_rows_in_data(unsigned char start_y, unsigned char is_attack)
 
 	if (i == 0 )
 	{
-		last_lines = 0;
+		//last_lines = 0;
 		//combo calculate
 		if(is_attack == 0){
 			if(combo_count > 1){

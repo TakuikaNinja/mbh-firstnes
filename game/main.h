@@ -419,7 +419,7 @@ const unsigned char **cluster_defs_classic[NUM_CLUSTERS] =
 #if !VS_SYS_ENABLED
 
 unsigned char bag[NUM_CLUSTERS] = {0,1,2,3,4,5,6};
-unsigned char bag_index;
+unsigned char bag_index = 0; //default to start piece
 void randomize_bag ( unsigned char arr[], unsigned char n ); 
 void swap (unsigned char *a, unsigned char *b);
 
