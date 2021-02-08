@@ -129,7 +129,7 @@ songs_music_data:
 	.word @env17,@env0,@env23
 	.byte $00
 	.byte $b0 ;instrument $2c
-	.word @env18,@env0,@env28
+	.word @env18,@env0,@env29
 	.byte $00
 	.byte $b0 ;instrument $2d
 	.word @env19,@env0,@env0
@@ -138,7 +138,7 @@ songs_music_data:
 	.word @env1,@env0,@env0
 	.byte $00
 	.byte $b0 ;instrument $30
-	.word @env4,@env0,@env0
+	.word @env4,@env0,@env28
 	.byte $00
 
 @samples:
@@ -216,7 +216,7 @@ songs_music_data:
 @env3:
 	.byte $c8,$c6,$c4,$c2,$c2,$c1,$c1,$c0,$00,$07
 @env4:
-	.byte $ca,$c9,$c8,$00,$02
+	.byte $c7,$00,$00
 @env5:
 	.byte $c8,$02,$c7,$03,$c6,$02,$c5,$05,$c4,$02,$c3,$07,$c2,$0a,$c1,$0e
 	.byte $c0,$00,$10
@@ -273,6 +273,11 @@ songs_music_data:
 @env27:
 	.byte $cf,$de,$ed,$fc,$ff,$1b,$ff,$00,$06
 @env28:
+	.byte $bf,$bd,$bc,$bc,$bd,$bf,$c0,$c0,$bf,$bd,$bc,$bc,$bd,$bf,$c0,$c0
+	.byte $bf,$bd,$bc,$bc,$bd,$bf,$c0,$c0,$bf,$bd,$bc,$bc,$bd,$bf,$c0,$c0
+	.byte $bf,$bd,$bc,$bc,$bd,$bf,$c0,$c0,$bf,$bd,$bc,$bc,$bd,$bf,$c0,$c0
+	.byte $00,$2f
+@env29:
 	.byte $c0,$0f,$c1,$03,$c0,$02,$c0,$00,$02
 
 
