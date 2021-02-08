@@ -93,10 +93,10 @@ file	id=1,name="..\asminc/zeropage.inc",size=747,mtime=0x5FE69CFB,mod=0
 file	id=2,name="LIB/neslib.s",size=29631,mtime=0x5FE69CFD,mod=0
 file	id=3,name="LIB/nesdoug.s",size=12431,mtime=0x5FE69CFD,mod=0
 file	id=4,name="MUSIC/famitone2.s",size=28839,mtime=0x5FE69CFD,mod=0
-file	id=5,name="MUSIC/songs.s",size=60700,mtime=0x5FF90A26,mod=0
-file	id=6,name="MUSIC/sounds.s",size=12813,mtime=0x5FEC16B5,mod=0
+file	id=5,name="MUSIC/songs.s",size=60700,mtime=0x602101A1,mod=0
+file	id=6,name="MUSIC/sounds.s",size=12813,mtime=0x602101A1,mod=0
 file	id=7,name="chrrom.chr",size=8192,mtime=0x5FE69CFE,mod=0
-file	id=8,name="main.s",size=237204,mtime=0x600F5265,mod=1
+file	id=8,name="main.s",size=237204,mtime=0x602101A5,mod=1
 file	id=9,name="..\asminc/longbranch.mac",size=2720,mtime=0x5FE69CFB,mod=1
 file	id=10,name="main.c",size=103858,mtime=0x600F5263,mod=1
 file	id=11,name="LIB/neslib.h",size=9361,mtime=0x5FE69CFD,mod=1

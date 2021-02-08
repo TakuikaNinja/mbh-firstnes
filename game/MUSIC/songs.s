@@ -138,7 +138,7 @@ songs_music_data:
 	.word @env1,@env0,@env0
 	.byte $00
 	.byte $b0 ;instrument $30
-	.word @env1,@env0,@env0
+	.word @env4,@env0,@env0
 	.byte $00
 
 @samples:
@@ -2735,7 +2735,7 @@ songs_music_data:
 @ref1120:
 	.byte $3a,$8d,$32,$8d,$36,$8d,$30,$8d
 @ref1121:
-	.byte $32,$85,$3a,$85,$44,$8d,$42,$85,$00,$95
+	.byte $32,$85,$3a,$85,$44,$8d,$42,$8d,$00,$8d
 	.byte $fd
 	.word @song4ch0loop
 
@@ -2767,7 +2767,7 @@ songs_music_data:
 @ref1132:
 	.byte $32,$8d,$2c,$8d,$30,$8d,$2a,$8d
 @ref1133:
-	.byte $2c,$85,$32,$85,$3a,$8d,$36,$85,$00,$95
+	.byte $2c,$85,$32,$85,$3a,$8d,$36,$8d,$00,$8d
 	.byte $fd
 	.word @song4ch1loop
 
