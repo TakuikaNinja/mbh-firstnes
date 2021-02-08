@@ -216,7 +216,7 @@ songs_music_data:
 @env3:
 	.byte $c8,$c6,$c4,$c2,$c2,$c1,$c1,$c0,$00,$07
 @env4:
-	.byte $cc,$00,$00
+	.byte $ca,$c9,$c8,$00,$02
 @env5:
 	.byte $c8,$02,$c7,$03,$c6,$02,$c5,$05,$c4,$02,$c3,$07,$c2,$0a,$c1,$0e
 	.byte $c0,$00,$10
@@ -224,7 +224,7 @@ songs_music_data:
 	.byte $cf,$cd,$cb,$c9,$c8,$c7,$c6,$c5,$c4,$c3,$c3,$c2,$c2,$c1,$c1,$c0
 	.byte $00,$0f
 @env7:
-	.byte $c8,$c7,$c6,$c5,$c4,$c4,$c3,$c3,$c2,$c2,$c1,$c1,$c0,$00,$0c
+	.byte $c9,$c8,$c7,$c6,$c5,$c4,$c3,$c2,$c1,$00,$08
 @env8:
 	.byte $c1,$c1,$c2,$c2,$c3,$c3,$c4,$00,$06
 @env9:
