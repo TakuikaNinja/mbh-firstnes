@@ -10,7 +10,7 @@
 	.importzp	sp, sreg, regsave, regbank
 	.importzp	tmp1, tmp2, tmp3, tmp4, ptr1, ptr2, ptr3, ptr4
 	.macpack	longbranch
-	.dbg		file, "main.c", 103858, 1611616867
+	.dbg		file, "main.c", 103862, 1612866231
 	.dbg		file, "LIB/neslib.h", 9361, 1608948989
 	.dbg		file, "LIB/nesdoug.h", 6862, 1608948989
 	.dbg		file, "BG/game_area.h", 4059, 1609910372
@@ -11627,14 +11627,10 @@ L185D:	sta     ptr1
 	lda     #$78
 	sta     _start_delay_remaining
 ;
-; bag_index = rand() % NUM_CLUSTERS;
+; bag_index = 0; //rand() % NUM_CLUSTERS
 ;
 	.dbg	line, "main.c", 3728
-	jsr     _rand
-	jsr     pushax
-	ldx     #$00
-	lda     #$07
-	jsr     tosmoda0
+	lda     #$00
 	sta     _bag_index
 ;
 ; randomize_bag(bag, NUM_CLUSTERS);

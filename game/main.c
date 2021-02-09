@@ -3725,7 +3725,7 @@ void reset_gameplay_area()
 	start_delay_remaining = START_DELAY;
 	
 	#if !VS_SYS_ENABLED
-		bag_index = rand() % NUM_CLUSTERS;
+		bag_index = 0; //rand() % NUM_CLUSTERS
     	randomize_bag(bag, NUM_CLUSTERS);
 	#endif
 
