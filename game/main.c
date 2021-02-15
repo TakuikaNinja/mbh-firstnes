@@ -1615,7 +1615,9 @@ void draw_gameplay_sprites(void)
 	static unsigned char speed;
 	static unsigned char i;
 	static unsigned char j;
-
+	#if GHOST_PIECE_ENABLED
+	static unsigned char ghost_y;
+	#endif
 	//PROFILE_POKE(0x5f); // green
 	// clear all sprites from sprite buffer
 	oam_clear();
@@ -1626,7 +1628,10 @@ void draw_gameplay_sprites(void)
 
 	local_start_x = (cur_block.x << 3) + BOARD_START_X_PX;
 	local_start_y = (cur_block.y << 3) + BOARD_START_Y_PX;
-
+	#if GHOST_PIECE_ENABLED
+	ghost_y = find_ghost_delta_y();
+	ghost_y = (cur_block.y+ghost_y << 3) + BOARD_START_Y_PX;
+	#endif
 	// 255 means hide.
 	if (cur_block.y != 255)
 	{
@@ -1645,6 +1650,9 @@ void draw_gameplay_sprites(void)
 			if (local_start_y + (local_iy << 3) > OOB_TOP)
 			{
 				oam_spr(local_start_x + (local_ix << 3), local_start_y + (local_iy << 3), cur_cluster.sprite, 0);
+				#if GHOST_PIECE_ENABLED
+				oam_spr(local_start_x + (local_ix << 3), ghost_y + (local_iy << 3), GHOST_BLOCK_SPRITE, 0);
+				#endif
 			}
 		}
 	}
@@ -2018,6 +2026,7 @@ void movement(void)
 	{
 		// Hard drop skips all this to avoid dropping to the bottom
 		// and then dropping again because it happens to be
+		// and then dropping again because it happens to be
 		// the natural fall frame.
 		if (pad_all_new & PAD_DOWN || delay_lock_remaining != -1)
 		{
@@ -2292,6 +2301,7 @@ unsigned char is_perfect_clear(){
 	return 1;
 
 }
+
 unsigned char is_cluster_colliding()
 {
 	static unsigned char x;
@@ -2320,6 +2330,41 @@ unsigned char is_cluster_colliding()
 
 	return 0;
 }
+
+#if GHOST_PIECE_ENABLED
+unsigned char find_ghost_delta_y()
+{
+	static unsigned char x;
+	static unsigned char y;
+	static unsigned char delta_y;
+    static unsigned char i;
+	static unsigned char j;
+
+    for(delta_y = 1; delta_y <= BOARD_END_Y_PX_BOARD; delta_y++)
+    {
+        for (i = 0; i < 4; ++i)
+        {
+            // store the index into the x,y offset for each solid piece in the first rotation.
+            j = cur_cluster.layout[i];
+
+            // convert that to x,y offsets.
+            local_ix = morton_compact_one_by_one(j >> 0); 
+            local_iy = morton_compact_one_by_one(j >> 1); 
+
+            x = cur_block.x + local_ix;
+            y = cur_block.y + local_iy + delta_y;
+
+            if (y > BOARD_END_Y_PX_BOARD || x > BOARD_END_X_PX_BOARD || game_board[TILE_TO_BOARD_INDEX(x, y)])
+            {
+                // consider this blocked.
+                return delta_y-1;
+            }
+        }
+    }
+
+	return 0;
+}
+#endif 
 
 #if HOLD_PIECE_ENABLED
 

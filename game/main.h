@@ -2,6 +2,7 @@
 
 #define DEBUG_ENABLED 0
 #define HOLD_PIECE_ENABLED 1
+#define GHOST_PIECE_ENABLED 1
 
 #if DEBUG_ENABLED
 #define PROFILE_POKE(val) POKE((0x2001), (val));
@@ -476,6 +477,12 @@ const unsigned char cluster_offsets[NUM_CLUSTERS] =
         //10,10,10,10,10,10,10
 };
 
+#if GHOST_PIECE_ENABLED
+
+unsigned char find_ghost_delta_y();
+#define GHOST_BLOCK_SPRITE 0xf7
+
+#endif
 unsigned char horz_button_delay;
 const unsigned char button_delay = 5;
 unsigned char require_new_down_button;
