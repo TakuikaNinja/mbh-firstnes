@@ -1586,7 +1586,6 @@ void draw_menu_sprites(void)
 
 	oam_spr(10 << 3, 23 << 3, local_ix, 0);
 	oam_spr(22 << 3, 23 << 3, local_ix, 0);
-
 	// TENTACLES
 	oam_meta_spr(19<<3, 14<<3, metasprite_tentacle_title);
 
@@ -1629,8 +1628,10 @@ void draw_gameplay_sprites(void)
 	local_start_x = (cur_block.x << 3) + BOARD_START_X_PX;
 	local_start_y = (cur_block.y << 3) + BOARD_START_Y_PX;
 	#if GHOST_PIECE_ENABLED
+
 	ghost_y = find_ghost_delta_y();
 	ghost_y = (cur_block.y+ghost_y << 3) + BOARD_START_Y_PX;
+
 	#endif
 	// 255 means hide.
 	if (cur_block.y != 255)
@@ -1649,10 +1650,10 @@ void draw_gameplay_sprites(void)
 			// be visible.
 			if (local_start_y + (local_iy << 3) > OOB_TOP)
 			{
-				oam_spr(local_start_x + (local_ix << 3), local_start_y + (local_iy << 3), cur_cluster.sprite, 0);
 				#if GHOST_PIECE_ENABLED
 				oam_spr(local_start_x + (local_ix << 3), ghost_y + (local_iy << 3), GHOST_BLOCK_SPRITE, 0);
 				#endif
+				oam_spr(local_start_x + (local_ix << 3), local_start_y + (local_iy << 3), cur_cluster.sprite, 0);
 			}
 		}
 	}
@@ -1806,12 +1807,14 @@ void draw_gameplay_sprites(void)
 	{
 		local_ix = 0x66;
 	}
+	#if !GHOST_PIECE_ENABLED
 
 	oam_spr(8 << 3, 1 << 3, local_ix, 2);
 	oam_spr(24 << 3, 1 << 3, local_ix, 2);
 	oam_spr(3 << 3, 10 << 3, local_ix, 0);
 	oam_spr(27 << 3, 10 << 3, local_ix, 0);
-
+	
+	#endif
 	//debug_draw_board_area();
 }
 
