@@ -1651,7 +1651,9 @@ void draw_gameplay_sprites(void)
 			if (local_start_y + (local_iy << 3) > OOB_TOP)
 			{
 				#if GHOST_PIECE_ENABLED
-				oam_spr(local_start_x + (local_ix << 3), ghost_y + (local_iy << 3), GHOST_BLOCK_SPRITE, 0);
+				if(ghost_y != local_start_y){
+					oam_spr(local_start_x + (local_ix << 3), ghost_y + (local_iy << 3), GHOST_BLOCK_SPRITE, 0);
+				}
 				#endif
 				oam_spr(local_start_x + (local_ix << 3), local_start_y + (local_iy << 3), cur_cluster.sprite, 0);
 			}
@@ -1790,6 +1792,8 @@ void draw_gameplay_sprites(void)
 	}
 
 	// FLAGS
+	#if !GHOST_PIECE_ENABLED
+
 	local_t = tick_count & 63;
 	if (local_t > 48)
 	{
@@ -1807,7 +1811,6 @@ void draw_gameplay_sprites(void)
 	{
 		local_ix = 0x66;
 	}
-	#if !GHOST_PIECE_ENABLED
 
 	oam_spr(8 << 3, 1 << 3, local_ix, 2);
 	oam_spr(24 << 3, 1 << 3, local_ix, 2);
