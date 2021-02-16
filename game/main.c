@@ -919,7 +919,8 @@ void main(void)
 				if (pad_all & PAD_SELECT)
 				{
 					select_gameplay_music = MUSIC_MUSICA;
-				}else
+				}
+				else
 				{
 					select_gameplay_music = MUSIC_GAMEPLAY;
 				}
@@ -1587,8 +1588,7 @@ void draw_menu_sprites(void)
 	oam_spr(10 << 3, 23 << 3, local_ix, 0);
 	oam_spr(22 << 3, 23 << 3, local_ix, 0);
 	// TENTACLES
-	oam_meta_spr(19<<3, 14<<3, metasprite_tentacle_title);
-
+	oam_meta_spr(19 << 3, 14 << 3, metasprite_tentacle_title);
 
 #if VS_SYS_ENABLED
 	//3<<3, 26<<3
@@ -1614,9 +1614,9 @@ void draw_gameplay_sprites(void)
 	static unsigned char speed;
 	static unsigned char i;
 	static unsigned char j;
-	#if GHOST_PIECE_ENABLED
+#if GHOST_PIECE_ENABLED
 	static unsigned char ghost_y;
-	#endif
+#endif
 	//PROFILE_POKE(0x5f); // green
 	// clear all sprites from sprite buffer
 	oam_clear();
@@ -1627,12 +1627,12 @@ void draw_gameplay_sprites(void)
 
 	local_start_x = (cur_block.x << 3) + BOARD_START_X_PX;
 	local_start_y = (cur_block.y << 3) + BOARD_START_Y_PX;
-	#if GHOST_PIECE_ENABLED
+#if GHOST_PIECE_ENABLED
 
 	ghost_y = find_ghost_delta_y();
-	ghost_y = (cur_block.y+ghost_y << 3) + BOARD_START_Y_PX;
+	ghost_y = (cur_block.y + ghost_y << 3) + BOARD_START_Y_PX;
 
-	#endif
+#endif
 	// 255 means hide.
 	if (cur_block.y != 255)
 	{
@@ -1650,11 +1650,13 @@ void draw_gameplay_sprites(void)
 			// be visible.
 			if (local_start_y + (local_iy << 3) > OOB_TOP)
 			{
-				#if GHOST_PIECE_ENABLED
-				if(ghost_y != local_start_y){
+#if GHOST_PIECE_ENABLED
+				if (ghost_y != local_start_y)
+				{
+					//one_vram_buffer(GHOST_BLOCK_SPRITE, get_ppu_addr(cur_nt, local_start_x + (local_ix << 3),ghost_y + (local_iy << 3)));
 					oam_spr(local_start_x + (local_ix << 3), ghost_y + (local_iy << 3), GHOST_BLOCK_SPRITE, 0);
 				}
-				#endif
+#endif
 				oam_spr(local_start_x + (local_ix << 3), local_start_y + (local_iy << 3), cur_cluster.sprite, 0);
 			}
 		}
@@ -1791,8 +1793,8 @@ void draw_gameplay_sprites(void)
 		}
 	}
 
-	// FLAGS
-	#if !GHOST_PIECE_ENABLED
+// FLAGS
+#if !GHOST_PIECE_ENABLED
 
 	local_t = tick_count & 63;
 	if (local_t > 48)
@@ -1816,8 +1818,8 @@ void draw_gameplay_sprites(void)
 	oam_spr(24 << 3, 1 << 3, local_ix, 2);
 	oam_spr(3 << 3, 10 << 3, local_ix, 0);
 	oam_spr(27 << 3, 10 << 3, local_ix, 0);
-	
-	#endif
+
+#endif
 	//debug_draw_board_area();
 }
 
@@ -1845,47 +1847,45 @@ void movement(void)
 	if (pad_all_new & PAD_SELECT)
 #endif
 	{
-		// cur_score += 100;
-		// display_score();
-		//hit_reaction_remaining = 60;
-		//  inc_lines_cleared();
-		//  delay(1);
-		//  inc_lines_cleared();
-		//  delay(1);
-		//  inc_lines_cleared();
-		//  delay(1);
-		//  inc_lines_cleared();
-		//  delay(1);
-		//  inc_lines_cleared();
-		//  delay(1);
-		//  inc_lines_cleared();
-		//  delay(1);
-		//  inc_lines_cleared();
-		//  delay(1);
-		//  inc_lines_cleared();
-		//  delay(1);
-		//  inc_lines_cleared();
-		//  delay(1);
-		//lines_cleared_one = 9;
-		//inc_lines_cleared();
-		//add_block_at_bottom();
-		//spawn_new_cluster();
+// cur_score += 100;
+// display_score();
+//hit_reaction_remaining = 60;
+//  inc_lines_cleared();
+//  delay(1);
+//  inc_lines_cleared();
+//  delay(1);
+//  inc_lines_cleared();
+//  delay(1);
+//  inc_lines_cleared();
+//  delay(1);
+//  inc_lines_cleared();
+//  delay(1);
+//  inc_lines_cleared();
+//  delay(1);
+//  inc_lines_cleared();
+//  delay(1);
+//  inc_lines_cleared();
+//  delay(1);
+//  inc_lines_cleared();
+//  delay(1);
+//lines_cleared_one = 9;
+//inc_lines_cleared();
+//add_block_at_bottom();
+//spawn_new_cluster();
 
-		// Don't allow forcing the tentacle up while it is on the way down.
-		// Not too serious, but looks weird when the height in increases
-		// while the sprites are not moving up.
-		#if !HOLD_PIECE_ENABLED
+// Don't allow forcing the tentacle up while it is on the way down.
+// Not too serious, but looks weird when the height in increases
+// while the sprites are not moving up.
+#if !HOLD_PIECE_ENABLED
 		if (row_to_clear == -1)
 		{
 			attack_queued = 1;
 		}
-		#endif
-		#if HOLD_PIECE_ENABLED
-		if(can_hold_cluster)
+#endif
+#if HOLD_PIECE_ENABLED
+		if (can_hold_cluster)
 			hold_cluster();
-		#endif
-
-
+#endif
 	}
 
 	// INPUT
@@ -1998,7 +1998,7 @@ void movement(void)
 				while (!is_cluster_colliding())
 				{
 					++cur_block.y;
-					cur_score += 2;	
+					cur_score += 2;
 					old_is_last_rotate = is_last_rotate;
 					is_last_rotate = 0;
 				}
@@ -2045,13 +2045,12 @@ void movement(void)
 
 			// fall this frame.
 			fall_frame_counter = 0;
-			
 		}
 		else if ((pad_all & PAD_DOWN) && require_new_down_button == 0)
 		{
 			// fall every other frame.
 			fall_frame_counter = MIN(fall_frame_counter, 1);
-			cur_score += 1;	
+			cur_score += 1;
 			old_is_last_rotate = is_last_rotate;
 			is_last_rotate = 0;
 			//display_score();
@@ -2138,8 +2137,8 @@ unsigned char check_tspin()
 		j = cur_cluster.layout[2];
 
 		// convert that to x,y offsets.
-		local_ix = morton_compact_one_by_one(j >> 0); 
-		local_iy = morton_compact_one_by_one(j >> 1); 
+		local_ix = morton_compact_one_by_one(j >> 0);
+		local_iy = morton_compact_one_by_one(j >> 1);
 
 		x = cur_block.x + local_ix;
 		y = cur_block.y + local_iy;
@@ -2292,12 +2291,13 @@ unsigned char is_block_occupied(unsigned char x, unsigned char y)
 	return (y > BOARD_END_Y_PX_BOARD || x > BOARD_END_X_PX_BOARD || game_board[TILE_TO_BOARD_INDEX(x, y)]);
 }
 
-unsigned char is_perfect_clear(){
-	
+unsigned char is_perfect_clear()
+{
+
 	for (local_ix = 0; local_ix <= BOARD_END_X_PX_BOARD; ++local_ix)
 	{
 		for (local_iy = 0; local_iy <= BOARD_END_Y_PX_BOARD; ++local_iy)
-		{	
+		{
 			if (game_board[TILE_TO_BOARD_INDEX(local_ix, local_iy)] != 0)
 			{
 				return 0;
@@ -2305,7 +2305,6 @@ unsigned char is_perfect_clear(){
 		}
 	}
 	return 1;
-
 }
 
 unsigned char is_cluster_colliding()
@@ -2343,34 +2342,123 @@ unsigned char find_ghost_delta_y()
 	static unsigned char x;
 	static unsigned char y;
 	static unsigned char delta_y;
-    static unsigned char i;
+	static unsigned char i;
 	static unsigned char j;
 
-    for(delta_y = 1; delta_y <= BOARD_END_Y_PX_BOARD; delta_y++)
-    {
-        for (i = 0; i < 4; ++i)
-        {
-            // store the index into the x,y offset for each solid piece in the first rotation.
-            j = cur_cluster.layout[i];
+	//Need to speed up starting point of search using rectangle edge detection as a fast approximation
+	if (cur_cluster.id == 2) //Is I
+	{
+		if (cur_rot & 1) //Is Vertical
+		{
+			local_ix = 1;
+			local_iy = 4;
+			if (cur_rot == 1)
+			{
+				x = 2;
+				y = 0;
+			}
+			else
+			{
+				x = 1;
+				y = 0;
+			}
+		}
+		else // Is Flat
+		{
+			local_ix = 4;
+			local_iy = 1;
+			if (cur_rot == 0)
+			{
+				x = 0;
+				y = 1;
+			}
+			else
+			{
+				x = 0;
+				y = 2;
+			}
+		}
+	}
+	else if (cur_cluster.id == 3) //Is Square
+	{
+		local_ix = 2;
+		local_iy = 2;
+		x = 1;
+		y = 1;
+	}
+	else
+	{
+		if (cur_rot & 1) //Is Vertical
+		{
+			local_ix = 2;
+			local_iy = 3;
+			if (cur_rot == 1)
+			{
+				x = 1;
+				y = 0;
+			}
+			else
+			{
+				x = 0;
+				y = 0;
+			}
+		}
+		else //Is flat
+		{
+			local_ix = 3;
+			local_iy = 2;
+			if (cur_rot == 0)
+			{
+				x = 0;
+				y = 0;
+			}
+			else
+			{
+				x = 1;
+				y = 0;
+			}
+		}
+	}
+	for (delta_y = 0; delta_y < BOARD_END_Y_PX_BOARD - (cur_block.y + y); delta_y++)
+	{
+		if (
+			(cur_block.y + (local_iy + y) + delta_y) > BOARD_END_Y_PX_BOARD
+			//|| (cur_block.x + (local_ix) + x) > BOARD_END_X_PX_BOARD
+			|| game_board[TILE_TO_BOARD_INDEX((cur_block.x + (local_ix) + x), (cur_block.y + (local_iy) + y + delta_y))] 
+			|| game_board[TILE_TO_BOARD_INDEX((cur_block.x + x), (cur_block.y + y + delta_y))])
+		{
+			break;
+		}
+	}
 
-            // convert that to x,y offsets.
-            local_ix = morton_compact_one_by_one(j >> 0); 
-            local_iy = morton_compact_one_by_one(j >> 1); 
+	delta_y -= (delta_y < 4 ? 0 : 4); //It may require four steps to refine collision detection
 
-            x = cur_block.x + local_ix;
-            y = cur_block.y + local_iy + delta_y;
+	//Refine collision detection iterating afterwards based on cluster
+	for (/*delta_y = 0*/; delta_y < BOARD_END_Y_PX_BOARD /*+1-(cur_block.y)*/; delta_y++)
+	{
+		for (i = 0; i < 4; ++i)
+		{
+			// store the index into the x,y offset for each solid piece in the first rotation.
+			j = cur_cluster.layout[i];
 
-            if (y > BOARD_END_Y_PX_BOARD || x > BOARD_END_X_PX_BOARD || game_board[TILE_TO_BOARD_INDEX(x, y)])
-            {
-                // consider this blocked.
-                return delta_y-1;
-            }
-        }
-    }
+			// convert that to x,y offsets.
+			local_ix = morton_compact_one_by_one(j >> 0);
+			local_iy = morton_compact_one_by_one(j >> 1);
+
+			x = cur_block.x + local_ix;
+			y = cur_block.y + local_iy + delta_y;
+
+			if (y > BOARD_END_Y_PX_BOARD || x > BOARD_END_X_PX_BOARD || game_board[TILE_TO_BOARD_INDEX(x, y)])
+			{
+				// consider this blocked.
+				return delta_y - 1;
+			}
+		}
+	}
 
 	return 0;
 }
-#endif 
+#endif
 
 #if HOLD_PIECE_ENABLED
 
@@ -2388,9 +2476,9 @@ void spawn_new_cluster()
 	require_new_down_button = 1;
 	fall_frame_counter = fall_rate;
 
-	#if HOLD_PIECE_ENABLED
-		can_hold_cluster = 1;
-	#endif
+#if HOLD_PIECE_ENABLED
+	can_hold_cluster = 1;
+#endif
 
 	cur_rot = 0;
 	is_last_rotate = 0;
@@ -2405,7 +2493,6 @@ void spawn_new_cluster()
 	cur_block.x = 3; //(BOARD_END_Y_PX_BOARD >> 1);
 	cur_block.y = cluster_offsets[cur_cluster.id];
 
-	
 #if VS_SYS_ENABLED
 	// NES Randomizer - simpler
 	// By checking twice we go from 1 in 7 chance of a dupe to
@@ -2418,7 +2505,7 @@ void spawn_new_cluster()
 #else
 	//Use 7-bag for NES as it complies closer to Guidelines
 	id = bag[bag_index];
-	if (bag_index == (NUM_CLUSTERS-1))
+	if (bag_index == (NUM_CLUSTERS - 1))
 	{
 		randomize_bag(bag, NUM_CLUSTERS);
 	}
@@ -2523,11 +2610,11 @@ void rotate_cur_cluster(char dir)
 			else if (((old_rot == 3) & (cur_rot == 2)) || ((old_rot == 3) & (cur_rot == 0)))
 			{
 				result = rotate_srs(3);
-			}			
+			}
 		}
 		else
 		{
-			if (((old_rot == 0) & (cur_rot == 1)) ||  ((old_rot == 3) & (cur_rot == 2)))
+			if (((old_rot == 0) & (cur_rot == 1)) || ((old_rot == 3) & (cur_rot == 2)))
 			{
 				result = rotate_srs(4);
 			}
@@ -2567,7 +2654,7 @@ void rotate_cur_cluster(char dir)
 unsigned char rotate_srs(unsigned char case_id)
 {
 	static unsigned char test;
-	static signed char morton;//, new_x, new_y;
+	static signed char morton; //, new_x, new_y;
 	for (test = 0; test < 5; ++test)
 	{
 		morton = srs_rotate_lookup[case_id][test];
@@ -2946,11 +3033,13 @@ void go_to_state(unsigned char new_state)
 	case STATE_PAUSE:
 	{
 		pal_bright(2);
-		if(select_gameplay_music == MUSIC_MUSICA){
+		if (select_gameplay_music == MUSIC_MUSICA)
+		{
 			music_stop();
 			SFX_MUSIC_PLAY_WRAPPER(SOUND_PAUSE);
-
-		}else{
+		}
+		else
+		{
 			MUSIC_PLAY_WRAPPER(MUSIC_PAUSE);
 		}
 		break;
@@ -3210,7 +3299,6 @@ void display_score()
 	}
 }
 
-
 void display_combo()
 {
 	static unsigned long temp_combo;
@@ -3219,7 +3307,7 @@ void display_combo()
 	temp_combo = combo_count; //cur_score;
 
 	// clear out any old score.
-	multi_vram_buffer_horz("   ", 3, get_ppu_addr(cur_nt, (26 << 3) , (8 << 3) ));
+	multi_vram_buffer_horz("   ", 3, get_ppu_addr(cur_nt, (26 << 3), (8 << 3)));
 
 	i = 0;
 	while (temp_combo != 0)
@@ -3355,31 +3443,35 @@ void clear_rows_in_data(unsigned char start_y, unsigned char is_attack)
 
 	// If any lines we cleared, time to move to the next phase...
 
-	if (i == 0 )
+	if (i == 0)
 	{
 		//last_lines = 0;
 		//combo calculate
-		if(is_attack == 0){
-			if(combo_count > 1){
+		if (is_attack == 0)
+		{
+			if (combo_count > 1)
+			{
 				cur_score += 50 * (combo_count - 1) * (cur_level + 1);
 			}
 			combo_count = 0;
 		}
-		if(is_tspin != 0){
+		if (is_tspin != 0)
+		{
 			cur_score += (100 * is_tspin * (cur_level + 1));
 			display_score();
 			// clear out any old score.
-			multi_vram_buffer_horz("TSPIN", 5, get_ppu_addr(cur_nt, (27 << 3) , (9 << 3) ));
+			multi_vram_buffer_horz("TSPIN", 5, get_ppu_addr(cur_nt, (27 << 3), (9 << 3)));
 		}
-		else{
-			multi_vram_buffer_horz("     ", 5, get_ppu_addr(cur_nt, (27 << 3) , (9 << 3) ));
+		else
+		{
+			multi_vram_buffer_horz("     ", 5, get_ppu_addr(cur_nt, (27 << 3), (9 << 3)));
 		}
 	}
 	else if (i > 0)
 	{
 		if (prev_level != cur_level)
 		{
-			if (i == 4|| (i == 3 & is_tspin != 0))
+			if (i == 4 || (i == 3 & is_tspin != 0))
 			{
 				screen_shake_remaining = 5;
 				SFX_PLAY_WRAPPER(SOUND_LEVELUP_MULTI);
@@ -3430,20 +3522,23 @@ void clear_rows_in_data(unsigned char start_y, unsigned char is_attack)
 			break;
 		}
 		}
-		if(last_lines == i & i == 4) //Back to Back Tetris x 1.5
+		if (last_lines == i & i == 4) //Back to Back Tetris x 1.5
 		{
 			line_score_mod = line_score_mod + (line_score_mod / 2);
-			multi_vram_buffer_horz("BTB-T", 5, get_ppu_addr(cur_nt, (27 << 3) , (9 << 3) ));
+			multi_vram_buffer_horz("BTB-T", 5, get_ppu_addr(cur_nt, (27 << 3), (9 << 3)));
 		}
-		else if(is_tspin != 0){
-			multi_vram_buffer_horz("TSPIN", 5, get_ppu_addr(cur_nt, (27 << 3) , (9 << 3) ));
+		else if (is_tspin != 0)
+		{
+			multi_vram_buffer_horz("TSPIN", 5, get_ppu_addr(cur_nt, (27 << 3), (9 << 3)));
 		}
-		else{
-			multi_vram_buffer_horz("     ", 5, get_ppu_addr(cur_nt, (27 << 3) , (9 << 3) ));
+		else
+		{
+			multi_vram_buffer_horz("     ", 5, get_ppu_addr(cur_nt, (27 << 3), (9 << 3)));
 		}
-		cur_score += (line_score_mod * (4*is_tspin + 1) * (cur_level + 1));	
+		cur_score += (line_score_mod * (4 * is_tspin + 1) * (cur_level + 1));
 		display_score();
-		if(is_attack == 0){
+		if (is_attack == 0)
+		{
 			combo_count += 1;
 		}
 		// potential hit reaction.
@@ -3451,45 +3546,44 @@ void clear_rows_in_data(unsigned char start_y, unsigned char is_attack)
 		{
 			draw_gameplay_sprites();
 		}
-		
+
 		reveal_empty_rows_to_nt();
 
-		if(is_perfect_clear())
+		if (is_perfect_clear())
 		{
 			switch (i)
 			{
-				case 1:
-				{
-					line_score_mod = 800;
-					break;
-				}
-
-				case 2:
-				{
-					line_score_mod = 1200;
-					break;
-				}
-
-				case 3:
-				{
-					line_score_mod = 1800;
-					break;
-				}
-
-				case 4:
-				default:
-				{
-					line_score_mod = 2000;
-					break;
-				}
+			case 1:
+			{
+				line_score_mod = 800;
+				break;
 			}
-			if(last_lines == i & i == 4) //Back to Back Tetris
+
+			case 2:
+			{
+				line_score_mod = 1200;
+				break;
+			}
+
+			case 3:
+			{
+				line_score_mod = 1800;
+				break;
+			}
+
+			case 4:
+			default:
+			{
+				line_score_mod = 2000;
+				break;
+			}
+			}
+			if (last_lines == i & i == 4) //Back to Back Tetris
 			{
 				line_score_mod = 3200;
 			}
 			cur_score += (line_score_mod * (cur_level + 1));
-			multi_vram_buffer_horz("CLEAR", 5, get_ppu_addr(cur_nt, (27 << 3) , (9 << 3) ));
-	
+			multi_vram_buffer_horz("CLEAR", 5, get_ppu_addr(cur_nt, (27 << 3), (9 << 3)));
 		}
 		last_lines = i; //Set last line equal to lines cleared
 	}
@@ -3662,9 +3756,6 @@ void copy_board_to_nt()
 	// 	cur_gameplay_music = select_gameplay_music;
 	// 	music_play(select_gameplay_music);
 	// }
-
-
-
 }
 
 void add_block_at_bottom()
@@ -3762,10 +3853,10 @@ void reset_gameplay_area()
 
 	// Reset stats.
 	lines_cleared_one = lines_cleared_ten = lines_cleared_hundred = cur_score = 0;
-	#if HOLD_PIECE_ENABLED
-		held_cluster_id = 255; // Doesn't exist
-		held_cluster_rot = 0;
-	#endif
+#if HOLD_PIECE_ENABLED
+	held_cluster_id = 255; // Doesn't exist
+	held_cluster_rot = 0;
+#endif
 	cur_level = saved_starting_level;
 	fall_rate = fall_rates_per_level[MIN(cur_level, sizeof(fall_rates_per_level))];
 	row_to_clear = -1;
@@ -3774,11 +3865,11 @@ void reset_gameplay_area()
 	last_lines = 0;
 	combo_count = 0;
 	start_delay_remaining = START_DELAY;
-	
-	#if !VS_SYS_ENABLED
-		bag_index = 0; //rand() % NUM_CLUSTERS
-    	randomize_bag(bag, NUM_CLUSTERS);
-	#endif
+
+#if !VS_SYS_ENABLED
+	bag_index = 0; //rand() % NUM_CLUSTERS
+	randomize_bag(bag, NUM_CLUSTERS);
+#endif
 
 	// load the palettes
 	time_of_day = 0;
@@ -3801,11 +3892,11 @@ void reset_gameplay_area()
 	// clear the "hold" block for cases of restarting
 	//delay(1);
 	//clear_vram_buffer();
-	
+
 	//multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 24));
 	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 32));
 	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 40));
-	
+
 	delay(1);
 	clear_vram_buffer();
 
@@ -4029,16 +4120,15 @@ void debug_display_number(unsigned char num, unsigned char index)
 }
 #endif //DEBUG_ENABLED
 
-
 #if HOLD_PIECE_ENABLED
-	
+
 void hold_cluster()
 {
 	static unsigned char l;
 	static unsigned char m;
 	can_hold_cluster = 0;
 
-    if(held_cluster_id == 255) //Nothing is held
+	if (held_cluster_id == 255) //Nothing is held
 	{
 		// Copy the current cluster to the held one.
 		held_cluster_id = cur_cluster.id;
@@ -4062,14 +4152,12 @@ void hold_cluster()
 
 		// Deploy from staging as current cluster
 		cur_cluster.id = staging_cluster_id; //id
-		cur_rot = staging_cluster_rot; 
+		cur_rot = staging_cluster_rot;
 		cur_block.x = 3; // Reset the block.
 		cur_block.y = cluster_offsets[staging_cluster_id];
 		memcpy(cur_cluster.def, cluster_defs_classic[staging_cluster_id], 4 * 4); //cluster_defs_classic[id]
-		memcpy(cur_cluster.layout, cur_cluster.def[cur_rot], 4); 
-		cur_cluster.sprite = cluster_sprites[staging_cluster_id] ; //cluster_sprites[id] 
-
-
+		memcpy(cur_cluster.layout, cur_cluster.def[cur_rot], 4);
+		cur_cluster.sprite = cluster_sprites[staging_cluster_id]; //cluster_sprites[id]
 	}
 
 	//Draw Held Cluster
@@ -4080,11 +4168,11 @@ void hold_cluster()
 	// clear out the middle 2 rows of the "next piece" (all pieces spawn with only those 2 rows containing visuals).
 	delay(1);
 	clear_vram_buffer();
-	
+
 	//multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 24));
 	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 32));
 	multi_vram_buffer_horz(empty_row_hold, 4, get_ppu_addr(cur_nt, 220, 40));
-	
+
 	delay(1);
 	clear_vram_buffer();
 
@@ -4094,17 +4182,15 @@ void hold_cluster()
 	for (l = 0; l < 4; ++l)
 	{
 		// store the index into the x,y offset for each solid piece in the first rotation.
-		m =	held_cluster_def[held_cluster_rot][l];
-		
+		m = held_cluster_def[held_cluster_rot][l];
+
 		// convert that to x,y offsets.
 		local_ix = morton_compact_one_by_one(m >> 0); //index_to_x_lookup[j];
 		local_iy = morton_compact_one_by_one(m >> 1); //index_to_y_lookup[j];
 
-		one_vram_buffer(local_t, get_ppu_addr(cur_nt, 
+		one_vram_buffer(local_t, get_ppu_addr(cur_nt,
 											  220 + (local_ix << 3),
-											  32 - (( held_cluster_id == 3 || (held_cluster_id != 2 && held_cluster_rot == 2) ) ? 8 : 0) + (local_iy << 3))
-							); //8 + (local_iy << 3)
+											  32 - ((held_cluster_id == 3 || (held_cluster_id != 2 && held_cluster_rot == 2)) ? 8 : 0) + (local_iy << 3))); //8 + (local_iy << 3)
 	}
-	
 }
 #endif
