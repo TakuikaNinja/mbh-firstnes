@@ -2425,7 +2425,10 @@ unsigned char find_ghost_delta_y()
 			(cur_block.y + (local_iy + y) + delta_y) > BOARD_END_Y_PX_BOARD
 			//|| (cur_block.x + (local_ix) + x) > BOARD_END_X_PX_BOARD
 			|| game_board[TILE_TO_BOARD_INDEX((cur_block.x + (local_ix) + x), (cur_block.y + (local_iy) + y + delta_y))] 
-			|| game_board[TILE_TO_BOARD_INDEX((cur_block.x + x), (cur_block.y + y + delta_y))])
+			|| game_board[TILE_TO_BOARD_INDEX((cur_block.x + x), (cur_block.y + y + delta_y))]
+			|| ((cur_rot & 1 == 0) && (cur_cluster.id != 2) && (cur_cluster.id != 2) && game_board[TILE_TO_BOARD_INDEX((cur_block.x + x + 1), (cur_block.y + y + delta_y))] )
+
+			)
 		{
 			break;
 		}
