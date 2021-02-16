@@ -2346,24 +2346,24 @@ unsigned char find_ghost_delta_y()
 	static unsigned char j;
 
 	//Need to speed up starting point of search using rectangle edge detection as a fast approximation
-	if (cur_cluster.id == 2) //Is I
+	if (cur_cluster.id == 2) //Is I Piece
 	{
 		if (cur_rot & 1) //Is Vertical
 		{
-			local_ix = 1;
-			local_iy = 4;
+			local_ix = 1; //Length
+			local_iy = 4; //Length
 			if (cur_rot == 1)
 			{
-				x = 2;
-				y = 0;
+				x = 2; //Offset
+				y = 0; //Offset
 			}
 			else
 			{
-				x = 1;
-				y = 0;
+				x = 1; //Offset
+				y = 0; //Offset
 			}
 		}
-		else // Is Flat
+		else // Is Horizonal
 		{
 			local_ix = 4;
 			local_iy = 1;
@@ -2379,7 +2379,7 @@ unsigned char find_ghost_delta_y()
 			}
 		}
 	}
-	else if (cur_cluster.id == 3) //Is Square
+	else if (cur_cluster.id == 3) //Is Square Piece
 	{
 		local_ix = 2;
 		local_iy = 2;
@@ -2403,7 +2403,7 @@ unsigned char find_ghost_delta_y()
 				y = 0;
 			}
 		}
-		else //Is flat
+		else //Is Horizontal
 		{
 			local_ix = 3;
 			local_iy = 2;
@@ -2448,7 +2448,9 @@ unsigned char find_ghost_delta_y()
 			x = cur_block.x + local_ix;
 			y = cur_block.y + local_iy + delta_y;
 
-			if (y > BOARD_END_Y_PX_BOARD || x > BOARD_END_X_PX_BOARD || game_board[TILE_TO_BOARD_INDEX(x, y)])
+			if (y > BOARD_END_Y_PX_BOARD 
+				//|| x > BOARD_END_X_PX_BOARD 
+				|| game_board[TILE_TO_BOARD_INDEX(x, y)])
 			{
 				// consider this blocked.
 				return delta_y - 1;
