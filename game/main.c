@@ -2419,14 +2419,16 @@ unsigned char find_ghost_delta_y()
 			}
 		}
 	}
-	for (delta_y = 0; delta_y < BOARD_END_Y_PX_BOARD - (cur_block.y + y); delta_y++)
+	for (delta_y = 0; delta_y < BOARD_END_Y_PX_BOARD - (cur_block.y + local_iy + y); delta_y++)
 	{
 		if (
-			(cur_block.y + (local_iy + y) + delta_y) > BOARD_END_Y_PX_BOARD
-			//|| (cur_block.x + (local_ix) + x) > BOARD_END_X_PX_BOARD
-			|| game_board[TILE_TO_BOARD_INDEX((cur_block.x + (local_ix) + x), (cur_block.y + (local_iy) + y + delta_y))] 
-			|| game_board[TILE_TO_BOARD_INDEX((cur_block.x + x), (cur_block.y + y + delta_y))]
-			|| ((cur_rot & 1 == 0) && (cur_cluster.id != 2) && (cur_cluster.id != 2) && game_board[TILE_TO_BOARD_INDEX((cur_block.x + x + 1), (cur_block.y + y + delta_y))] )
+			(cur_block.y + local_iy + y + delta_y) > BOARD_END_Y_PX_BOARD
+			|| (cur_block.x + local_ix + x) > BOARD_END_X_PX_BOARD
+			|| (cur_block.x + x) > BOARD_END_X_PX_BOARD
+			|| game_board[TILE_TO_BOARD_INDEX((cur_block.x + local_ix + x), (cur_block.y + local_iy + y + delta_y))] 
+			|| game_board[TILE_TO_BOARD_INDEX((cur_block.x + x), (cur_block.y + local_iy + y + delta_y))]
+			|| ((cur_rot & 1 == 0) && (cur_cluster.id != 2) && (cur_cluster.id != 3) && game_board[TILE_TO_BOARD_INDEX((cur_block.x + x + 1), (cur_block.y + y + local_iy + delta_y))] )
+			|| ((cur_rot & 1 == 0) && (cur_cluster.id == 2) && (game_board[TILE_TO_BOARD_INDEX((cur_block.x + x + 1), (cur_block.y + y + delta_y))] || game_board[TILE_TO_BOARD_INDEX((cur_block.x + x + 2), (cur_block.y + y + delta_y))]) )
 
 			)
 		{
@@ -2434,7 +2436,7 @@ unsigned char find_ghost_delta_y()
 		}
 	}
 
-	delta_y -= (delta_y < 4 ? 0 : 4); //It may require four steps to refine collision detection
+	delta_y -= (delta_y < 2 ? 0 : 2); //It may require four steps to refine collision detection
 
 	//Refine collision detection iterating afterwards based on cluster
 	for (/*delta_y = 0*/; delta_y < BOARD_END_Y_PX_BOARD /*+1-(cur_block.y)*/; delta_y++)
@@ -2452,7 +2454,7 @@ unsigned char find_ghost_delta_y()
 			y = cur_block.y + local_iy + delta_y;
 
 			if (y > BOARD_END_Y_PX_BOARD 
-				//|| x > BOARD_END_X_PX_BOARD 
+				|| x > BOARD_END_X_PX_BOARD 
 				|| game_board[TILE_TO_BOARD_INDEX(x, y)])
 			{
 				// consider this blocked.
