@@ -417,6 +417,11 @@ const unsigned char **cluster_defs_classic[NUM_CLUSTERS] =
         def_L_rev,
 };
 
+#define I_CLUSTER 2
+#define SQUARE_CLUSTER 3
+#define T_CLUSTER 4
+#define NULL_CLUSTER 255
+
 #if !VS_SYS_ENABLED
 
 unsigned char bag[NUM_CLUSTERS] = {0,1,2,3,4,5,6};
@@ -941,8 +946,8 @@ void difficulty_to_leaderboard_pos(unsigned char dif);
 
 // DEBUG
 #if DEBUG_ENABLED
-void debug_fill_nametables(void);
-void debug_draw_board_area(void);
-void debug_copy_board_data_to_nt(void);
+//void debug_fill_nametables(void);
+//void debug_draw_board_area(void);
+//void debug_copy_board_data_to_nt(void);
 void debug_display_number(unsigned char num, unsigned char index);
 #endif

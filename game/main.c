@@ -1631,8 +1631,9 @@ void draw_gameplay_sprites(void)
 
 	ghost_y = find_ghost_delta_y();
 	ghost_y = (cur_block.y + ghost_y << 3) + BOARD_START_Y_PX;
-
+	
 #endif
+
 	// 255 means hide.
 	if (cur_block.y != 255)
 	{
@@ -1651,7 +1652,7 @@ void draw_gameplay_sprites(void)
 			if (local_start_y + (local_iy << 3) > OOB_TOP)
 			{
 #if GHOST_PIECE_ENABLED
-				if (ghost_y != local_start_y)
+				//if (ghost_y != local_start_y)
 				{
 					//one_vram_buffer(GHOST_BLOCK_SPRITE, get_ppu_addr(cur_nt, local_start_x + (local_ix << 3),ghost_y + (local_iy << 3)));
 					oam_spr(local_start_x + (local_ix << 3), ghost_y + (local_iy << 3), GHOST_BLOCK_SPRITE, 0);
@@ -1820,7 +1821,9 @@ void draw_gameplay_sprites(void)
 	oam_spr(27 << 3, 10 << 3, local_ix, 0);
 
 #endif
-	//debug_draw_board_area();
+	#if DEBUG_ENABLED
+	//	debug_draw_board_area();
+	#endif
 }
 
 void movement(void)
@@ -2131,7 +2134,7 @@ unsigned char check_tspin()
 	static unsigned char j;
 	static unsigned char result;
 	result = 0;
-	if (cur_cluster.id == 4 & is_last_rotate == 1) //Is T cluster
+	if (cur_cluster.id == T_CLUSTER & is_last_rotate == 1) //Is T cluster
 	{
 
 		j = cur_cluster.layout[2];
@@ -2346,9 +2349,9 @@ unsigned char find_ghost_delta_y()
 	static unsigned char j;
 
 	//Need to speed up starting point of search using rectangle edge detection as a fast approximation
-	if (cur_cluster.id == 2) //Is I Piece
+	if (cur_cluster.id == I_CLUSTER) 
 	{
-		if (cur_rot & 1) //Is Vertical
+		if ((cur_rot & 1) == 1) //Is Vertical
 		{
 			local_ix = 1; //Length
 			local_iy = 4; //Length
@@ -2357,9 +2360,9 @@ unsigned char find_ghost_delta_y()
 				x = 2; //Offset
 				y = 0; //Offset
 			}
-			else
+			else //cur_rot == 3
 			{
-				x = 1; //Offset
+				x = 1; //Offset 
 				y = 0; //Offset
 			}
 		}
@@ -2372,14 +2375,14 @@ unsigned char find_ghost_delta_y()
 				x = 0;
 				y = 1;
 			}
-			else
+			else //cur_rot == 2
 			{
 				x = 0;
 				y = 2;
 			}
 		}
 	}
-	else if (cur_cluster.id == 3) //Is Square Piece
+	else if (cur_cluster.id == SQUARE_CLUSTER) //Is Square Piece
 	{
 		local_ix = 2;
 		local_iy = 2;
@@ -2388,7 +2391,7 @@ unsigned char find_ghost_delta_y()
 	}
 	else
 	{
-		if (cur_rot & 1) //Is Vertical
+		if ((cur_rot & 1) == 1) //Is Vertical
 		{
 			local_ix = 2;
 			local_iy = 3;
@@ -2397,7 +2400,7 @@ unsigned char find_ghost_delta_y()
 				x = 1;
 				y = 0;
 			}
-			else
+			else //cur_rot == 3
 			{
 				x = 0;
 				y = 0;
@@ -2412,34 +2415,43 @@ unsigned char find_ghost_delta_y()
 				x = 0;
 				y = 0;
 			}
-			else
+			else //cur_rot == 2
 			{
-				x = 1;
-				y = 0;
+				x = 0;
+				y = 1;
 			}
 		}
 	}
-	for (delta_y = 0; delta_y < BOARD_END_Y_PX_BOARD - (cur_block.y + local_iy + y); delta_y++)
+	local_ix -= 1; //to convert to position needs to be zero based
+	local_iy -= 1; 
+
+#if DEBUG_ENABLED
+	debug_display_number(cur_block.x + local_ix + x, 1);
+#endif
+
+	for (delta_y = 0; delta_y < (BOARD_END_Y_PX_BOARD - ((cur_block.y + local_iy + y) - 1)); ++delta_y)
 	{
 		if (
-			(cur_block.y + local_iy + y + delta_y) > BOARD_END_Y_PX_BOARD
-			|| (cur_block.x + local_ix + x) > BOARD_END_X_PX_BOARD
-			|| (cur_block.x + x) > BOARD_END_X_PX_BOARD
-			|| game_board[TILE_TO_BOARD_INDEX((cur_block.x + local_ix + x), (cur_block.y + local_iy + y + delta_y))] 
-			|| game_board[TILE_TO_BOARD_INDEX((cur_block.x + x), (cur_block.y + local_iy + y + delta_y))]
-			|| ((cur_rot & 1 == 0) && (cur_cluster.id != 2) && (cur_cluster.id != 3) && game_board[TILE_TO_BOARD_INDEX((cur_block.x + x + 1), (cur_block.y + y + local_iy + delta_y))] )
-			|| ((cur_rot & 1 == 0) && (cur_cluster.id == 2) && (game_board[TILE_TO_BOARD_INDEX((cur_block.x + x + 1), (cur_block.y + y + delta_y))] || game_board[TILE_TO_BOARD_INDEX((cur_block.x + x + 2), (cur_block.y + y + delta_y))]) )
+			((cur_block.y + local_iy + y + delta_y ) > BOARD_END_Y_PX_BOARD)
+			|| ((cur_block.x + x ) > BOARD_END_X_PX_BOARD)
+			|| ((cur_block.x + local_ix + x ) > BOARD_END_X_PX_BOARD)
+			|| (game_board[TILE_TO_BOARD_INDEX((cur_block.x + x), (cur_block.y + local_iy + y + delta_y))])
+			|| (game_board[TILE_TO_BOARD_INDEX((cur_block.x + local_ix + x), (cur_block.y + local_iy + y + delta_y))])
+			|| (((cur_rot & 1) == 0) && (cur_cluster.id != I_CLUSTER) && (cur_cluster.id != SQUARE_CLUSTER) && 
+																		  game_board[TILE_TO_BOARD_INDEX((cur_block.x + x /*- 1*/ + 1), (cur_block.y + local_iy + y + delta_y))] ) //Middle Piece for non I and Square
+			|| (((cur_rot & 1) == 0) && (cur_cluster.id == I_CLUSTER) && (game_board[TILE_TO_BOARD_INDEX((cur_block.x + x /*- 1*/ + 1), (cur_block.y + local_iy + y + delta_y))] 
+																	   || game_board[TILE_TO_BOARD_INDEX((cur_block.x + x /*- 1*/ + 2), (cur_block.y + local_iy + y + delta_y))]) ) //Middle Pieces for I
 
 			)
 		{
 			break;
 		}
 	}
-
-	delta_y -= (delta_y < 2 ? 0 : 2); //It may require four steps to refine collision detection
+	
+	delta_y -= 1;//((delta_y < 1) ? 0 : 1); //It may require four steps to refine collision detection
 
 	//Refine collision detection iterating afterwards based on cluster
-	for (/*delta_y = 0*/; delta_y < BOARD_END_Y_PX_BOARD /*+1-(cur_block.y)*/; delta_y++)
+	for (; delta_y < BOARD_END_Y_PX_BOARD; ++delta_y) //delta_y = 0
 	{
 		for (i = 0; i < 4; ++i)
 		{
@@ -2462,8 +2474,8 @@ unsigned char find_ghost_delta_y()
 			}
 		}
 	}
-
-	return 0;
+	return 0; 
+	//return delta_y;
 }
 #endif
 
@@ -4042,6 +4054,7 @@ void difficulty_to_leaderboard_pos(unsigned char dif)
 
 // DEBUG
 #if DEBUG_ENABLED
+/*
 void debug_fill_nametables(void)
 {
 	vram_adr(NTADR_A(0, 0));
@@ -4061,7 +4074,8 @@ void debug_draw_board_area(void)
 	oam_spr(BOARD_START_X_PX, BOARD_END_Y_PX, 0x01, 0);
 	oam_spr(BOARD_END_X_PX, BOARD_END_Y_PX, 0x01, 0);
 }
-
+*/
+/*
 void debug_copy_board_data_to_nt(void)
 {
 	//multi_vram_buffer_vert(const char * data, unsigned char len, int ppu_address);
@@ -4096,7 +4110,7 @@ void debug_copy_board_data_to_nt(void)
 		}
 	}
 }
-
+*/
 void debug_display_number(unsigned char num, unsigned char index)
 {
 	// We let level be displayed as zero based because it makes more sense when
@@ -4125,6 +4139,7 @@ void debug_display_number(unsigned char num, unsigned char index)
 	delay(1);
 	clear_vram_buffer();
 }
+
 #endif //DEBUG_ENABLED
 
 #if HOLD_PIECE_ENABLED
@@ -4135,7 +4150,7 @@ void hold_cluster()
 	static unsigned char m;
 	can_hold_cluster = 0;
 
-	if (held_cluster_id == 255) //Nothing is held
+	if (held_cluster_id == NULL_CLUSTER) //Nothing is held
 	{
 		// Copy the current cluster to the held one.
 		held_cluster_id = cur_cluster.id;
@@ -4197,7 +4212,7 @@ void hold_cluster()
 
 		one_vram_buffer(local_t, get_ppu_addr(cur_nt,
 											  220 + (local_ix << 3),
-											  32 - ((held_cluster_id == 3 || (held_cluster_id != 2 && held_cluster_rot == 2)) ? 8 : 0) + (local_iy << 3))); //8 + (local_iy << 3)
+											  32 - ((held_cluster_id == SQUARE_CLUSTER || (held_cluster_id != 2 && held_cluster_rot == 2)) ? 8 : 0) + (local_iy << 3))); //8 + (local_iy << 3)
 	}
 }
 #endif
