@@ -1652,7 +1652,7 @@ void draw_gameplay_sprites(void)
 			if (local_start_y + (local_iy << 3) > OOB_TOP)
 			{
 #if GHOST_PIECE_ENABLED
-				//if (ghost_y != local_start_y)
+				if (ghost_y != local_start_y)
 				{
 					//one_vram_buffer(GHOST_BLOCK_SPRITE, get_ppu_addr(cur_nt, local_start_x + (local_ix << 3),ghost_y + (local_iy << 3)));
 					oam_spr(local_start_x + (local_ix << 3), ghost_y + (local_iy << 3), GHOST_BLOCK_SPRITE, 0);
@@ -2353,8 +2353,8 @@ unsigned char find_ghost_delta_y()
 	{
 		if ((cur_rot & 1) == 1) //Is Vertical
 		{
-			local_ix = 1; //Length
-			local_iy = 4; //Length
+			local_ix = 0; //Length
+			local_iy = 3; //Length
 			if (cur_rot == 1)
 			{
 				x = 2; //Offset
@@ -2368,8 +2368,8 @@ unsigned char find_ghost_delta_y()
 		}
 		else // Is Horizonal
 		{
-			local_ix = 4;
-			local_iy = 1;
+			local_ix = 3;
+			local_iy = 0;
 			if (cur_rot == 0)
 			{
 				x = 0;
@@ -2384,8 +2384,8 @@ unsigned char find_ghost_delta_y()
 	}
 	else if (cur_cluster.id == SQUARE_CLUSTER) //Is Square Piece
 	{
-		local_ix = 2;
-		local_iy = 2;
+		local_ix = 1;
+		local_iy = 1;
 		x = 1;
 		y = 1;
 	}
@@ -2393,26 +2393,26 @@ unsigned char find_ghost_delta_y()
 	{
 		if ((cur_rot & 1) == 1) //Is Vertical
 		{
-			local_ix = 2;
-			local_iy = 3;
+			local_ix = 1;
+			local_iy = 2;
 			if (cur_rot == 1)
 			{
-				x = 1;
+				x = 1; //Problem
 				y = 0;
 			}
 			else //cur_rot == 3
 			{
-				x = 0;
+				x = 0; 
 				y = 0;
 			}
 		}
 		else //Is Horizontal
 		{
-			local_ix = 3;
-			local_iy = 2;
+			local_ix = 2;
+			local_iy = 1;
 			if (cur_rot == 0)
 			{
-				x = 0;
+				x = 0; 
 				y = 0;
 			}
 			else //cur_rot == 2
@@ -2422,25 +2422,25 @@ unsigned char find_ghost_delta_y()
 			}
 		}
 	}
-	local_ix -= 1; //to convert to position needs to be zero based
-	local_iy -= 1; 
 
 #if DEBUG_ENABLED
 	debug_display_number(cur_block.x + local_ix + x, 1);
 #endif
 
+	i = (cur_block.x + local_ix + x);
+	j = (cur_block.y + local_iy + y);
 	for (delta_y = 0; delta_y < (BOARD_END_Y_PX_BOARD - ((cur_block.y + local_iy + y) - 1)); ++delta_y)
 	{
 		if (
 			((cur_block.y + local_iy + y + delta_y ) > BOARD_END_Y_PX_BOARD)
-			|| ((cur_block.x + x ) > BOARD_END_X_PX_BOARD)
-			|| ((cur_block.x + local_ix + x ) > BOARD_END_X_PX_BOARD)
-			|| (game_board[TILE_TO_BOARD_INDEX((cur_block.x + x), (cur_block.y + local_iy + y + delta_y))])
-			|| (game_board[TILE_TO_BOARD_INDEX((cur_block.x + local_ix + x), (cur_block.y + local_iy + y + delta_y))])
+			//|| ((i - local_ix ) > BOARD_END_X_PX_BOARD)
+			|| (i > BOARD_END_X_PX_BOARD)
+			|| (game_board[TILE_TO_BOARD_INDEX(i - local_ix, (j + delta_y))])
+			|| (game_board[TILE_TO_BOARD_INDEX(i, (j + delta_y))])
 			|| (((cur_rot & 1) == 0) && (cur_cluster.id != I_CLUSTER) && (cur_cluster.id != SQUARE_CLUSTER) && 
-																		  game_board[TILE_TO_BOARD_INDEX((cur_block.x + x /*- 1*/ + 1), (cur_block.y + local_iy + y + delta_y))] ) //Middle Piece for non I and Square
-			|| (((cur_rot & 1) == 0) && (cur_cluster.id == I_CLUSTER) && (game_board[TILE_TO_BOARD_INDEX((cur_block.x + x /*- 1*/ + 1), (cur_block.y + local_iy + y + delta_y))] 
-																	   || game_board[TILE_TO_BOARD_INDEX((cur_block.x + x /*- 1*/ + 2), (cur_block.y + local_iy + y + delta_y))]) ) //Middle Pieces for I
+																		  game_board[TILE_TO_BOARD_INDEX((i - local_ix + 1), (j + delta_y))] ) //Middle Piece for non I and Square
+			|| (((cur_rot & 1) == 0) && (cur_cluster.id == I_CLUSTER) && (game_board[TILE_TO_BOARD_INDEX((i - local_ix + 1), (j + delta_y))] 
+																	   || game_board[TILE_TO_BOARD_INDEX((i - local_ix + 2), (j + delta_y))]) ) //Middle Pieces for I
 
 			)
 		{
@@ -2448,9 +2448,10 @@ unsigned char find_ghost_delta_y()
 		}
 	}
 	
-	delta_y -= 1;//((delta_y < 1) ? 0 : 1); //It may require four steps to refine collision detection
+	delta_y -= 4; //It may require four steps to refine collision detection
 
 	//Refine collision detection iterating afterwards based on cluster
+	
 	for (; delta_y < BOARD_END_Y_PX_BOARD; ++delta_y) //delta_y = 0
 	{
 		for (i = 0; i < 4; ++i)
@@ -2475,6 +2476,7 @@ unsigned char find_ghost_delta_y()
 		}
 	}
 	return 0; 
+	
 	//return delta_y;
 }
 #endif

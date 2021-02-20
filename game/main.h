@@ -2,7 +2,7 @@
 
 #define DEBUG_ENABLED 0
 #define HOLD_PIECE_ENABLED 1
-#define GHOST_PIECE_ENABLED 0
+#define GHOST_PIECE_ENABLED 1
 
 #if DEBUG_ENABLED
 #define PROFILE_POKE(val) POKE((0x2001), (val));
