@@ -5,6 +5,7 @@ A brand new game for the Nintendo Entertainment System!
 Details on the game, along with downloads (for the original game) of compiled ROM can be found here: https://mhughson.itch.io/from-below
 
 For the NES version containing the changes below, see [main.nes](game/main.nes)
+
 with Ghost Piece (note there may be some slow down), see [main-ghost.nes](game/main-ghost.nes)
 
 Differences from the original:

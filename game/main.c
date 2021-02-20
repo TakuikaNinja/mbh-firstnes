@@ -2448,8 +2448,7 @@ unsigned char find_ghost_delta_y()
 		}
 	}
 	
-	delta_y -= 4; //It may require four steps to refine collision detection
-
+	//delta_y -= 4; //It may require four steps to refine collision detection
 	//Refine collision detection iterating afterwards based on cluster
 	
 	for (; delta_y < BOARD_END_Y_PX_BOARD; ++delta_y) //delta_y = 0
