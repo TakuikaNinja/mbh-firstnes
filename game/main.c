@@ -3493,7 +3493,9 @@ void clear_rows_in_data(unsigned char start_y, unsigned char is_attack)
 		{
 			if (i == 4 || (i == 3 & is_tspin != 0))
 			{
-				screen_shake_remaining = 5;
+				#if !GHOST_PIECE_ENABLED
+				screen_shake_remaining = 5; //Don't shake with Ghost Piece otherwise adds deceptive glitches
+				#endif
 				SFX_PLAY_WRAPPER(SOUND_LEVELUP_MULTI);
 			}
 			else
@@ -3505,7 +3507,9 @@ void clear_rows_in_data(unsigned char start_y, unsigned char is_attack)
 		{
 			// play a shake on big drops. This will happen after the rows are cleared
 			// and the pieces fall.
+			#if !GHOST_PIECE_ENABLED
 			screen_shake_remaining = 5;
+			#endif
 			SFX_PLAY_WRAPPER(SOUND_MULTIROW);
 		}
 		else
