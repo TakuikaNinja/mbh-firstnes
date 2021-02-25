@@ -2,11 +2,12 @@
 
 A brand new game for the Nintendo Entertainment System!
 
-Details on the game, along with downloads (for the original game) of compiled ROM can be found here: https://mhughson.itch.io/from-below
+Details on the game, along with downloads (for the original game, not includes changes below) of compiled ROM can be found here: https://mhughson.itch.io/from-below
 
 For the NES version containing the changes below, see [main.nes](game/main.nes)
 
-with Ghost Piece (note there may be some slow down), see [main-ghost.nes](game/main-ghost.nes)
+For the NES version containing the changes below including having the Ghost Piece.
+(NOTE: there may be some slow down and flickering due to exceeding the NES sprite limitation), see [main-ghost.nes](game/main-ghost.nes)
 
 Differences from the original:
 1. The use of SRS rotation system (https://tetris.fandom.com/wiki/SRS) instead of Nintendo Rotation System - Right Handed version (https://harddrop.com/wiki/Nintendo_Rotation_System) used in Tetris (NES) with the added Wall Kick. So you are now able to do T-Spins with Twists.
