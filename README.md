@@ -2,7 +2,7 @@
 
 A brand new game for the Nintendo Entertainment System!
 
-Details on the game, along with downloads (for the original game, not includes changes below) of compiled ROM can be found here: https://mhughson.itch.io/from-below
+Details on the game, along with downloads (for the original game, not including changes below) of compiled ROM can be found here: https://mhughson.itch.io/from-below
 
 For the NES version containing the changes below, see [main.nes](game/main.nes)
 
