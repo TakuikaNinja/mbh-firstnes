@@ -1175,7 +1175,7 @@ void main(void)
 
 			//PROFILE_POKE(PROF_B);
 
-			draw_gameplay_sprites();
+			draw_gameplay_sprites(1);
 
 			//PROFILE_POKE(PROF_W);
 
@@ -1608,7 +1608,7 @@ void draw_menu_sprites(void)
 #endif //VS_SYS_ENABLED
 }
 
-void draw_gameplay_sprites(void)
+void draw_gameplay_sprites(unsigned char draw_cluster)
 {
 	static char shake_offset;
 	static unsigned char speed;
@@ -1624,45 +1624,49 @@ void draw_gameplay_sprites(void)
 	// push a single sprite
 	// oam_spr(unsigned char x,unsigned char y,unsigned char chrnum,unsigned char attr);
 	// use tile #0, palette #0
-
-	local_start_x = (cur_block.x << 3) + BOARD_START_X_PX;
-	local_start_y = (cur_block.y << 3) + BOARD_START_Y_PX;
+	if (draw_cluster)
+	{
+		local_start_x = (cur_block.x << 3) + BOARD_START_X_PX;
+		local_start_y = (cur_block.y << 3) + BOARD_START_Y_PX;
 #if GHOST_PIECE_ENABLED
 
-	ghost_y = find_ghost_delta_y();
-	ghost_y = ((cur_block.y + ghost_y) << 3) + BOARD_START_Y_PX;
-	//local_t = tick_count & 31;
+		ghost_y = find_ghost_delta_y();
+		ghost_y = ((cur_block.y + ghost_y) << 3) + BOARD_START_Y_PX;
+
+		//local_t = tick_count & 31;
 #endif
 
-	// 255 means hide.
-	if (cur_block.y != 255)
-	{
-		for (i = 0; i < 4; ++i)
+		// 255 means hide.
+		if (cur_block.y != 255)
 		{
-			// store the index into the x,y offset for each solid piece in the first rotation.
-			j = cur_cluster.layout[i];
-
-			// conver that to x,y offsets.
-			local_ix = morton_compact_one_by_one(j >> 0); //index_to_x_lookup[j];
-			local_iy = morton_compact_one_by_one(j >> 1); //index_to_y_lookup[j];
-
-			// Don't draw the current cluster if it is above the top of the board.
-			// We want it to be able to function and move up there, but should not
-			// be visible.
-			if (local_start_y + (local_iy << 3) > OOB_TOP)
+			for (i = 0; i < 4; ++i)
 			{
+				// store the index into the x,y offset for each solid piece in the first rotation.
+				j = cur_cluster.layout[i];
+
+				// conver that to x,y offsets.
+				local_ix = morton_compact_one_by_one(j >> 0); //index_to_x_lookup[j];
+				local_iy = morton_compact_one_by_one(j >> 1); //index_to_y_lookup[j];
+
+				// Don't draw the current cluster if it is above the top of the board.
+				// We want it to be able to function and move up there, but should not
+				// be visible.
+				if (local_start_y + (local_iy << 3) > OOB_TOP)
+				{
+					oam_spr(local_start_x + (local_ix << 3), local_start_y + (local_iy << 3), cur_cluster.sprite, 0);
+				}
 #if GHOST_PIECE_ENABLED
-				if ((ghost_y != local_start_y) && !hit) // && local_t > 2)
+
+				if ((ghost_y != local_start_y)) // && local_t > 2)
 				{
 					//one_vram_buffer(GHOST_BLOCK_SPRITE, get_ppu_addr(cur_nt, local_start_x + (local_ix << 3),ghost_y + (local_iy << 3)));
 					oam_spr(local_start_x + (local_ix << 3), ghost_y + (local_iy << 3), GHOST_BLOCK_SPRITE, 0);
 				}
+
 #endif
-				oam_spr(local_start_x + (local_ix << 3), local_start_y + (local_iy << 3), cur_cluster.sprite, 0);
 			}
 		}
 	}
-
 	//PROFILE_POKE(0x1f); // white
 
 	if (attack_style != ATTACK_NEVER)
@@ -1821,9 +1825,9 @@ void draw_gameplay_sprites(void)
 	oam_spr(27 << 3, 10 << 3, local_ix, 0);
 
 #endif
-	#if DEBUG_ENABLED
-	//	debug_draw_board_area();
-	#endif
+#if DEBUG_ENABLED
+//	debug_draw_board_area();
+#endif
 }
 
 void movement(void)
@@ -1996,7 +2000,9 @@ void movement(void)
 			{
 				hard_drop_performed = 1;
 				hard_drop_tap_required = 1;
-				oam_clear(); //Clear sprites - ensure ghost sprite is clear
+#if GHOST_PIECE_ENABLED
+				draw_gameplay_sprites(0); //redraw not including clusters
+#endif
 				// TODO: Causes hitch.
 				while (!is_cluster_colliding())
 				{
@@ -2349,7 +2355,7 @@ unsigned char find_ghost_delta_y()
 	static unsigned char j;
 
 	//Need to speed up starting point of search using rectangle edge detection as a fast approximation
-	if (cur_cluster.id == I_CLUSTER) 
+	if (cur_cluster.id == I_CLUSTER)
 	{
 		if ((cur_rot & 1) == 1) //Is Vertical
 		{
@@ -2362,7 +2368,7 @@ unsigned char find_ghost_delta_y()
 			}
 			else //cur_rot == 3
 			{
-				x = 1; //Offset 
+				x = 1; //Offset
 				y = 0; //Offset
 			}
 		}
@@ -2402,7 +2408,7 @@ unsigned char find_ghost_delta_y()
 			}
 			else //cur_rot == 3
 			{
-				x = 0; 
+				x = 0;
 				y = 0;
 			}
 		}
@@ -2412,7 +2418,7 @@ unsigned char find_ghost_delta_y()
 			local_iy = 1;
 			if (cur_rot == 0)
 			{
-				x = 0; 
+				x = 0;
 				y = 0;
 			}
 			else //cur_rot == 2
@@ -2432,25 +2438,20 @@ unsigned char find_ghost_delta_y()
 	for (delta_y = 0; delta_y < (BOARD_END_Y_PX_BOARD - ((cur_block.y + local_iy + y) - 1)); ++delta_y)
 	{
 		if (
-			((cur_block.y + local_iy + y + delta_y ) > BOARD_END_Y_PX_BOARD)
+			((cur_block.y + local_iy + y + delta_y) > BOARD_END_Y_PX_BOARD)
 			//|| ((i - local_ix ) > BOARD_END_X_PX_BOARD)
-			|| (i > BOARD_END_X_PX_BOARD)
-			|| (game_board[TILE_TO_BOARD_INDEX(i - local_ix, (j + delta_y))])
-			|| (game_board[TILE_TO_BOARD_INDEX(i, (j + delta_y))])
-			|| (((cur_rot & 1) == 0) && (cur_cluster.id != I_CLUSTER) && (cur_cluster.id != SQUARE_CLUSTER) && 
-																		  game_board[TILE_TO_BOARD_INDEX((i - local_ix + 1), (j + delta_y))] ) //Middle Piece for non I and Square
-			|| (((cur_rot & 1) == 0) && (cur_cluster.id == I_CLUSTER) && (game_board[TILE_TO_BOARD_INDEX((i - local_ix + 1), (j + delta_y))] 
-																	   || game_board[TILE_TO_BOARD_INDEX((i - local_ix + 2), (j + delta_y))]) ) //Middle Pieces for I
+			|| (i > BOARD_END_X_PX_BOARD) || (game_board[TILE_TO_BOARD_INDEX(i - local_ix, (j + delta_y))]) || (game_board[TILE_TO_BOARD_INDEX(i, (j + delta_y))]) || (((cur_rot & 1) == 0) && (cur_cluster.id != I_CLUSTER) && (cur_cluster.id != SQUARE_CLUSTER) && game_board[TILE_TO_BOARD_INDEX((i - local_ix + 1), (j + delta_y))]) //Middle Piece for non I and Square
+			|| (((cur_rot & 1) == 0) && (cur_cluster.id == I_CLUSTER) && (game_board[TILE_TO_BOARD_INDEX((i - local_ix + 1), (j + delta_y))] || game_board[TILE_TO_BOARD_INDEX((i - local_ix + 2), (j + delta_y))]))																													  //Middle Pieces for I
 
-			)
+		)
 		{
 			break;
 		}
 	}
-	
+
 	//delta_y -= 4; //It may require four steps to refine collision detection
 	//Refine collision detection iterating afterwards based on cluster
-	
+
 	for (; delta_y < BOARD_END_Y_PX_BOARD; ++delta_y) //delta_y = 0
 	{
 		for (i = 0; i < 4; ++i)
@@ -2465,17 +2466,15 @@ unsigned char find_ghost_delta_y()
 			x = cur_block.x + local_ix;
 			y = cur_block.y + local_iy + delta_y;
 
-			if (y > BOARD_END_Y_PX_BOARD 
-				|| x > BOARD_END_X_PX_BOARD 
-				|| game_board[TILE_TO_BOARD_INDEX(x, y)])
+			if (y > BOARD_END_Y_PX_BOARD || x > BOARD_END_X_PX_BOARD || game_board[TILE_TO_BOARD_INDEX(x, y)])
 			{
 				// consider this blocked.
 				return delta_y - 1;
 			}
 		}
 	}
-	return 0; 
-	
+	return 0;
+
 	//return delta_y-1;
 }
 #endif
@@ -2613,7 +2612,7 @@ void rotate_cur_cluster(char dir)
 
 	if (is_cluster_colliding())
 	{
-		if (cur_cluster.id != I_CLUSTER) 
+		if (cur_cluster.id != I_CLUSTER)
 		{
 			if (((old_rot == 0) & (cur_rot == 1)) || ((old_rot == 2) & (cur_rot == 1)))
 			{
@@ -3072,7 +3071,7 @@ void go_to_state(unsigned char new_state)
 		clear_vram_buffer();
 
 		// Without this, the "next" block won't appear for the first half of the sequence.
-		draw_gameplay_sprites();
+		draw_gameplay_sprites(1);
 
 		music_stop();
 		SFX_MUSIC_PLAY_WRAPPER(SOUND_GAMEOVER);
@@ -3493,9 +3492,9 @@ void clear_rows_in_data(unsigned char start_y, unsigned char is_attack)
 		{
 			if (i == 4 || (i == 3 & is_tspin != 0))
 			{
-				#if !GHOST_PIECE_ENABLED
+#if !GHOST_PIECE_ENABLED
 				screen_shake_remaining = 5; //Don't shake with Ghost Piece otherwise adds deceptive glitches
-				#endif
+#endif
 				SFX_PLAY_WRAPPER(SOUND_LEVELUP_MULTI);
 			}
 			else
@@ -3505,11 +3504,11 @@ void clear_rows_in_data(unsigned char start_y, unsigned char is_attack)
 		}
 		else if (i == 4 || (i == 3 & is_tspin != 0))
 		{
-			// play a shake on big drops. This will happen after the rows are cleared
-			// and the pieces fall.
-			#if !GHOST_PIECE_ENABLED
+// play a shake on big drops. This will happen after the rows are cleared
+// and the pieces fall.
+#if !GHOST_PIECE_ENABLED
 			screen_shake_remaining = 5;
-			#endif
+#endif
 			SFX_PLAY_WRAPPER(SOUND_MULTIROW);
 		}
 		else
@@ -3568,7 +3567,7 @@ void clear_rows_in_data(unsigned char start_y, unsigned char is_attack)
 		// potential hit reaction.
 		if (hit_reaction_remaining > 0)
 		{
-			draw_gameplay_sprites();
+			draw_gameplay_sprites(1);
 		}
 
 		reveal_empty_rows_to_nt();
@@ -3694,7 +3693,7 @@ void try_collapse_empty_row_data(void)
 				//hit_reaction_remaining = 60;
 				--attack_row_status[ix];
 				delay(1);
-				draw_gameplay_sprites();
+				draw_gameplay_sprites(1);
 				clear_vram_buffer();
 			}
 		}
@@ -3730,7 +3729,7 @@ void copy_board_to_nt()
 	// This also gets called when going back to the main menu.
 	if (state == STATE_GAME)
 	{
-		draw_gameplay_sprites();
+		draw_gameplay_sprites(1);
 	}
 	//delay(1);
 	//clear_vram_buffer();
@@ -3762,7 +3761,7 @@ void copy_board_to_nt()
 		{
 			// calling this again here isn't needed, as time will not have advanced, so
 			// drawing the sprites again will do nothing.
-			//draw_gameplay_sprites();
+			//draw_gameplay_sprites(1);
 			//PROFILE_POKE(PROF_CLEAR);
 			delay(1);
 			clear_vram_buffer();
@@ -3808,7 +3807,7 @@ void add_block_at_bottom()
 				// 	//hit_reaction_remaining = 60;
 				// 	--attack_row_status[ix];
 				// 	delay(2);
-				// 	draw_gameplay_sprites();
+				// 	draw_gameplay_sprites(1);
 				// 	clear_vram_buffer();
 				// }
 

@@ -862,7 +862,7 @@ const unsigned char metasprite_tentacle_title[]={
 
 // PROTOTYPES
 void draw_menu_sprites(void);
-void draw_gameplay_sprites(void);
+void draw_gameplay_sprites(unsigned char draw_cluster);
 void movement(void);
 
 // Set a block in x, y (board space)
