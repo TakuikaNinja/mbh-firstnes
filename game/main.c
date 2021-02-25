@@ -1630,8 +1630,8 @@ void draw_gameplay_sprites(void)
 #if GHOST_PIECE_ENABLED
 
 	ghost_y = find_ghost_delta_y();
-	ghost_y = (cur_block.y + ghost_y << 3) + BOARD_START_Y_PX;
-	
+	ghost_y = ((cur_block.y + ghost_y) << 3) + BOARD_START_Y_PX;
+	//local_t = tick_count & 31;
 #endif
 
 	// 255 means hide.
@@ -1652,7 +1652,7 @@ void draw_gameplay_sprites(void)
 			if (local_start_y + (local_iy << 3) > OOB_TOP)
 			{
 #if GHOST_PIECE_ENABLED
-				if (ghost_y != local_start_y)
+				if ((ghost_y != local_start_y) && !hit) // && local_t > 2)
 				{
 					//one_vram_buffer(GHOST_BLOCK_SPRITE, get_ppu_addr(cur_nt, local_start_x + (local_ix << 3),ghost_y + (local_iy << 3)));
 					oam_spr(local_start_x + (local_ix << 3), ghost_y + (local_iy << 3), GHOST_BLOCK_SPRITE, 0);
@@ -1996,7 +1996,7 @@ void movement(void)
 			{
 				hard_drop_performed = 1;
 				hard_drop_tap_required = 1;
-
+				oam_clear(); //Clear sprites - ensure ghost sprite is clear
 				// TODO: Causes hitch.
 				while (!is_cluster_colliding())
 				{
@@ -2476,7 +2476,7 @@ unsigned char find_ghost_delta_y()
 	}
 	return 0; 
 	
-	//return delta_y;
+	//return delta_y-1;
 }
 #endif
 
@@ -2613,7 +2613,7 @@ void rotate_cur_cluster(char dir)
 
 	if (is_cluster_colliding())
 	{
-		if (cur_cluster.id != 2) //Is not line cluster
+		if (cur_cluster.id != I_CLUSTER) 
 		{
 			if (((old_rot == 0) & (cur_rot == 1)) || ((old_rot == 2) & (cur_rot == 1)))
 			{
