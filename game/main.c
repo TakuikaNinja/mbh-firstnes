@@ -578,7 +578,7 @@ void main(void)
 		if (state != STATE_MENU)
 		{
 			if (pad_all & PAD_A && pad_all & PAD_B && pad_all & PAD_SELECT && pad_all & PAD_START)
-			{
+			{	
 				go_to_state(STATE_MENU);
 			}
 		}
@@ -1289,6 +1289,9 @@ void main(void)
 			if (pad_all_new & PAD_A)
 			{
 				//go_to_state(STATE_GAME);
+				// clear out any old score.
+				cur_score = 0;
+				display_score();
 				go_to_state(STATE_GAME);
 			}
 #endif
@@ -2008,9 +2011,9 @@ void movement(void)
 				{
 					++cur_block.y;
 					cur_score += 2;
-					old_is_last_rotate = is_last_rotate;
-					is_last_rotate = 0;
 				}
+				old_is_last_rotate = is_last_rotate;
+				is_last_rotate = 0;
 				display_score();
 				// No delay lock on hard drops.
 				delay_lock_skip = 1;
@@ -3298,24 +3301,26 @@ void display_lines_cleared()
 }
 
 void display_score()
-{
-	static unsigned long temp_score;
-	static unsigned char i;
-
-	temp_score = cur_score; //cur_score;
-
-	// clear out any old score.
-	multi_vram_buffer_horz("      ", 6, get_ppu_addr(cur_nt, 0, 6 << 3));
-
-	i = 0;
-	while (temp_score != 0)
+{	
+	// if the score was updated since reset
+	if (cur_score != 0)
 	{
-		unsigned char digit = temp_score % 10;
-		one_vram_buffer('0' + digit, get_ppu_addr(cur_nt, (6 << 3) - (i << 3), 6 << 3));
+		static unsigned long temp_score;
+		static unsigned char i;
 
-		temp_score = temp_score / 10;
-		++i;
+		temp_score = cur_score; //cur_score;
+
+		i = 0;
+		while (temp_score != 0)
+		{
+			unsigned char digit = temp_score % 10;
+			one_vram_buffer('0' + digit, get_ppu_addr(cur_nt, (6 << 3) - (i << 3), 6 << 3));
+
+			temp_score = temp_score / 10;
+			++i;
+		}
 	}
+	
 }
 
 void display_combo()
@@ -3903,7 +3908,7 @@ void reset_gameplay_area()
 	one_vram_buffer(0x8, get_ppu_addr(2, 4 << 3, 9 << 3));
 
 	display_lines_cleared();
-	display_score();
+	multi_vram_buffer_horz("  00000", 7, get_ppu_addr(cur_nt, 0, 6 << 3)); // clear old score
 	display_level();
 
 	oam_clear();
