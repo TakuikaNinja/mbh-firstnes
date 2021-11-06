@@ -3307,13 +3307,13 @@ void display_score()
 	{
 		static unsigned long temp_score;
 		static unsigned char i;
-
+		static unsigned char digit;
+		
 		temp_score = cur_score; //cur_score;
-
 		i = 0;
 		while (temp_score != 0)
 		{
-			unsigned char digit = temp_score % 10;
+			digit = temp_score % 10;
 			one_vram_buffer('0' + digit, get_ppu_addr(cur_nt, (6 << 3) - (i << 3), 6 << 3));
 
 			temp_score = temp_score / 10;
